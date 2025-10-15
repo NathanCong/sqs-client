@@ -1,5 +1,5 @@
 <template>
-  <div class="home">这是 Home 页面</div>
+  <div class="chat">这是 Chat 页面</div>
 </template>
 
 <script lang="ts" setup></script>

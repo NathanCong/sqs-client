@@ -1,0 +1,98 @@
+<template>
+  <div class="home-tools">
+    <section class="tools-header">
+      <span class="header-text">您可以尝试以下功能</span>
+    </section>
+    <section class="tools-mainer">
+      <div class="tools-item" v-for="tool in toolList" :key="tool.key">
+        <span class="tool-name">{{ tool.name }}</span>
+        <span class="tool-desc">{{ tool.desc }}</span>
+      </div>
+    </section>
+  </div>
+</template>
+
+<script lang="ts" setup>
+import { ref } from 'vue'
+
+const toolList = ref([
+  {
+    key: '1',
+    name: '专利智能检索',
+    desc: '通过对话问答搜索专利、文献、论文等'
+  },
+  {
+    key: '2',
+    name: '专利批量检索',
+    desc: '通过专利号等信息批量查找专利、文献'
+  },
+  {
+    key: '3',
+    name: '专利查新检索',
+    desc: '根据专利内容进行相似对比分析'
+  },
+  {
+    key: '',
+    name: '交底书撰写助手',
+    desc: '根据您的需求自动撰写技术交底书'
+  },
+  {
+    key: '',
+    name: '专利撰写助手',
+    desc: '根据提供的技术交底书自动撰写专利'
+  },
+  {
+    key: '',
+    name: '专利智能分析',
+    desc: '利用搜索到的专利文献进行中和分析'
+  }
+])
+</script>
+
+<style lang="less" scoped>
+.home-tools {
+  display: flex;
+  flex-direction: column;
+
+  .tools-header {
+    .header-text {
+      font-size: 14px;
+      font-weight: normal;
+      color: #808080;
+    }
+  }
+
+  .tools-mainer {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 10px;
+    margin-top: 10px;
+
+    .tools-item {
+      width: 378px;
+      height: 114px;
+      border-radius: 16px;
+      background-color: rgba(255, 255, 255, 0.3);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      box-sizing: border-box;
+      padding: 0 16px;
+
+      .tool-name {
+        font-size: 20px;
+        font-weight: bold;
+      }
+
+      .tool-desc {
+        font-size: 16px;
+        font-weight: normal;
+        color: #808080;
+        margin-top: 6px;
+      }
+    }
+  }
+}
+</style>

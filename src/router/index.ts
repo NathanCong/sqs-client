@@ -10,7 +10,19 @@ const routes = [
   {
     path: '/home',
     name: 'home',
-    component: () => import('@/views/HomeView.vue')
+    component: () => import('@/views/home/HomePage.vue'),
+    meta: {
+      layout: 'BlankLayout'
+    }
+  },
+  // 聊天页
+  {
+    path: '/chat',
+    name: 'chat',
+    component: () => import('@/views/chat/ChatPage.vue'),
+    meta: {
+      layout: 'MainLayout'
+    }
   }
 ]
 
