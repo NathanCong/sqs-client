@@ -81,6 +81,14 @@ const toolList = ref([
       box-sizing: border-box;
       padding: 0 16px;
 
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.5);
+      }
+
+      &:active {
+        background-color: rgba(255, 255, 255, 0.7);
+      }
+
       .tool-name {
         font-size: 20px;
         font-weight: bold;
