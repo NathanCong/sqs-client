@@ -60,31 +60,39 @@ function onExec(command: string) {
   justify-content: center;
   align-items: center;
 
-  .system-tips,
-  .search-wrapper,
-  .tools-wrapper {
-    width: 100%;
-    // background-color: #999;
+  .mainer-content {
     display: flex;
-    justify-content: center;
     align-items: center;
-  }
+    justify-content: center;
+    flex-direction: column;
 
-  .system-tips {
-    text-align: center;
-
-    .tips-item {
-      font-size: 30px;
-      font-weight: bold;
+    .system-tips,
+    .search-wrapper,
+    .tools-wrapper {
+      width: 100%;
+      // background-color: #999;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
-  }
 
-  .search-wrapper {
-    margin-top: 60px;
-  }
+    .system-tips {
+      text-align: center;
 
-  .tools-wrapper {
-    margin-top: 60px;
+      .tips-item {
+        font-size: 30px;
+        font-weight: bold;
+      }
+    }
+
+    .search-wrapper {
+      margin-top: 60px;
+      width: 660px;
+    }
+
+    .tools-wrapper {
+      margin-top: 60px;
+    }
   }
 }
 </style>

@@ -34,13 +34,14 @@ function onExec() {
 
 <style lang="less" scoped>
 .command-input {
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
 
   .input-wrapper {
-    width: 660px;
+    width: 100%;
 
     ::v-deep(.ant-input) {
       height: 48px;
