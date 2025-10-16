@@ -1,13 +1,7 @@
 <template>
   <div class="home home-background">
     <section class="home-header">
-      <div class="logo-wrapper">
-        <span class="logo-icon"></span>
-        <span class="logo-text">AI专利检索分析平台</span>
-      </div>
-      <div class="user-wrapper">
-        <UserLoginStatus />
-      </div>
+      <GlobalHeader />
     </section>
     <section class="home-mainer">
       <div class="mainer-content">
@@ -29,7 +23,7 @@
 </template>
 
 <script lang="ts" setup>
-import UserLoginStatus from '@/components/UserLoginStatus.vue'
+import GlobalHeader from '@/components/GlobalHeader'
 import HomeSearch from './components/HomeSearch.vue'
 import HomeTools from './components/HomeTools.vue'
 </script>
@@ -53,27 +47,6 @@ import HomeTools from './components/HomeTools.vue'
 .home-header {
   width: 100%;
   height: 60px;
-  // background-color: #eee;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  box-sizing: border-box;
-  padding: 0 20px;
-
-  .logo-wrapper {
-    display: flex;
-    align-items: center;
-    // background-color: #999;
-
-    .logo-text {
-      font-size: 18px;
-      font-weight: bold;
-    }
-  }
-
-  .user-wrapper {
-    cursor: pointer;
-  }
 }
 
 .home-mainer {

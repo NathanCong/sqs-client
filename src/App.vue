@@ -10,19 +10,16 @@
 import { computed } from 'vue'
 import type { Component } from 'vue'
 import { useRoute } from 'vue-router'
-
 import BlankLayout from '@/layouts/BlankLayout.vue'
+import MainLayout from '@/layouts/MainLayout.vue'
 
 const route = useRoute()
 
-const layoutComponents: Record<string, Component> = { BlankLayout }
+const layoutComponents: Record<string, Component> = { BlankLayout, MainLayout }
 
 const layoutComponent = computed(() => {
-  const {
-    meta: { layout }
-  } = route
+  const { layout } = route.meta
   const layoutName: string = typeof layout === 'string' ? layout : 'BlankLayout'
-  console.log('layoutName', layoutName)
   return layoutComponents[layoutName]
 })
 </script>
