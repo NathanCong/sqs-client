@@ -1,41 +1,33 @@
-import pluginVue from 'eslint-plugin-vue'
-import vueTsEslintConfig from '@vue/eslint-config-typescript'
-import eslintConfigPrettier from '@vue/eslint-config-prettier'
-import tsPlugin from '@typescript-eslint/eslint-plugin'
+import vueEslintConfig from 'eslint-plugin-vue'
+import vueTypescriptEslintConfig from '@vue/eslint-config-typescript'
+import vuePrettierEslintConfig from '@vue/eslint-config-prettier'
 
 export default [
   {
-    name: 'app/files-to-lint',
+    ignores: ['.husky/', 'dist/', 'node_modules/']
+  },
+  {
     files: ['**/*.{ts,vue}'],
-
     languageOptions: {
       ecmaVersion: 2020,
       sourceType: 'module',
       parserOptions: {
-        parser: '@typescript-eslint/parser'
+        parser: '@typescript-eslint/parser',
+        ecmaVersion: 2020,
+        sourceType: 'module',
+        jsx: false,
+        extraFileExtensions: ['.vue'],
+        project: ['./tsconfig.json']
       }
     },
-
-    plugins: {
-      '@typescript-eslint': tsPlugin
-    },
-
     rules: {
       // 你可以在这里添加自定义规则
     }
   },
-
   // Vue 3 推荐规则
-  ...pluginVue.configs['flat/essential'],
-
-  // TypeScript 配置
-  ...vueTsEslintConfig(),
-
-  // Prettier 配置
-  eslintConfigPrettier,
-
-  // 全局 ignores
-  {
-    ignores: ['.husky/', 'dist/', 'node_modules/']
-  }
+  ...vueEslintConfig.configs['flat/essential'],
+  // Vue TypeScript 配置
+  ...vueTypescriptEslintConfig(),
+  // Vue Prettier 配置
+  vuePrettierEslintConfig
 ]

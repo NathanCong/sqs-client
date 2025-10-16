@@ -7,7 +7,13 @@
 </template>
 
 <script lang="ts" setup>
-import ChatModal from './components/ChatModal.vue'
+import { onMounted } from 'vue'
+import ChatModal from './components/ChatModal'
+import { invoke } from '@/apis'
+
+onMounted(() => {
+  invoke('你好, 你是谁？你能做什么？')
+})
 </script>
 
 <style lang="less" scoped>
