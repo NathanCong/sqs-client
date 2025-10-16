@@ -10,9 +10,8 @@ declare module 'vue' {
   export interface GlobalComponents {
     AButton: typeof import('ant-design-vue/es')['Button']
     AInput: typeof import('ant-design-vue/es')['Input']
-    AInputSearch: typeof import('ant-design-vue/es')['InputSearch']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
-    UserLoginStatus: typeof import('./src/components/UserLoginStatus.vue')['default']
+    UserLoginStatus: typeof import('./../components/UserLoginStatus.vue')['default']
   }
 }

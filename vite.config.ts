@@ -9,6 +9,7 @@ export default defineConfig({
   plugins: [
     vue(),
     Components({
+      dts: 'src/types/components.d.ts',
       resolvers: [AntDesignVueResolver({ importStyle: false })]
     })
   ],
