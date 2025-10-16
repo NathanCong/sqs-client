@@ -1,7 +1,7 @@
 <template>
   <div class="app app-font">
     <component :is="layoutComponent">
-      <router-view> </router-view>
+      <router-view></router-view>
     </component>
   </div>
 </template>
