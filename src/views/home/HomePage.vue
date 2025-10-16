@@ -11,7 +11,7 @@
         </div>
         <!-- 搜索栏 -->
         <div class="search-wrapper">
-          <HomeSearch />
+          <CommandInput @exec="onExec" />
         </div>
         <!-- 功能快捷入口 -->
         <div class="tools-wrapper">
@@ -24,8 +24,12 @@
 
 <script lang="ts" setup>
 import GlobalHeader from '@/components/GlobalHeader'
-import HomeSearch from './components/HomeSearch.vue'
+import CommandInput from '@/components/CommandInput.vue'
 import HomeTools from './components/HomeTools.vue'
+
+function onExec(command: string) {
+  console.log(command)
+}
 </script>
 
 <style lang="less" scoped>

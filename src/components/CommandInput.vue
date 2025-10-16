@@ -1,15 +1,16 @@
 <template>
-  <div class="home-search">
-    <section class="search-input">
+  <div class="command-input">
+    <section class="input-wrapper">
       <a-input
         placeholder="需要我做什么？"
         size="large"
         v-model:value="userCommand"
       />
     </section>
-    <section class="search-button">
+    <section class="button-wrapper">
       <a-button type="primary" size="large" @click="onExec()">
-        <template #icon><RightCircleOutlined /></template>执行
+        <template #icon><RightCircleOutlined /></template>
+        执行
       </a-button>
     </section>
   </div>
@@ -21,22 +22,24 @@ import { ref } from 'vue'
 
 const userCommand = ref('') // 用户指令
 
-/**
- * 执行函数
- */
-const onExec = () => {
-  console.log(userCommand.value)
+const emit = defineEmits(['exec'])
+
+function onExec() {
+  if (!userCommand.value) {
+    return
+  }
+  emit('exec', userCommand.value)
 }
 </script>
 
 <style lang="less" scoped>
-.home-search {
+.command-input {
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
 
-  .search-input {
+  .input-wrapper {
     width: 660px;
 
     ::v-deep(.ant-input) {
@@ -47,7 +50,7 @@ const onExec = () => {
     }
   }
 
-  .search-button {
+  .button-wrapper {
     width: auto;
     height: auto;
     position: absolute;
