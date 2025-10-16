@@ -18,8 +18,8 @@ import { ref } from 'vue'
 const toolList = ref([
   {
     key: '1',
-    name: '专利智能检索',
-    desc: '通过对话问答搜索专利、文献、论文等'
+    name: '专利高级检索',
+    desc: '通过精确条件搜索专利、文献、论文等'
   },
   {
     key: '2',
