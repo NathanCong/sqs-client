@@ -74,7 +74,7 @@ export function postForStream(
                   contents.push(content)
                 }
               } catch (err) {
-                console.error(err)
+                console.warn(err)
               }
             }
           })

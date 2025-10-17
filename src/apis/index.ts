@@ -1,8 +1,15 @@
-import { postForStream } from '@/utils/request'
+import { postForStream, post } from '@/utils/request'
 
 /**
- * 问题咨询接口
+ * 提问接口
  */
-export function ask(question: string, onChunk?: (chunk: string) => void) {
+export function askStream(question: string, onChunk?: (chunk: string) => void) {
   return postForStream('/ask/stream', { question }, onChunk)
+}
+
+/**
+ * 语义分析接口
+ */
+export function analysisSemantics(question: string) {
+  return post('/analysis/semantics', { question })
 }

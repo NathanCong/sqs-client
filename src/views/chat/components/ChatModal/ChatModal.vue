@@ -18,28 +18,62 @@
           <span class="chat-text">
             <MarkdownRender :markdownContent="chatItem.messageData" />
           </span>
+          <template v-if="showMessageLoading(chatItem.messageId)">
+            <span class="chat-loading">
+              <LoadingOutlined style="font-size: 20px" :spin="true" />
+            </span>
+          </template>
         </li>
       </ul>
     </section>
     <section class="chat-footer">
-      <CommandInput :disabled="disabled" @exec="onExec" />
+      <CommandInput :execDisabled="execDisabled" @exec="onExec" />
     </section>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { ref, nextTick } from 'vue'
+import { LoadingOutlined } from '@ant-design/icons-vue'
 import MarkdownRender from '@/components/MarkdownRender.vue'
 import CommandInput from '@/components/CommandInput.vue'
 
-withDefaults(defineProps<{ chatList: ChatMessage[]; disabled?: boolean }>(), {
-  chatList: () => [],
-  disabled: false
-})
+const props = withDefaults(
+  defineProps<{
+    chatList?: ChatMessage[]
+    execDisabled?: boolean
+    userMessageId?: string
+    assistantMessageId?: string
+    userMessageLoading?: boolean
+    assistantMessageLoading?: boolean
+  }>(),
+  {
+    chatList: () => [],
+    execDisabled: false,
+    userMessageId: '',
+    assistantMessageId: '',
+    userMessageLoading: false,
+    assistantMessageLoading: false
+  }
+)
 
 const chatListRef = ref<Element | null>(null)
 
 const emit = defineEmits(['exec'])
+
+function showMessageLoading(messageId: string) {
+  // 用户消息 loading
+  if (props.userMessageLoading && props.userMessageId === messageId) {
+    return true
+  }
+  // 助手消息 loading
+  if (props.assistantMessageLoading && props.assistantMessageId === messageId) {
+    return true
+  }
+  // 没有 loading
+  return false
+}
+
 function scrollToBottom() {
   nextTick(() => {
     if (chatListRef.value) {
@@ -107,17 +141,22 @@ function onExec(params: CommandInputExecParams) {
         &.user-role {
           justify-content: flex-end;
 
-          .chat-avator {
-            order: 2;
-            background-color: rgba(255, 0, 255, 0.5);
+          .chat-loading {
+            order: 1;
+            margin-right: 8px;
           }
 
           .chat-text {
-            order: 1;
+            order: 2;
             border-radius: 20px 8px 20px 20px;
             background: #1677ff;
             color: #fff;
             margin-right: 8px;
+          }
+
+          .chat-avator {
+            order: 3;
+            background-color: rgba(255, 0, 255, 0.5);
           }
         }
 
@@ -136,6 +175,11 @@ function onExec(params: CommandInputExecParams) {
             background-color: #fff;
             margin-left: 8px;
           }
+
+          .chat-loading {
+            order: 3;
+            margin-left: 8px;
+          }
         }
 
         .chat-avator {
@@ -147,6 +191,14 @@ function onExec(params: CommandInputExecParams) {
         .chat-text {
           padding: 16px;
           max-width: 50%;
+        }
+
+        .chat-loading {
+          width: auto;
+          height: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
       }
     }

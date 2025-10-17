@@ -1,7 +1,15 @@
 <template>
   <div class="chat">
     <section class="chat-modal-wrapper">
-      <ChatModal :chatList="chatList" :disabled="loading" @exec="onExec" />
+      <ChatModal
+        :chatList="chatList"
+        :execDisabled="userMessageLoading || assistantMessageLoading"
+        :userMessageId="userMessageId"
+        :assistantMessageId="assistantMessageId"
+        :userMessageLoading="userMessageLoading"
+        :assistantMessageLoading="assistantMessageLoading"
+        @exec="onExec"
+      />
     </section>
   </div>
 </template>
@@ -10,42 +18,57 @@
 import { ref } from 'vue'
 import { v4 as createId } from 'uuid'
 import ChatModal from './components/ChatModal'
-import { ask } from '@/apis'
+import { askStream, analysisSemantics } from '@/apis'
 
 const chatList = ref<ChatMessage[]>([])
-const loading = ref(false)
+const userMessageId = ref('')
+const assistantMessageId = ref('')
+const userMessageLoading = ref(false)
+const assistantMessageLoading = ref(false)
 
 function onExec(params: ChatModalExecParams) {
   const { userCommand, scrollToBottom } = params
   // 插入用户对话
-  const userMessageId = createId()
+  userMessageId.value = createId()
   chatList.value.push({
-    messageId: userMessageId,
+    messageId: userMessageId.value,
     messageRole: 'user',
     messageType: 'text',
     messageData: userCommand
   })
+  // 用户语义分析
+  userMessageLoading.value = true
+  analysisSemantics(userCommand)
+    .then((res) => {
+      console.log('res: ', res)
+    })
+    .catch((err) => {
+      console.log('err: ', err)
+    })
+    .finally(() => {
+      userMessageLoading.value = false
+    })
   // 插入系统回话
-  const assistantMessageId = createId()
+  assistantMessageId.value = createId()
   chatList.value.push({
-    messageId: assistantMessageId,
+    messageId: assistantMessageId.value,
     messageRole: 'assistant',
     messageType: 'text',
     messageData: '……'
   })
   scrollToBottom()
   // 获取系统回复
-  loading.value = true
-  ask(userCommand, (answerForMarkdown: string) => {
+  assistantMessageLoading.value = true
+  askStream(userCommand, (answerForMarkdown: string) => {
     const assistantMessageTarget = chatList.value.find(
-      (i) => i.messageId === assistantMessageId
+      (i) => i.messageId === assistantMessageId.value
     )
     if (assistantMessageTarget) {
       assistantMessageTarget.messageData = answerForMarkdown
       scrollToBottom()
     }
   }).finally(() => {
-    loading.value = false
+    assistantMessageLoading.value = false
     scrollToBottom()
   })
 }

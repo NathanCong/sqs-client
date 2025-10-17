@@ -11,7 +11,7 @@
       <a-button
         type="primary"
         size="large"
-        :disabled="disabled"
+        :disabled="execDisabled"
         @click="onExec()"
       >
         <template #icon><RightCircleOutlined /></template>
@@ -27,8 +27,8 @@ import { ref } from 'vue'
 
 const userCommand = ref('') // 用户指令
 
-withDefaults(defineProps<{ disabled?: boolean }>(), {
-  disabled: false
+withDefaults(defineProps<{ execDisabled?: boolean }>(), {
+  execDisabled: false
 })
 
 const emit = defineEmits(['exec'])
