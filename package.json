@@ -43,6 +43,8 @@
     "@ant-design/icons-vue": "^7.0.1",
     "ant-design-vue": "^4.2.6",
     "axios": "^1.12.2",
+    "marked": "^16.4.1",
+    "uuid": "^13.0.0",
     "vue": "^3.5.22",
     "vue-router": "^4.6.0"
   }

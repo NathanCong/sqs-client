@@ -1,19 +1,54 @@
 <template>
   <div class="chat">
     <section class="chat-modal-wrapper">
-      <ChatModal />
+      <ChatModal :chatList="chatList" :disabled="loading" @exec="onExec" />
     </section>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { onMounted } from 'vue'
+import { ref } from 'vue'
+import { v4 as createId } from 'uuid'
 import ChatModal from './components/ChatModal'
-import { invoke } from '@/apis'
+import { ask } from '@/apis'
 
-onMounted(() => {
-  invoke('你好, 你是谁？你能做什么？')
-})
+const chatList = ref<ChatMessage[]>([])
+const loading = ref(false)
+
+function onExec(params: ChatModalExecParams) {
+  const { userCommand, scrollToBottom } = params
+  // 插入用户对话
+  const userMessageId = createId()
+  chatList.value.push({
+    messageId: userMessageId,
+    messageRole: 'user',
+    messageType: 'text',
+    messageData: userCommand
+  })
+  // 插入系统回话
+  const assistantMessageId = createId()
+  chatList.value.push({
+    messageId: assistantMessageId,
+    messageRole: 'assistant',
+    messageType: 'text',
+    messageData: '……'
+  })
+  scrollToBottom()
+  // 获取系统回复
+  loading.value = true
+  ask(userCommand, (answerForMarkdown: string) => {
+    const assistantMessageTarget = chatList.value.find(
+      (i) => i.messageId === assistantMessageId
+    )
+    if (assistantMessageTarget) {
+      assistantMessageTarget.messageData = answerForMarkdown
+      scrollToBottom()
+    }
+  }).finally(() => {
+    loading.value = false
+    scrollToBottom()
+  })
+}
 </script>
 
 <style lang="less" scoped>

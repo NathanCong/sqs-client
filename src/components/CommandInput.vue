@@ -8,7 +8,12 @@
       />
     </section>
     <section class="button-wrapper">
-      <a-button type="primary" size="large" @click="onExec()">
+      <a-button
+        type="primary"
+        size="large"
+        :disabled="disabled"
+        @click="onExec()"
+      >
         <template #icon><RightCircleOutlined /></template>
         执行
       </a-button>
@@ -22,13 +27,18 @@ import { ref } from 'vue'
 
 const userCommand = ref('') // 用户指令
 
+withDefaults(defineProps<{ disabled?: boolean }>(), {
+  disabled: false
+})
+
 const emit = defineEmits(['exec'])
 
 function onExec() {
   if (!userCommand.value) {
     return
   }
-  emit('exec', userCommand.value)
+  emit('exec', { userCommand: userCommand.value })
+  userCommand.value = ''
 }
 </script>
 

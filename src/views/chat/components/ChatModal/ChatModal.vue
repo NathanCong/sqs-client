@@ -4,49 +4,52 @@
       <span class="chat-title">聊天对话</span>
     </section>
     <section class="chat-content">
-      <ul class="chat-list">
+      <ul class="chat-list" ref="chatListRef">
         <li
           :class="{
             'chat-item': true,
-            'user-role': chat.messageRole === 'user',
-            'system-role': chat.messageRole === 'system'
+            'user-role': chatItem.messageRole === 'user',
+            'assistant-role': chatItem.messageRole === 'assistant'
           }"
-          v-for="chat in chatList"
-          :key="chat.messageId"
+          v-for="chatItem in chatList"
+          :key="chatItem.messageId"
         >
           <span class="chat-avator"></span>
-          <span class="chat-text">{{ chat.messageData }}</span>
+          <span class="chat-text">
+            <MarkdownRender :markdownContent="chatItem.messageData" />
+          </span>
         </li>
       </ul>
     </section>
     <section class="chat-footer">
-      <CommandInput @exec="onExec" />
+      <CommandInput :disabled="disabled" @exec="onExec" />
     </section>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { ref, nextTick } from 'vue'
+import MarkdownRender from '@/components/MarkdownRender.vue'
 import CommandInput from '@/components/CommandInput.vue'
 
-const userMessageMock = new Array(20).fill(null).map((_, index) => ({
-  messageId: index,
-  messageRole: 'user', // user | system
-  messageType: 'text', // text | ?
-  messageData: '这是一条 user 测试消息'
-}))
+withDefaults(defineProps<{ chatList: ChatMessage[]; disabled?: boolean }>(), {
+  chatList: () => [],
+  disabled: false
+})
 
-const systemMessageMock = new Array(20).fill(null).map((_, index) => ({
-  messageId: index,
-  messageRole: 'system', // user | system
-  messageType: 'text', // text | ?
-  messageData: '这是一条 system 测试消息'
-}))
+const chatListRef = ref<Element | null>(null)
 
-const chatList = ref(userMessageMock.concat(systemMessageMock))
+const emit = defineEmits(['exec'])
+function scrollToBottom() {
+  nextTick(() => {
+    if (chatListRef.value) {
+      chatListRef.value.scrollTop = chatListRef.value.scrollHeight
+    }
+  })
+}
 
-function onExec(command: string) {
-  console.log(command)
+function onExec(params: CommandInputExecParams) {
+  emit('exec', { ...params, scrollToBottom })
 }
 </script>
 
@@ -118,7 +121,7 @@ function onExec(command: string) {
           }
         }
 
-        &.system-role {
+        &.assistant-role {
           justify-content: flex-start;
 
           .chat-avator {
@@ -143,6 +146,7 @@ function onExec(command: string) {
 
         .chat-text {
           padding: 16px;
+          max-width: 50%;
         }
       }
     }

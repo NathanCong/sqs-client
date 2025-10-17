@@ -12,6 +12,7 @@ declare module 'vue' {
     AInput: typeof import('ant-design-vue/es')['Input']
     CommandInput: typeof import('./../components/CommandInput.vue')['default']
     GlobalHeader: typeof import('./../components/GlobalHeader/GlobalHeader.vue')['default']
+    MarkdownRender: typeof import('./../components/MarkdownRender.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     UserLoginStatus: typeof import('./../components/GlobalHeader/components/UserLoginStatus.vue')['default']
