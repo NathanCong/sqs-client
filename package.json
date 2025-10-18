@@ -44,6 +44,7 @@
     "@ant-design/icons-vue": "^7.0.1",
     "ant-design-vue": "^4.2.6",
     "axios": "^1.12.2",
+    "dayjs": "^1.11.18",
     "json2md": "^2.0.3",
     "marked": "^16.4.1",
     "pinia": "^3.0.3",

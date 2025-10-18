@@ -1,6 +1,6 @@
-<!-- 交底书表单 -->
+<!-- 查新检索表单 -->
 <template>
-  <div class="disclosure-form-panel">
+  <div class="novelty-form-panel">
     <CommonPanel title="信息采集">
       <div class="panel-content">
         <CommonForm ref="commonFormRef" :form-config="formConfig" />
@@ -23,19 +23,18 @@ const commonFormRef = ref<InstanceType<typeof CommonForm>>()
 const formConfig = ref<CommonFormConfig>({
   fields: [
     {
-      key: 'title',
-      name: 'title',
-      label: '主题标题',
-      rules: [{ required: true, message: '主题标题是必填项' }],
-      placeholder: '请输入主题标题',
-      type: 'input'
+      key: 'dateRange',
+      name: 'dateRange',
+      label: '公开（公告）日期范围',
+      rules: [{ required: true, message: '公开（公告）日期范围是必选项' }],
+      type: 'dateRange'
     },
     {
       key: 'content',
       name: 'content',
-      label: '核心内容',
-      rules: [{ required: true, message: '核心内容是必填项' }],
-      placeholder: '请输入核心内容',
+      label: '技术方案内容',
+      rules: [{ required: true, message: '技术方案内容是必填项' }],
+      placeholder: '在此粘贴您的技术方案',
       type: 'textarea'
     }
   ]
@@ -47,11 +46,12 @@ const emit = defineEmits(['confirm'])
 async function onConfirm() {
   try {
     const formData = await commonFormRef.value?.submit()
-    const { title, content } = formData || {}
+    const { dateRange, content } = formData || {}
+    const [sDate, lDate] = dateRange
     const markdown = json2md([
-      { h1: '主题标题' },
-      { p: title },
-      { h1: '核心内容' },
+      { h1: '公开（公告）日期范围' },
+      { p: `${sDate.format('YYYY-MM-DD')}~${lDate.format('YYYY-MM-DD')}` },
+      { h1: '技术方案内容' },
       { p: content }
     ])
     emit('confirm', markdown)
@@ -62,7 +62,7 @@ async function onConfirm() {
 </script>
 
 <style lang="less" scoped>
-.disclosure-form-panel {
+.novelty-form-panel {
   width: 100%;
   height: 100%;
 

@@ -1,3 +1,4 @@
+<!-- 生成结果查看 -->
 <template>
   <div class="preview-panel">
     <CommonPanel title="结果预览" ref="commonPanelRef">

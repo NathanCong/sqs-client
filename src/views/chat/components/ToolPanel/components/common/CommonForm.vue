@@ -22,6 +22,13 @@
             allowClear
           />
         </template>
+        <template v-if="formItem.type === 'dateRange'">
+          <a-range-picker
+            v-model:value="formState[formItem.name]"
+            style="width: 100%"
+            allowClear
+          />
+        </template>
         <template v-if="formItem.type === 'textarea'">
           <a-textarea
             v-model:value="formState[formItem.name]"

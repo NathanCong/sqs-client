@@ -1,3 +1,4 @@
+<!-- 专利表单 -->
 <template>
   <div class="patent-form-panel">
     <CommonPanel title="信息采集">

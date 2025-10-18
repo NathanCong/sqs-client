@@ -57,28 +57,6 @@ function analysisUserCommand(userCommand: string) {
 }
 
 /**
- * 处理交底书撰写助手
- */
-function handleDisclosureWritingHepler() {
-  // 插入系统预设对话
-  chatStore.add('assistant', 'text', '好的，请先在右侧完善信息')
-  chatModalRef.value?.scrollToBottom()
-  // 打开工具面板
-  toolStore.openDisclosureFormPanel()
-}
-
-/**
- * 处理技术专利撰写助手
- */
-function handlePatentWritingHepler() {
-  // 插入系统预设对话
-  chatStore.add('assistant', 'text', '好的，请先在右侧提交您的技术交底书')
-  chatModalRef.value?.scrollToBottom()
-  // 打开工具面板
-  toolStore.openPatentFormPanel()
-}
-
-/**
  * 处理其他指令
  */
 function handleOthers(userCommand: string) {
@@ -109,12 +87,19 @@ function handleUserCommandFromCode(code: string, userCommand: string) {
     case '3': // 专利批量检索
       break
     case '4': // 专利查新检索
+      chatStore.add('assistant', 'text', '好的，请先在右侧完善信息') // 插入系统预设对话
+      chatModalRef.value?.scrollToBottom()
+      toolStore.openNoveltyFormPanel() // 打开工具面板
       break
     case '5': // 交底书撰写助手
-      handleDisclosureWritingHepler()
+      chatStore.add('assistant', 'text', '好的，请先在右侧完善信息') // 插入系统预设对话
+      chatModalRef.value?.scrollToBottom()
+      toolStore.openDisclosureFormPanel() // 打开工具面板
       break
     case '6': // 专利撰写助手
-      handlePatentWritingHepler()
+      chatStore.add('assistant', 'text', '好的，请先在右侧提交您的技术交底书') // 插入系统预设对话
+      chatModalRef.value?.scrollToBottom()
+      toolStore.openPatentFormPanel() // 打开工具面板
       break
     case '7': // 专利智能分析
       break

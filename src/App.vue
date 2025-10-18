@@ -1,22 +1,27 @@
 <template>
-  <div class="app app-font">
-    <component :is="layoutComponent">
-      <router-view></router-view>
-    </component>
-  </div>
+  <a-config-provider :locale="locale">
+    <div class="app app-font">
+      <component :is="layoutComponent">
+        <router-view></router-view>
+      </component>
+    </div>
+  </a-config-provider>
 </template>
 
 <script lang="ts" setup>
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 import type { Component } from 'vue'
 import { useRoute } from 'vue-router'
+import zhCN from 'ant-design-vue/es/locale/zh_CN'
 import BlankLayout from '@/layouts/BlankLayout.vue'
 import MainLayout from '@/layouts/MainLayout.vue'
 
+// 定义 states
 const route = useRoute()
-
 const layoutComponents: Record<string, Component> = { BlankLayout, MainLayout }
+const locale = ref(zhCN)
 
+// 定义计算属性
 const layoutComponent = computed(() => {
   const { layout } = route.meta
   const layoutName: string = typeof layout === 'string' ? layout : 'BlankLayout'

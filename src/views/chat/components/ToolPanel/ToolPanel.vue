@@ -1,5 +1,8 @@
 <template>
   <div class="tool-panel">
+    <template v-if="toolStore.noveltyFormPanelVisible">
+      <NoveltyFormPanel @confirm="onNoveltyFormPanelConfirm" />
+    </template>
     <template v-if="toolStore.disclosureFormPanelVisible">
       <DisclosureFormPanel @confirm="onDisclosureFormPanelConfirm" />
     </template>
@@ -21,6 +24,7 @@
 <script lang="ts" setup>
 import { ref, watch } from 'vue'
 import { notification } from 'ant-design-vue'
+import NoveltyFormPanel from './components/NoveltyFormPanel.vue'
 import DisclosureFormPanel from './components/DisclosureFormPanel.vue'
 import PatentFormPanel from './components/PatentFormPanel.vue'
 import PreviewPanel from './components/PreviewPanel.vue'
@@ -46,6 +50,11 @@ watch(
     }
   }
 )
+
+function onNoveltyFormPanelConfirm(markdown: string) {
+  console.log('onNoveltyFormPanelConfirm: ', markdown)
+  notification.info({ message: '服务开发中...' })
+}
 
 function onDisclosureFormPanelConfirm(markdown: string) {
   // 打开 PreviewPanel

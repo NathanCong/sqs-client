@@ -5,12 +5,16 @@ export const useToolStore = defineStore('tool', {
     activePanel: ''
   }),
   getters: {
+    noveltyFormPanelVisible: (state) => state.activePanel === 'noveltyForm',
     disclosureFormPanelVisible: (state) =>
       state.activePanel === 'disclosureForm',
     patentFormPanelVisible: (state) => state.activePanel === 'patentForm',
     previewPanelVisible: (state) => state.activePanel === 'preview'
   },
   actions: {
+    openNoveltyFormPanel() {
+      this.activePanel = 'noveltyForm'
+    },
     openDisclosureFormPanel() {
       this.activePanel = 'disclosureForm'
     },

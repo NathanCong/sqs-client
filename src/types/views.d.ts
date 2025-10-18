@@ -11,7 +11,7 @@ interface CommandInputExecParams {
 
 type ChatModalExecParams = CommandInputExecParams
 
-type CommonFormItemValue = string | undefined
+type CommonFormItemValue = never | undefined
 
 interface CommonFormItem {
   key: string
