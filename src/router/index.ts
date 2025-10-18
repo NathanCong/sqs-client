@@ -15,7 +15,7 @@ const routes = [
       layout: 'BlankLayout'
     }
   },
-  // 聊天页
+  // 主功能页
   {
     path: '/chat',
     name: 'chat',
@@ -23,6 +23,11 @@ const routes = [
     meta: {
       layout: 'MainLayout'
     }
+  },
+  // 通配符路由 - 匹配所有未找到的路由，默认跳转到首页
+  {
+    path: '/:pathMatch(.*)*',
+    redirect: '/home'
   }
 ]
 

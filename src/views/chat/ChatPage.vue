@@ -1,23 +1,29 @@
 <template>
   <div class="chat">
-    <section class="chat-modal-wrapper">
-      <ChatModal
-        :chatList="chatList"
-        :execDisabled="userMessageLoading || assistantMessageLoading"
-        :userMessageId="userMessageId"
-        :assistantMessageId="assistantMessageId"
-        :userMessageLoading="userMessageLoading"
-        :assistantMessageLoading="assistantMessageLoading"
-        @exec="onExec"
-      />
-    </section>
+    <div class="chat-mainner">
+      <section class="chat-modal-wrapper">
+        <ChatModal
+          :chatList="chatList"
+          :execDisabled="userMessageLoading || assistantMessageLoading"
+          :userMessageId="userMessageId"
+          :assistantMessageId="assistantMessageId"
+          :userMessageLoading="userMessageLoading"
+          :assistantMessageLoading="assistantMessageLoading"
+          @exec="onExec"
+        />
+      </section>
+      <section class="tool-panel-wrapper">
+        <ToolPanel />
+      </section>
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { ref } from 'vue'
 import { v4 as createId } from 'uuid'
-import ChatModal from './components/ChatModal'
+import ChatModal from './components/ChatModal.vue'
+import ToolPanel from './components/ToolPanel'
 import { askStream, analysisSemantics } from '@/apis'
 
 const chatList = ref<ChatMessage[]>([])
@@ -82,9 +88,26 @@ function onExec(params: ChatModalExecParams) {
   align-items: center;
   justify-content: center;
 
-  .chat-modal-wrapper {
-    width: 80%;
+  .chat-mainner {
+    width: 88%;
     height: 80%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+
+    .chat-modal-wrapper {
+      width: auto;
+      height: 100%;
+      flex: 1;
+    }
+
+    .tool-panel-wrapper {
+      width: 50%;
+      height: 100%;
+      // background: #999;
+      margin-left: 16px;
+    }
   }
 }
 </style>
