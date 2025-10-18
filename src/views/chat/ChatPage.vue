@@ -59,12 +59,12 @@ function analysisUserCommand(userCommand: string) {
 /**
  * 处理交底书撰写助手
  */
-function handleTDDWritingHepler() {
+function handleDisclosureWritingHepler() {
   // 插入系统预设对话
   chatStore.add('assistant', 'text', '好的，请先在右侧完善信息')
   chatModalRef.value?.scrollToBottom()
   // 打开工具面板
-  toolStore.openTDDFormPanel()
+  toolStore.openDisclosureFormPanel()
 }
 
 /**
@@ -111,7 +111,7 @@ function handleUserCommandFromCode(code: string, userCommand: string) {
     case '4': // 专利查新检索
       break
     case '5': // 交底书撰写助手
-      handleTDDWritingHepler()
+      handleDisclosureWritingHepler()
       break
     case '6': // 专利撰写助手
       handlePatentWritingHepler()

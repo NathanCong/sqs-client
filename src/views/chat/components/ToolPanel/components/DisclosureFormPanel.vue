@@ -1,5 +1,5 @@
 <template>
-  <div class="tdd-form-panel">
+  <div class="disclosure-form-panel">
     <CommonPanel title="信息采集">
       <div class="panel-content">
         <CommonForm ref="commonFormRef" :form-config="formConfig" />
@@ -61,7 +61,7 @@ async function onConfirm() {
 </script>
 
 <style lang="less" scoped>
-.tdd-form-panel {
+.disclosure-form-panel {
   width: 100%;
   height: 100%;
 

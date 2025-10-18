@@ -17,11 +17,11 @@ export function analysisSemantics(question: string) {
 /**
  * 技术交底书撰写
  */
-export function helperTDDStream(
+export function helperDisclosureStream(
   question: string,
   onChunk?: (chunk: string) => void
 ) {
-  return postForStream('/helper/tdd/stream', { question }, onChunk)
+  return postForStream('/helper/disclosure/stream', { question }, onChunk)
 }
 
 /**
