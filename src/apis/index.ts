@@ -13,3 +13,13 @@ export function askStream(question: string, onChunk?: (chunk: string) => void) {
 export function analysisSemantics(question: string) {
   return post('/analysis/semantics', { question })
 }
+
+/**
+ * 技术交底书撰写
+ */
+export function helperTDDStream(
+  question: string,
+  onChunk?: (chunk: string) => void
+) {
+  return postForStream('/helper/tdd/stream', { question }, onChunk)
+}

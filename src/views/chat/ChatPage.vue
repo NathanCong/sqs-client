@@ -5,7 +5,7 @@
         <ChatModal
           ref="chatModalRef"
           :chatList="chatStore.currentChatList"
-          :execDisabled="analysisSemanticsLoading || askStreamLoading"
+          :execDisabled="execDisabled"
           @exec="onExec"
         />
       </section>
@@ -17,62 +17,110 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue'
-import { v4 as createId } from 'uuid'
+import { ref, onMounted, computed } from 'vue'
 import ChatModal from './components/ChatModal.vue'
 import ToolPanel from './components/ToolPanel'
 import { askStream, analysisSemantics } from '@/apis'
 import { useChatStore } from '@/store/chat'
+import { useToolStore } from '@/store/tool'
 
-const chatStore = useChatStore()
+// 定义 states
 const chatModalRef = ref<InstanceType<typeof ChatModal>>()
-const analysisSemanticsLoading = ref(false)
-const askStreamLoading = ref(false)
+const requestLoading = ref(false)
 
-function onExec(params: ChatModalExecParams) {
-  const { userCommand } = params
+// 定义 store
+const chatStore = useChatStore()
+const toolStore = useToolStore()
+
+// 定义计算属性
+const execDisabled = computed(() => requestLoading.value)
+
+/**
+ * 分析用户意图
+ */
+function analysisUserCommand(userCommand: string) {
   // 插入用户对话
-  chatStore.add({
-    messageId: createId(),
-    messageRole: 'user',
-    messageType: 'text',
-    messageData: userCommand
+  chatStore.add('user', 'text', userCommand)
+  chatModalRef.value?.scrollToBottom()
+  // 分析用户意图
+  return new Promise((resolve, reject) => {
+    requestLoading.value = true
+    analysisSemantics(userCommand)
+      .then((res) => resolve(res))
+      .catch((err) => reject(err))
+      .finally(() => {
+        requestLoading.value = false
+      })
   })
-  console.log(chatStore.currentChatList)
-  // 用户语义分析
-  analysisSemanticsLoading.value = true
-  analysisSemantics(userCommand)
-    .then((res) => {
-      console.log('res: ', res)
-    })
-    .catch((err) => {
-      console.warn('err: ', err)
-    })
-    .finally(() => {
-      analysisSemanticsLoading.value = false
-    })
+}
+
+/**
+ * 处理交底书撰写助手（测试对话：帮我写一篇技术交底书）
+ */
+function handleTDDWritingHepler() {
+  // 插入系统预设对话
+  chatStore.add('assistant', 'text', '好的，请先在右侧完善信息')
+  chatModalRef.value?.scrollToBottom()
+  // 打开工具面板
+  toolStore.openTddFormPanel()
+}
+
+/**
+ * 处理其他指令
+ */
+function handleOthers(userCommand: string) {
   // 插入系统回话
-  const assistantMessageId = createId()
-  chatStore.add({
-    messageId: assistantMessageId,
-    messageRole: 'assistant',
-    messageType: 'text',
-    messageData: '……'
-  })
+  const assistantMessageId = chatStore.add('assistant', 'text', '正在思考...')
   chatModalRef.value?.scrollToBottom()
   // 获取系统回复
-  askStreamLoading.value = true
+  requestLoading.value = true
   askStream(userCommand, (answerForMarkdown: string) => {
     chatStore.update(assistantMessageId, answerForMarkdown)
     chatModalRef.value?.scrollToBottom()
   }).finally(() => {
-    askStreamLoading.value = false
+    requestLoading.value = false
     chatModalRef.value?.scrollToBottom()
   })
 }
 
+/**
+ * 通过用户意图代码执行操作
+ */
+function handleUserCommandFromCode(code: string, userCommand: string) {
+  console.log('code:', code)
+  switch (code) {
+    case '1': // 专利普通检索
+      break
+    case '2': // 专利高级检索
+      break
+    case '3': // 专利批量检索
+      break
+    case '4': // 专利查新检索
+      break
+    case '5': // 交底书撰写助手
+      handleTDDWritingHepler()
+      break
+    case '6': // 专利撰写助手
+      break
+    case '7': // 专利智能分析
+      break
+    default: // 其他（闲聊 or 咨询）
+      handleOthers(userCommand)
+  }
+}
+
+async function onExec({ userCommand }: ChatModalExecParams) {
+  try {
+    const res = await analysisUserCommand(userCommand)
+    const { code } = res as AnalysisSemanticsResponse
+    handleUserCommandFromCode(String(code), userCommand)
+  } catch (err) {
+    console.warn(err)
+  }
+}
+
 onMounted(() => {
-  chatStore.create()
+  chatStore.create() // 创建新对话
 })
 </script>
 
@@ -99,7 +147,7 @@ onMounted(() => {
     }
 
     .tool-panel-wrapper {
-      width: 50%;
+      width: auto;
       height: 100%;
       // background: #999;
       margin-left: 16px;

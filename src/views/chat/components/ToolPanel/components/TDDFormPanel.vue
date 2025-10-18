@@ -1,5 +1,5 @@
 <template>
-  <div class="tdd-panel">
+  <div class="tdd-form-panel">
     <CommonPanel title="信息采集">
       <div class="panel-content">
         <CommonForm ref="commonFormRef" :form-config="formConfig" />
@@ -17,6 +17,7 @@ import json2md from 'json2md'
 import CommonPanel from './common/CommonPanel.vue'
 import CommonForm from './common/CommonForm.vue'
 
+// 定义 state
 const commonFormRef = ref<InstanceType<typeof CommonForm>>()
 const formConfig = ref<CommonFormConfig>({
   fields: [
@@ -39,6 +40,9 @@ const formConfig = ref<CommonFormConfig>({
   ]
 })
 
+// 定义 emits
+const emit = defineEmits(['confirm'])
+
 async function onConfirm() {
   try {
     const formData = await commonFormRef.value?.submit()
@@ -49,7 +53,7 @@ async function onConfirm() {
       { h1: '核心内容' },
       { p: content }
     ])
-    console.log('markdown', markdown)
+    emit('confirm', markdown)
   } catch (err) {
     console.warn(err)
   }
@@ -57,7 +61,7 @@ async function onConfirm() {
 </script>
 
 <style lang="less" scoped>
-.tdd-panel {
+.tdd-form-panel {
   width: 100%;
   height: 100%;
 

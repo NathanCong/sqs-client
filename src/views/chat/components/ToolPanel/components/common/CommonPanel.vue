@@ -7,7 +7,7 @@
       </section>
     </template>
     <section class="panel-mainer">
-      <div class="panel-scroll">
+      <div class="panel-scroll" ref="panelScrollRef">
         <slot></slot>
       </div>
     </section>
@@ -20,6 +20,9 @@
 </template>
 
 <script lang="ts" setup>
+import { ref, nextTick } from 'vue'
+
+// 定义 Props
 withDefaults(
   defineProps<{
     showHeader?: boolean
@@ -32,11 +35,23 @@ withDefaults(
     showFooter: true
   }
 )
+
+const panelScrollRef = ref<HTMLDivElement | null>(null)
+
+function scrollToBottom() {
+  nextTick(() => {
+    if (panelScrollRef.value) {
+      panelScrollRef.value.scrollTop = panelScrollRef.value.scrollHeight
+    }
+  })
+}
+
+defineExpose({ scrollToBottom })
 </script>
 
 <style lang="less" scoped>
 .common-panel {
-  width: 100%;
+  width: 600px;
   height: 100%;
   background-color: #fff;
   border-radius: 20px;

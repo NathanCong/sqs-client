@@ -19,8 +19,15 @@ export const useChatStore = defineStore('chat', {
       this.chatHistory[this.currentChatId] = []
     },
     // 添加聊天消息
-    add(chatMessage: ChatMessage) {
-      this.chatHistory[this.currentChatId].push(chatMessage)
+    add(messageRole: string, messageType: string, messageData: unknown) {
+      const messageId = createId()
+      this.chatHistory[this.currentChatId].push({
+        messageId,
+        messageRole,
+        messageType,
+        messageData
+      })
+      return messageId
     },
     // 更新聊天消息
     update(chatMessageId: string, chatMessageData: unknown) {
