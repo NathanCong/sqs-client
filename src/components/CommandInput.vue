@@ -8,21 +8,22 @@
       />
     </section>
     <section class="button-wrapper">
-      <a-button
-        type="primary"
-        size="large"
-        :disabled="execDisabled"
-        @click="onExec()"
-      >
-        <template #icon><RightCircleOutlined /></template>
-        执行
-      </a-button>
+      <template v-if="execDisabled">
+        <span class="loading">
+          <LoadingOutlined :spin="true" />
+        </span>
+      </template>
+      <template v-else>
+        <a-button type="primary" size="large" @click="onExec">
+          <template #icon><RightCircleOutlined /></template>执行
+        </a-button>
+      </template>
     </section>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { RightCircleOutlined } from '@ant-design/icons-vue'
+import { RightCircleOutlined, LoadingOutlined } from '@ant-design/icons-vue'
 import { ref } from 'vue'
 
 const userCommand = ref('') // 用户指令
@@ -65,12 +66,25 @@ function onExec() {
     width: auto;
     height: auto;
     position: absolute;
-    right: 0;
+    right: -1px;
 
     ::v-deep(.ant-btn) {
       width: 100px;
       height: 48px;
       border-radius: 24px;
+    }
+
+    .loading {
+      width: 100px;
+      height: 48px;
+      border-radius: 24px;
+      background-color: #eee;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
+      cursor: not-allowed;
+      font-size: 24px;
     }
   }
 }

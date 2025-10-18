@@ -24,6 +24,7 @@
     ]
   },
   "devDependencies": {
+    "@types/json2md": "^1.5.4",
     "@types/node": "^24.7.2",
     "@typescript-eslint/parser": "^8.46.1",
     "@vitejs/plugin-vue": "^6.0.1",
@@ -43,7 +44,9 @@
     "@ant-design/icons-vue": "^7.0.1",
     "ant-design-vue": "^4.2.6",
     "axios": "^1.12.2",
+    "json2md": "^2.0.3",
     "marked": "^16.4.1",
+    "pinia": "^3.0.3",
     "uuid": "^13.0.0",
     "vue": "^3.5.22",
     "vue-router": "^4.6.0"

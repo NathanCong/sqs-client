@@ -2,16 +2,14 @@ interface ChatMessage {
   messageId: string
   messageRole: string // user | assistant
   messageType: string // text | ?
-  messageData: string
+  messageData: unknown
 }
 
 interface CommandInputExecParams {
   userCommand: string
 }
 
-interface ChatModalExecParams extends CommandInputExecParams {
-  scrollToBottom: () => void
-}
+type ChatModalExecParams = CommandInputExecParams
 
 type CommonFormItemValue = string | undefined
 

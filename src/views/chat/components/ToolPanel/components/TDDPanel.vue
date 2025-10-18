@@ -13,6 +13,7 @@
 
 <script lang="ts" setup>
 import { ref } from 'vue'
+import json2md from 'json2md'
 import CommonPanel from './common/CommonPanel.vue'
 import CommonForm from './common/CommonForm.vue'
 
@@ -41,7 +42,14 @@ const formConfig = ref<CommonFormConfig>({
 async function onConfirm() {
   try {
     const formData = await commonFormRef.value?.submit()
-    console.log('formData', formData)
+    const { title, content } = formData || {}
+    const markdown = json2md([
+      { h1: '主题标题' },
+      { p: title },
+      { h1: '核心内容' },
+      { p: content }
+    ])
+    console.log('markdown', markdown)
   } catch (err) {
     console.warn(err)
   }

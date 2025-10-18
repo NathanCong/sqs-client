@@ -7,22 +7,25 @@
       <ul class="chat-list" ref="chatListRef">
         <li
           :class="{
-            'chat-item': true,
-            'user-role': chatItem.messageRole === 'user',
-            'assistant-role': chatItem.messageRole === 'assistant'
+            'chat-message': true,
+            'user-role': chatMessage.messageRole === 'user',
+            'assistant-role': chatMessage.messageRole === 'assistant'
           }"
-          v-for="chatItem in chatList"
-          :key="chatItem.messageId"
+          v-for="chatMessage in chatList"
+          :key="chatMessage.messageId"
         >
-          <span class="chat-avator"></span>
-          <span class="chat-text">
-            <MarkdownRender :markdownContent="chatItem.messageData" />
+          <span class="message-avator"></span>
+          <span class="message-content">
+            <!-- 文字消息类型 -->
+            <template v-if="chatMessage.messageType === 'text'">
+              <span class="message-text">
+                <MarkdownRender
+                  :markdownContent="String(chatMessage.messageData)"
+                />
+              </span>
+            </template>
+            <!-- 其他消息类型 -->
           </span>
-          <template v-if="showMessageLoading(chatItem.messageId)">
-            <span class="chat-loading">
-              <LoadingOutlined style="font-size: 20px" :spin="true" />
-            </span>
-          </template>
         </li>
       </ul>
     </section>
@@ -34,26 +37,14 @@
 
 <script lang="ts" setup>
 import { ref, nextTick } from 'vue'
-import { LoadingOutlined } from '@ant-design/icons-vue'
 import MarkdownRender from '@/components/MarkdownRender.vue'
 import CommandInput from '@/components/CommandInput.vue'
 
-const props = withDefaults(
-  defineProps<{
-    chatList?: ChatMessage[]
-    execDisabled?: boolean
-    userMessageId?: string
-    assistantMessageId?: string
-    userMessageLoading?: boolean
-    assistantMessageLoading?: boolean
-  }>(),
+withDefaults(
+  defineProps<{ chatList?: ChatMessage[]; execDisabled?: boolean }>(),
   {
     chatList: () => [],
-    execDisabled: false,
-    userMessageId: '',
-    assistantMessageId: '',
-    userMessageLoading: false,
-    assistantMessageLoading: false
+    execDisabled: false
   }
 )
 
@@ -61,17 +52,8 @@ const chatListRef = ref<Element | null>(null)
 
 const emit = defineEmits(['exec'])
 
-function showMessageLoading(messageId: string) {
-  // 用户消息 loading
-  if (props.userMessageLoading && props.userMessageId === messageId) {
-    return true
-  }
-  // 助手消息 loading
-  if (props.assistantMessageLoading && props.assistantMessageId === messageId) {
-    return true
-  }
-  // 没有 loading
-  return false
+function onExec(params: CommandInputExecParams) {
+  emit('exec', params)
 }
 
 function scrollToBottom() {
@@ -82,9 +64,7 @@ function scrollToBottom() {
   })
 }
 
-function onExec(params: CommandInputExecParams) {
-  emit('exec', { ...params, scrollToBottom })
-}
+defineExpose({ scrollToBottom })
 </script>
 
 <style lang="less" scoped>
@@ -127,7 +107,7 @@ function onExec(params: CommandInputExecParams) {
       flex-direction: column;
       background-color: #fcfcfc;
 
-      .chat-item {
+      .chat-message {
         width: 100%;
         display: flex;
         flex-direction: row;
@@ -141,21 +121,19 @@ function onExec(params: CommandInputExecParams) {
         &.user-role {
           justify-content: flex-end;
 
-          .chat-loading {
+          .message-content {
             order: 1;
-            margin-right: 8px;
-          }
-
-          .chat-text {
-            order: 2;
             border-radius: 20px 8px 20px 20px;
             background: #1677ff;
-            color: #fff;
             margin-right: 8px;
+
+            .message-text {
+              color: #fff;
+            }
           }
 
-          .chat-avator {
-            order: 3;
+          .message-avator {
+            order: 2;
             background-color: rgba(255, 0, 255, 0.5);
           }
         }
@@ -163,42 +141,33 @@ function onExec(params: CommandInputExecParams) {
         &.assistant-role {
           justify-content: flex-start;
 
-          .chat-avator {
+          .message-avator {
             order: 1;
             background-color: rgba(0, 0, 255, 0.5);
           }
 
-          .chat-text {
+          .message-content {
             order: 2;
             border-radius: 8px 20px 20px 20px;
             border: 1px solid #d9d9d9;
             background-color: #fff;
             margin-left: 8px;
-          }
 
-          .chat-loading {
-            order: 3;
-            margin-left: 8px;
+            .message-text {
+              color: initial;
+            }
           }
         }
 
-        .chat-avator {
+        .message-avator {
           width: 30px;
           height: 30px;
           border-radius: 50%;
         }
 
-        .chat-text {
+        .message-content {
           padding: 16px;
           max-width: 50%;
-        }
-
-        .chat-loading {
-          width: auto;
-          height: 100%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
         }
       }
     }

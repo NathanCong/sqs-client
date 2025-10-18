@@ -27,8 +27,8 @@ import GlobalHeader from '@/components/GlobalHeader'
 import CommandInput from '@/components/CommandInput.vue'
 import HomeTools from './components/HomeTools.vue'
 
-function onExec(command: string) {
-  console.log(command)
+function onExec(params: CommandInputExecParams) {
+  console.log(params)
 }
 </script>
 
