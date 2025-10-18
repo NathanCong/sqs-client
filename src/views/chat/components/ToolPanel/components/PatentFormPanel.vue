@@ -1,5 +1,5 @@
 <template>
-  <div class="tp-form-panel">
+  <div class="patent-form-panel">
     <CommonPanel title="信息采集">
       <div class="panel-content">
         <CommonForm ref="commonFormRef" :form-config="formConfig" />
@@ -48,7 +48,7 @@ async function onConfirm() {
 </script>
 
 <style lang="less" scoped>
-.tp-form-panel {
+.patent-form-panel {
   width: 100%;
   height: 100%;
 

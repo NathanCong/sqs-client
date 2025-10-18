@@ -6,15 +6,15 @@ export const useToolStore = defineStore('tool', {
   }),
   getters: {
     tddFormPanelVisible: (state) => state.activePanel === 'tddForm',
-    tpFormPanelVisible: (state) => state.activePanel === 'tpForm',
+    patentFormPanelVisible: (state) => state.activePanel === 'patentForm',
     previewPanelVisible: (state) => state.activePanel === 'preview'
   },
   actions: {
     openTDDFormPanel() {
       this.activePanel = 'tddForm'
     },
-    openTPFormPanel() {
-      this.activePanel = 'tpForm'
+    openPatentFormPanel() {
+      this.activePanel = 'patentForm'
     },
     openPreviewPanel() {
       this.activePanel = 'preview'

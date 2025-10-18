@@ -3,8 +3,8 @@
     <template v-if="toolStore.tddFormPanelVisible">
       <TDDFormPanel @confirm="onTDDFormPanelConfirm" />
     </template>
-    <template v-if="toolStore.tpFormPanelVisible">
-      <TPFormPanel @confirm="onTPFormPanelConfirm" />
+    <template v-if="toolStore.patentFormPanelVisible">
+      <PatentFormPanel @confirm="onPatentFormPanelConfirm" />
     </template>
     <template v-if="toolStore.previewPanelVisible">
       <PreviewPanel
@@ -22,11 +22,11 @@
 import { ref, watch } from 'vue'
 import { notification } from 'ant-design-vue'
 import TDDFormPanel from './components/TDDFormPanel.vue'
-import TPFormPanel from './components/TPFormPanel.vue'
+import PatentFormPanel from './components/PatentFormPanel.vue'
 import PreviewPanel from './components/PreviewPanel.vue'
 import { useToolStore } from '@/store/tool'
 import { useChatStore } from '@/store/chat'
-import { helperTDDStream, helperTPStream } from '@/apis'
+import { helperTDDStream, helperPatentStream } from '@/apis'
 
 // 定义 states
 const previewPanelContent = ref('')
@@ -63,14 +63,14 @@ function onTDDFormPanelConfirm(markdown: string) {
   })
 }
 
-function onTPFormPanelConfirm(markdown: string) {
+function onPatentFormPanelConfirm(markdown: string) {
   // 打开 PreviewPanel
   toolStore.openPreviewPanel()
   // 插入系统提示消息
   chatStore.add('assistant', 'text', '请查看右侧预览窗口，正在生成中...')
   // 获取技术专利
   requestLoading.value = true
-  helperTPStream(markdown, (answerForMarkdown: string) => {
+  helperPatentStream(markdown, (answerForMarkdown: string) => {
     previewPanelContent.value = answerForMarkdown
     previewPanelRef.value.scrollToBottom()
   }).finally(() => {

@@ -70,12 +70,12 @@ function handleTDDWritingHepler() {
 /**
  * 处理技术专利撰写助手
  */
-function handleTPWritingHepler() {
+function handlePatentWritingHepler() {
   // 插入系统预设对话
   chatStore.add('assistant', 'text', '好的，请先在右侧提交您的技术交底书')
   chatModalRef.value?.scrollToBottom()
   // 打开工具面板
-  toolStore.openTPFormPanel()
+  toolStore.openPatentFormPanel()
 }
 
 /**
@@ -114,7 +114,7 @@ function handleUserCommandFromCode(code: string, userCommand: string) {
       handleTDDWritingHepler()
       break
     case '6': // 专利撰写助手
-      handleTPWritingHepler()
+      handlePatentWritingHepler()
       break
     case '7': // 专利智能分析
       break
@@ -146,12 +146,13 @@ onMounted(() => {
     case '3':
       break
     case '4':
+      onExec({ userCommand: '帮我做一个专利查新检索' })
       break
     case '5':
-      onExec({ userCommand: '帮我写一篇技术交底书' })
+      onExec({ userCommand: '帮我写一篇交底书' })
       break
     case '6':
-      onExec({ userCommand: '帮我写一篇技术专利' })
+      onExec({ userCommand: '帮我写一篇专利' })
       break
     case '7':
       chatStore.add('assistant', 'text', '正在思考...')

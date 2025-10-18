@@ -27,9 +27,9 @@ export function helperTDDStream(
 /**
  * 专利撰写
  */
-export function helperTPStream(
+export function helperPatentStream(
   question: string,
   onChunk?: (chunk: string) => void
 ) {
-  return postForStream('/helper/tp/stream', { question }, onChunk)
+  return postForStream('/helper/patent/stream', { question }, onChunk)
 }
