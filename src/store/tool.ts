@@ -1,24 +1,26 @@
 import { defineStore } from 'pinia'
 
-type ActivePanel = 'tddForm' | 'preview' | null
-
 export const useToolStore = defineStore('tool', {
   state: () => ({
-    activePanel: null as ActivePanel
+    activePanel: ''
   }),
   getters: {
     tddFormPanelVisible: (state) => state.activePanel === 'tddForm',
+    tpFormPanelVisible: (state) => state.activePanel === 'tpForm',
     previewPanelVisible: (state) => state.activePanel === 'preview'
   },
   actions: {
-    openTddFormPanel() {
+    openTDDFormPanel() {
       this.activePanel = 'tddForm'
+    },
+    openTPFormPanel() {
+      this.activePanel = 'tpForm'
     },
     openPreviewPanel() {
       this.activePanel = 'preview'
     },
     closeAllPanels() {
-      this.activePanel = null
+      this.activePanel = ''
     }
   }
 })

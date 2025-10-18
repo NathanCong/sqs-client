@@ -23,3 +23,13 @@ export function helperTDDStream(
 ) {
   return postForStream('/helper/tdd/stream', { question }, onChunk)
 }
+
+/**
+ * 专利撰写
+ */
+export function helperTPStream(
+  question: string,
+  onChunk?: (chunk: string) => void
+) {
+  return postForStream('/helper/tp/stream', { question }, onChunk)
+}

@@ -57,14 +57,25 @@ function analysisUserCommand(userCommand: string) {
 }
 
 /**
- * 处理交底书撰写助手（测试对话：帮我写一篇技术交底书）
+ * 处理交底书撰写助手
  */
 function handleTDDWritingHepler() {
   // 插入系统预设对话
   chatStore.add('assistant', 'text', '好的，请先在右侧完善信息')
   chatModalRef.value?.scrollToBottom()
   // 打开工具面板
-  toolStore.openTddFormPanel()
+  toolStore.openTDDFormPanel()
+}
+
+/**
+ * 处理技术专利撰写助手
+ */
+function handleTPWritingHepler() {
+  // 插入系统预设对话
+  chatStore.add('assistant', 'text', '好的，请先在右侧提交您的技术交底书')
+  chatModalRef.value?.scrollToBottom()
+  // 打开工具面板
+  toolStore.openTPFormPanel()
 }
 
 /**
@@ -103,6 +114,7 @@ function handleUserCommandFromCode(code: string, userCommand: string) {
       handleTDDWritingHepler()
       break
     case '6': // 专利撰写助手
+      handleTPWritingHepler()
       break
     case '7': // 专利智能分析
       break
@@ -139,8 +151,15 @@ onMounted(() => {
       onExec({ userCommand: '帮我写一篇技术交底书' })
       break
     case '6':
+      onExec({ userCommand: '帮我写一篇技术专利' })
       break
     case '7':
+      chatStore.add('assistant', 'text', '正在思考...')
+      chatStore.add(
+        'assistant',
+        'text',
+        '您需要先检索专利，设定分析维度之后才能进行分析哦 ~'
+      )
       break
     default:
   }
