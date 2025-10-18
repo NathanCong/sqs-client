@@ -15,7 +15,7 @@
         </div>
         <!-- 功能快捷入口 -->
         <div class="tools-wrapper">
-          <HomeTools />
+          <HomeTools @click="onClick" />
         </div>
       </div>
     </section>
@@ -23,12 +23,20 @@
 </template>
 
 <script lang="ts" setup>
+import { useRouter } from 'vue-router'
 import GlobalHeader from '@/components/GlobalHeader'
 import CommandInput from '@/components/CommandInput.vue'
 import HomeTools from './components/HomeTools.vue'
 
-function onExec(params: CommandInputExecParams) {
-  console.log(params)
+const router = useRouter()
+
+function onExec({ userCommand }: CommandInputExecParams) {
+  window.localStorage.setItem('userCommand', userCommand)
+  router.replace({ path: '/chat', query: { key: '1' } })
+}
+
+function onClick(key: string) {
+  router.replace({ path: '/chat', query: { key } })
 }
 </script>
 

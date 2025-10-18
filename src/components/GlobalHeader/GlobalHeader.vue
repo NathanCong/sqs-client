@@ -1,6 +1,6 @@
 <template>
   <div class="global-header" :style="{ backgroundColor: bgColor }">
-    <div class="logo-wrapper">
+    <div class="logo-wrapper" @click="handleGoHome">
       <span class="logo-icon"></span>
       <span class="logo-text">{{ title }}</span>
     </div>
@@ -11,12 +11,19 @@
 </template>
 
 <script lang="ts" setup>
+import { useRouter } from 'vue-router'
 import UserLoginStatus from './components/UserLoginStatus.vue'
 
 withDefaults(defineProps<{ title?: string; bgColor?: string }>(), {
   title: 'AI专利检索分析平台',
   bgColor: 'transparent'
 })
+
+const router = useRouter()
+
+function handleGoHome() {
+  router.replace('/home')
+}
 </script>
 
 <style lang="less" scoped>
@@ -35,6 +42,7 @@ withDefaults(defineProps<{ title?: string; bgColor?: string }>(), {
     display: flex;
     align-items: center;
     // background-color: #999;
+    cursor: pointer;
 
     .logo-text {
       font-size: 18px;

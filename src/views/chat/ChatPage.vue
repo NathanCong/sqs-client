@@ -18,6 +18,7 @@
 
 <script lang="ts" setup>
 import { ref, onMounted, computed } from 'vue'
+import { useRoute } from 'vue-router'
 import ChatModal from './components/ChatModal.vue'
 import ToolPanel from './components/ToolPanel'
 import { askStream, analysisSemantics } from '@/apis'
@@ -27,6 +28,7 @@ import { useToolStore } from '@/store/tool'
 // 定义 states
 const chatModalRef = ref<InstanceType<typeof ChatModal>>()
 const requestLoading = ref(false)
+const route = useRoute()
 
 // 定义 store
 const chatStore = useChatStore()
@@ -121,6 +123,27 @@ async function onExec({ userCommand }: ChatModalExecParams) {
 
 onMounted(() => {
   chatStore.create() // 创建新对话
+  const { key } = route.query
+  switch (key) {
+    case '1':
+      onExec({ userCommand: window.localStorage.getItem('userCommand') || '' })
+      window.localStorage.removeItem('userCommand')
+      break
+    case '2':
+      break
+    case '3':
+      break
+    case '4':
+      break
+    case '5':
+      onExec({ userCommand: '帮我写一篇技术交底书' })
+      break
+    case '6':
+      break
+    case '7':
+      break
+    default:
+  }
 })
 </script>
 
