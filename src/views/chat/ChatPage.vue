@@ -10,7 +10,10 @@
         />
       </section>
       <section class="tool-panel-wrapper">
-        <ToolPanel @onBatchFormPanelConfirm="commonSearchPatents" />
+        <ToolPanel
+          @onAdvancedFormPanelConfirm="commonSearchPatents"
+          @onBatchFormPanelConfirm="commonSearchPatents"
+        />
       </section>
     </div>
   </div>
@@ -118,6 +121,9 @@ function handleUserCommandFromCode(code: string, userCommand: string) {
       commonSearchPatents(userCommand)
       break
     case '2': // 专利高级检索
+      chatStore.add('assistant', 'text', '好的，请先在右侧完善信息') // 插入系统预设对话
+      chatModalRef.value?.scrollToBottom()
+      toolStore.openAdvancedFormPanel() // 打开工具面板
       break
     case '3': // 专利批量检索
       chatStore.add('assistant', 'text', '好的，请先在右侧完善信息') // 插入系统预设对话
@@ -182,6 +188,7 @@ onMounted(() => {
       handleSimpleSearch()
       break
     case '2':
+      onExec({ userCommand: '我想使用高级检索' })
       break
     case '3':
       onExec({ userCommand: '帮我批量查询一批专利' })

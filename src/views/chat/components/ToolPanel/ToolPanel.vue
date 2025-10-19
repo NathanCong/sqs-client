@@ -1,5 +1,9 @@
 <template>
   <div class="tool-panel">
+    <!-- 高级检索表单 -->
+    <template v-if="toolStore.advancedFormPanelVisible">
+      <AdvancedFormPanel @confirm="onAdvancedFormPanelConfirm" />
+    </template>
     <!-- 批量检索表单 -->
     <template v-if="toolStore.batchFormPanelVisible">
       <BatchFormPanel @confirm="onBatchFormPanelConfirm" />
@@ -31,6 +35,7 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 import { notification } from 'ant-design-vue'
+import AdvancedFormPanel from './components/AdvancedFormPanel.vue'
 import BatchFormPanel from './components/BatchFormPanel.vue'
 import NoveltyFormPanel from './components/NoveltyFormPanel.vue'
 import DisclosureFormPanel from './components/DisclosureFormPanel.vue'
@@ -49,7 +54,18 @@ const toolStore = useToolStore()
 const chatStore = useChatStore()
 
 // 定义 emit
-const emit = defineEmits(['onBatchFormPanelConfirm'])
+const emit = defineEmits([
+  'onAdvancedFormPanelConfirm',
+  'onBatchFormPanelConfirm'
+])
+
+/**
+ * 高级检索 - 表单 @confirm
+ */
+function onAdvancedFormPanelConfirm(markdown: string) {
+  console.log('onAdvancedFormPanelConfirm: ', markdown)
+  emit('onAdvancedFormPanelConfirm', markdown)
+}
 
 /**
  * 批量检索 - 表单 @comfirm
