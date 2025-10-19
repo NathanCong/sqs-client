@@ -7,6 +7,7 @@ export const useToolStore = defineStore('tool', {
     previewData: '' as PreviewData
   }),
   getters: {
+    batchFormPanelVisible: (state) => state.activePanel === 'batchForm',
     noveltyFormPanelVisible: (state) => state.activePanel === 'noveltyForm',
     disclosureFormPanelVisible: (state) =>
       state.activePanel === 'disclosureForm',
@@ -14,6 +15,9 @@ export const useToolStore = defineStore('tool', {
     previewPanelVisible: (state) => state.activePanel === 'preview'
   },
   actions: {
+    openBatchFormPanel() {
+      this.activePanel = 'batchForm'
+    },
     openNoveltyFormPanel() {
       this.activePanel = 'noveltyForm'
     },

@@ -27,6 +27,7 @@ import { useRouter } from 'vue-router'
 import GlobalHeader from '@/components/GlobalHeader'
 import CommandInput from '@/components/CommandInput.vue'
 import HomeTools from './components/HomeTools.vue'
+// import { notification } from 'ant-design-vue'
 
 const router = useRouter()
 
@@ -36,6 +37,13 @@ function onExec({ userCommand }: CommandInputExecParams) {
 }
 
 function onClick(key: string) {
+  // if (key === '2') {
+  //   notification.info({
+  //     message: '温馨提示',
+  //     description: '功能正在开发中，敬请期待...'
+  //   })
+  //   return
+  // }
   router.replace({ path: '/chat', query: { key } })
 }
 </script>

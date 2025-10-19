@@ -1,14 +1,22 @@
 <template>
   <div class="tool-panel">
+    <!-- 批量检索表单 -->
+    <template v-if="toolStore.batchFormPanelVisible">
+      <BatchFormPanel @confirm="onBatchFormPanelConfirm" />
+    </template>
+    <!-- 查新检索表单 -->
     <template v-if="toolStore.noveltyFormPanelVisible">
       <NoveltyFormPanel @confirm="onNoveltyFormPanelConfirm" />
     </template>
+    <!-- 交底书撰写表单 -->
     <template v-if="toolStore.disclosureFormPanelVisible">
       <DisclosureFormPanel @confirm="onDisclosureFormPanelConfirm" />
     </template>
+    <!-- 专利撰写表单 -->
     <template v-if="toolStore.patentFormPanelVisible">
       <PatentFormPanel @confirm="onPatentFormPanelConfirm" />
     </template>
+    <!-- 结果预览 -->
     <template v-if="toolStore.previewPanelVisible">
       <PreviewPanel
         ref="previewPanelRef"
@@ -23,6 +31,7 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 import { notification } from 'ant-design-vue'
+import BatchFormPanel from './components/BatchFormPanel.vue'
 import NoveltyFormPanel from './components/NoveltyFormPanel.vue'
 import DisclosureFormPanel from './components/DisclosureFormPanel.vue'
 import PatentFormPanel from './components/PatentFormPanel.vue'
@@ -39,12 +48,26 @@ const previewPanelRef = ref()
 const toolStore = useToolStore()
 const chatStore = useChatStore()
 
+// 定义 emit
+const emit = defineEmits(['onBatchFormPanelConfirm'])
+
+/**
+ * 批量检索 - 表单 @comfirm
+ */
+function onBatchFormPanelConfirm(markdown: string) {
+  console.log('onBatchFormPanelConfirm: ', markdown)
+  emit('onBatchFormPanelConfirm', markdown)
+}
+
 /**
  * 查新检索 - 表单 @comfirm
  */
 function onNoveltyFormPanelConfirm(markdown: string) {
   console.log('onNoveltyFormPanelConfirm: ', markdown)
-  notification.info({ message: '服务开发中...' })
+  notification.info({
+    message: '温馨提示',
+    description: '功能正在开发中，敬请期待...'
+  })
 }
 
 /**
@@ -96,7 +119,10 @@ function onPreviewPanelClose() {
  * 结果预览 @download
  */
 function onPreviewPanelDownload() {
-  notification.info({ message: '功能正在开发中，敬请期待...' })
+  notification.info({
+    message: '温馨提示',
+    description: '功能正在开发中，敬请期待...'
+  })
 }
 </script>
 

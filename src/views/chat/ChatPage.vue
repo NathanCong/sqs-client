@@ -10,7 +10,7 @@
         />
       </section>
       <section class="tool-panel-wrapper">
-        <ToolPanel />
+        <ToolPanel @onBatchFormPanelConfirm="commonSearchPatents" />
       </section>
     </div>
   </div>
@@ -59,9 +59,9 @@ function analysisUserCommand(userCommand: string) {
 }
 
 /**
- * 专利便捷搜索
+ * 通用专利检索
  */
-function simpleSearchPatents(userCommand: string) {
+function commonSearchPatents(userCommand: string) {
   // 插入系统回话
   chatStore.add('assistant', 'text', '正在查询，请稍候...')
   chatModalRef.value?.scrollToBottom()
@@ -115,11 +115,14 @@ function handleUserCommandFromCode(code: string, userCommand: string) {
   console.log('code:', code)
   switch (code) {
     case '1': // 专利普通检索
-      simpleSearchPatents(userCommand)
+      commonSearchPatents(userCommand)
       break
     case '2': // 专利高级检索
       break
     case '3': // 专利批量检索
+      chatStore.add('assistant', 'text', '好的，请先在右侧完善信息') // 插入系统预设对话
+      chatModalRef.value?.scrollToBottom()
+      toolStore.openBatchFormPanel() // 打开工具面板
       break
     case '4': // 专利查新检索
       chatStore.add('assistant', 'text', '好的，请先在右侧完善信息') // 插入系统预设对话
@@ -181,6 +184,7 @@ onMounted(() => {
     case '2':
       break
     case '3':
+      onExec({ userCommand: '帮我批量查询一批专利' })
       break
     case '4':
       onExec({ userCommand: '帮我做一个专利查新检索' })
