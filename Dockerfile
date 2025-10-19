@@ -30,6 +30,3 @@ COPY --from=0 /app/dist /usr/share/nginx/html
 
 # 暴露端口
 EXPOSE 80
-
-# 启动 nginx
-CMD ["nginx", "-g", "daemon off;"]
