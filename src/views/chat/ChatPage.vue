@@ -18,17 +18,23 @@
 
 <script lang="ts" setup>
 import { ref, onMounted, computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import ChatModal from './components/ChatModal.vue'
 import ToolPanel from './components/ToolPanel'
-import { askStream, analysisSemantics } from '@/apis'
+import {
+  consultStream,
+  analysisSemantics,
+  searchPatentsFromStrategy
+} from '@/apis'
 import { useChatStore } from '@/store/chat'
 import { useToolStore } from '@/store/tool'
+import { PATENT_TABLE_COLUMNS } from '@/consts'
 
 // 定义 states
 const chatModalRef = ref<InstanceType<typeof ChatModal>>()
 const requestLoading = ref(false)
 const route = useRoute()
+const router = useRouter()
 
 // 定义 store
 const chatStore = useChatStore()
@@ -46,18 +52,46 @@ function analysisUserCommand(userCommand: string) {
   chatModalRef.value?.scrollToBottom()
   // 分析用户意图
   return new Promise((resolve, reject) => {
-    requestLoading.value = true
     analysisSemantics(userCommand)
       .then((res) => resolve(res))
       .catch((err) => reject(err))
-      .finally(() => {
-        requestLoading.value = false
-      })
   })
 }
 
 /**
- * 处理其他指令
+ * 专利便捷搜索
+ */
+function simpleSearchPatents(userCommand: string) {
+  // 插入系统回话
+  chatStore.add('assistant', 'text', '正在查询，请稍候...')
+  chatModalRef.value?.scrollToBottom()
+  // 获取系统回复
+  requestLoading.value = true
+  searchPatentsFromStrategy(userCommand)
+    .then((res) => {
+      chatStore.add('assistant', 'text', '查询完成！请在右侧列表查看')
+      chatModalRef.value?.scrollToBottom()
+      const { total, pageSize, pageNum, list } =
+        res as SearchPatentsFromStrategyResponse
+      toolStore.openPreviewPanel('list', {
+        columns: PATENT_TABLE_COLUMNS,
+        dataSource: list,
+        total,
+        pageNum,
+        pageSize
+      })
+    })
+    .catch((err) => {
+      console.warn(err)
+    })
+    .finally(() => {
+      chatModalRef.value?.scrollToBottom()
+      requestLoading.value = false
+    })
+}
+
+/**
+ * 处理其他咨询
  */
 function handleOthers(userCommand: string) {
   // 插入系统回话
@@ -65,7 +99,7 @@ function handleOthers(userCommand: string) {
   chatModalRef.value?.scrollToBottom()
   // 获取系统回复
   requestLoading.value = true
-  askStream(userCommand, (answerForMarkdown: string) => {
+  consultStream(userCommand, (answerForMarkdown: string) => {
     chatStore.update(assistantMessageId, answerForMarkdown)
     chatModalRef.value?.scrollToBottom()
   }).finally(() => {
@@ -81,6 +115,7 @@ function handleUserCommandFromCode(code: string, userCommand: string) {
   console.log('code:', code)
   switch (code) {
     case '1': // 专利普通检索
+      simpleSearchPatents(userCommand)
       break
     case '2': // 专利高级检索
       break
@@ -110,8 +145,13 @@ function handleUserCommandFromCode(code: string, userCommand: string) {
 
 async function onExec({ userCommand }: ChatModalExecParams) {
   try {
+    // 分析用户意图
+    requestLoading.value = true
     const res = await analysisUserCommand(userCommand)
+    requestLoading.value = false
+    // 获取用户意图代码
     const { code } = res as AnalysisSemanticsResponse
+    // 通过用户意图代码执行操作
     handleUserCommandFromCode(String(code), userCommand)
   } catch (err) {
     console.warn(err)
@@ -119,12 +159,24 @@ async function onExec({ userCommand }: ChatModalExecParams) {
 }
 
 onMounted(() => {
-  chatStore.create() // 创建新对话
+  // 创建新对话
+  chatStore.create()
+  // 关闭所有面板
+  toolStore.closeAllPanels()
+  // 处理路由参数
   const { key } = route.query
+  const handleSimpleSearch = () => {
+    const userCommand = window.localStorage.getItem('userCommand')
+    if (!userCommand) {
+      router.replace('/home')
+      return
+    }
+    onExec({ userCommand })
+    window.localStorage.removeItem('userCommand')
+  }
   switch (key) {
     case '1':
-      onExec({ userCommand: window.localStorage.getItem('userCommand') || '' })
-      window.localStorage.removeItem('userCommand')
+      handleSimpleSearch()
       break
     case '2':
       break

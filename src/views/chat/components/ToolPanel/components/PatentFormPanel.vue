@@ -25,7 +25,7 @@ const formConfig = ref<CommonFormConfig>({
     {
       key: 'content',
       name: 'content',
-      label: '技术交底书',
+      label: '技术交底书内容',
       rules: [{ required: true, message: '技术交底书是必填项' }],
       placeholder: '此处粘贴您的技术交底书',
       type: 'textarea'
@@ -40,7 +40,7 @@ async function onConfirm() {
   try {
     const formData = await commonFormRef.value?.submit()
     const { content } = formData || {}
-    const markdown = json2md([{ h1: '技术交底书' }, { p: content }])
+    const markdown = json2md([{ h1: '技术交底书内容' }, { p: content }])
     emit('confirm', markdown)
   } catch (err) {
     console.warn(err)

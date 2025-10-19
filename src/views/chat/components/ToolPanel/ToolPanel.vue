@@ -12,7 +12,6 @@
     <template v-if="toolStore.previewPanelVisible">
       <PreviewPanel
         ref="previewPanelRef"
-        :content="previewPanelContent"
         :loading="requestLoading"
         @close="onPreviewPanelClose"
         @download="onPreviewPanelDownload"
@@ -22,7 +21,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
 import { notification } from 'ant-design-vue'
 import NoveltyFormPanel from './components/NoveltyFormPanel.vue'
 import DisclosureFormPanel from './components/DisclosureFormPanel.vue'
@@ -33,7 +32,6 @@ import { useChatStore } from '@/store/chat'
 import { helperDisclosureStream, helperPatentStream } from '@/apis'
 
 // 定义 states
-const previewPanelContent = ref('')
 const requestLoading = ref(false)
 const previewPanelRef = ref()
 
@@ -41,30 +39,26 @@ const previewPanelRef = ref()
 const toolStore = useToolStore()
 const chatStore = useChatStore()
 
-// 定义 watch
-watch(
-  () => toolStore.previewPanelVisible,
-  (visible) => {
-    if (!visible) {
-      previewPanelContent.value = ''
-    }
-  }
-)
-
+/**
+ * 查新检索 - 表单 @comfirm
+ */
 function onNoveltyFormPanelConfirm(markdown: string) {
   console.log('onNoveltyFormPanelConfirm: ', markdown)
   notification.info({ message: '服务开发中...' })
 }
 
+/**
+ * 交底书撰写 - 表单 @comfirm
+ */
 function onDisclosureFormPanelConfirm(markdown: string) {
-  // 打开 PreviewPanel
-  toolStore.openPreviewPanel()
   // 插入系统提示消息
   chatStore.add('assistant', 'text', '请查看右侧预览窗口，正在生成中...')
+  // 打开 PreviewPanel
+  toolStore.openPreviewPanel('text', '')
   // 获取技术交底书
   requestLoading.value = true
   helperDisclosureStream(markdown, (answerForMarkdown: string) => {
-    previewPanelContent.value = answerForMarkdown
+    toolStore.updatePreviewData(answerForMarkdown)
     previewPanelRef.value.scrollToBottom()
   }).finally(() => {
     requestLoading.value = false
@@ -72,15 +66,18 @@ function onDisclosureFormPanelConfirm(markdown: string) {
   })
 }
 
+/**
+ * 专利撰写 - 表单 @comfirm
+ */
 function onPatentFormPanelConfirm(markdown: string) {
-  // 打开 PreviewPanel
-  toolStore.openPreviewPanel()
   // 插入系统提示消息
   chatStore.add('assistant', 'text', '请查看右侧预览窗口，正在生成中...')
+  // 打开 PreviewPanel
+  toolStore.openPreviewPanel('text', '')
   // 获取技术专利
   requestLoading.value = true
   helperPatentStream(markdown, (answerForMarkdown: string) => {
-    previewPanelContent.value = answerForMarkdown
+    toolStore.updatePreviewData(answerForMarkdown)
     previewPanelRef.value.scrollToBottom()
   }).finally(() => {
     requestLoading.value = false
@@ -88,10 +85,16 @@ function onPatentFormPanelConfirm(markdown: string) {
   })
 }
 
+/**
+ * 结果预览 @close
+ */
 function onPreviewPanelClose() {
   toolStore.closeAllPanels()
 }
 
+/**
+ * 结果预览 @download
+ */
 function onPreviewPanelDownload() {
   notification.info({ message: '功能正在开发中，敬请期待...' })
 }

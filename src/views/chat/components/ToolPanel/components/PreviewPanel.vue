@@ -7,8 +7,19 @@
           <template #icon><CloseOutlined /></template>
         </a-button>
       </template>
-      <div class="panel-content">
-        <MarkdownRender :markdown-content="content"></MarkdownRender>
+      <div class="panel-content" ref="panelContentRef">
+        <!-- 文本类型预览 -->
+        <template v-if="toolStore.previewType === 'text'">
+          <MarkdownRender :markdown-content="String(toolStore.previewData)" />
+        </template>
+        <!-- 列表类型预览 -->
+        <template v-if="toolStore.previewType === 'list'">
+          <a-table
+            :columns="tableColumns"
+            :data-source="tableDataSource"
+            :scroll="{ x: 2000, y: tableHeight }"
+          />
+        </template>
         <template v-if="loading">
           <p class="panel-loading"><LoadingOutlined :spin="true" /></p>
         </template>
@@ -21,19 +32,46 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { CloseOutlined, LoadingOutlined } from '@ant-design/icons-vue'
 import MarkdownRender from '@/components/MarkdownRender.vue'
 import CommonPanel from './common/CommonPanel.vue'
+import { useToolStore } from '@/store/tool'
 
-withDefaults(defineProps<{ content: string; loading: boolean }>(), {
-  content: '',
-  loading: false
+// 定义 Props
+withDefaults(defineProps<{ loading: boolean }>(), { loading: false })
+
+// 定义 Refs
+const commonPanelRef = ref()
+const panelContentRef = ref<HTMLElement | null>(null)
+const tableHeight = ref<number>(0)
+
+//  定义 Stores
+const toolStore = useToolStore()
+
+// 定义计算属性
+const tableColumns = computed(() => {
+  if (typeof toolStore.previewData === 'object') {
+    return toolStore.previewData?.columns
+  }
+  return []
+})
+const tableDataSource = computed(() => {
+  if (typeof toolStore.previewData === 'object') {
+    return toolStore.previewData?.dataSource
+  }
+  return []
 })
 
-const commonPanelRef = ref()
-
+// 定义 Emit
 const emit = defineEmits(['close', 'download'])
+
+// 获取 panel-content 高度
+const getPanelContentHeight = () => {
+  if (panelContentRef.value) {
+    tableHeight.value = panelContentRef.value.clientHeight
+  }
+}
 
 function onClose() {
   emit('close')
@@ -48,6 +86,10 @@ function scrollToBottom() {
 }
 
 defineExpose({ scrollToBottom })
+
+onMounted(() => {
+  getPanelContentHeight()
+})
 </script>
 
 <style lang="less" scoped>

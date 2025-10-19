@@ -2,7 +2,9 @@ import { defineStore } from 'pinia'
 
 export const useToolStore = defineStore('tool', {
   state: () => ({
-    activePanel: ''
+    activePanel: '',
+    previewType: 'text',
+    previewData: '' as PreviewData
   }),
   getters: {
     noveltyFormPanelVisible: (state) => state.activePanel === 'noveltyForm',
@@ -21,11 +23,18 @@ export const useToolStore = defineStore('tool', {
     openPatentFormPanel() {
       this.activePanel = 'patentForm'
     },
-    openPreviewPanel() {
+    openPreviewPanel(type: string, data: PreviewData) {
       this.activePanel = 'preview'
+      this.previewType = type
+      this.previewData = data
+    },
+    updatePreviewData(data: PreviewData) {
+      this.previewData = data
     },
     closeAllPanels() {
       this.activePanel = ''
+      this.previewType = 'text'
+      this.previewData = ''
     }
   }
 })

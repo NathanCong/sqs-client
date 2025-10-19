@@ -3,8 +3,11 @@ import { postForStream, post } from '@/utils/request'
 /**
  * 提问接口
  */
-export function askStream(question: string, onChunk?: (chunk: string) => void) {
-  return postForStream('/ask/stream', { question }, onChunk)
+export function consultStream(
+  question: string,
+  onChunk?: (chunk: string) => void
+) {
+  return postForStream('/consult/stream', { question }, onChunk)
 }
 
 /**
@@ -32,4 +35,35 @@ export function helperPatentStream(
   onChunk?: (chunk: string) => void
 ) {
   return postForStream('/helper/patent/stream', { question }, onChunk)
+}
+
+/**
+ * 检索策略生成
+ */
+export function searchStrategy(question: string) {
+  return post('/search/strategy', { question })
+}
+
+/**
+ * 专利检索
+ */
+export function searchPatents(params: unknown) {
+  return post('/search/patents', params)
+}
+
+/**
+ * 专利检索（通过检索式）
+ */
+export function searchPatentsFromStrategy(question: string) {
+  return new Promise((resolve, reject) => {
+    // 分析语义生成检索式
+    searchStrategy(question)
+      .then((res) => {
+        // 利用检索式进行专利查询
+        searchPatents(res)
+          .then((res) => resolve(res))
+          .catch((err) => reject(err))
+      })
+      .catch((err) => reject(err))
+  })
 }
