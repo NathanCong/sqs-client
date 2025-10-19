@@ -1,0 +1,48 @@
+<template>
+  <a-config-provider :locale="locale">
+    <div class="app app-font">
+      <component :is="layoutComponent">
+        <router-view></router-view>
+      </component>
+    </div>
+  </a-config-provider>
+</template>
+
+<script lang="ts" setup>
+import { ref, computed } from 'vue'
+import type { Component } from 'vue'
+import { useRoute } from 'vue-router'
+import zhCN from 'ant-design-vue/es/locale/zh_CN'
+import BlankLayout from '@/layouts/BlankLayout.vue'
+import MainLayout from '@/layouts/MainLayout.vue'
+
+// 定义 states
+const route = useRoute()
+const layoutComponents: Record<string, Component> = { BlankLayout, MainLayout }
+const locale = ref(zhCN)
+
+// 定义计算属性
+const layoutComponent = computed(() => {
+  const { layout } = route.meta
+  const layoutName: string = typeof layout === 'string' ? layout : 'BlankLayout'
+  return layoutComponents[layoutName]
+})
+</script>
+
+<style lang="less" scoped>
+.app {
+  width: 100%;
+  height: 100vh;
+  min-width: 1200px;
+  // background-color: #999;
+}
+
+.app-font {
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, sans-serif;
+  font-size: 14px;
+  font-weight: normal;
+  color: #333;
+}
+</style>
