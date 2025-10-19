@@ -1,5 +1,5 @@
 <template>
-  <div class="user-login-status">
+  <div class="user-login-status" @click="onClick">
     <!-- 用户登录头像 -->
     <span class="user-login-avatar">
       <!-- 用户已经登录，并且有用户头像 -->
@@ -27,11 +27,19 @@
 
 <script lang="ts" setup>
 import { UserOutlined } from '@ant-design/icons-vue'
+import { notification } from 'ant-design-vue'
 import { ref } from 'vue'
 
 const userloginStatus = ref(false) // 用户登录状态
 const userLoginAvatarUrl = ref('') // 用户登录头像 URL
 const userLoginName = ref('') // 用户登录名
+
+function onClick() {
+  notification.info({
+    message: '温馨提示',
+    description: '功能正在开发中，敬请期待...'
+  })
+}
 </script>
 
 <style lang="less" scoped>
