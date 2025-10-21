@@ -35,7 +35,7 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 import { notification } from 'ant-design-vue'
-import AdvancedFormPanel from './components/AdvancedFormPanel.vue'
+import AdvancedFormPanel from './components/NewAdvancedFormPanel.vue'
 import BatchFormPanel from './components/BatchFormPanel.vue'
 import NoveltyFormPanel from './components/NoveltyFormPanel.vue'
 import DisclosureFormPanel from './components/DisclosureFormPanel.vue'

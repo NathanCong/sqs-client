@@ -46,12 +46,16 @@ function scrollToBottom() {
   })
 }
 
-defineExpose({ scrollToBottom })
+function getContentHeight() {
+  return panelScrollRef.value?.clientHeight
+}
+
+defineExpose({ scrollToBottom, getContentHeight })
 </script>
 
 <style lang="less" scoped>
 .common-panel {
-  width: 800px;
+  width: 1000px;
   height: 100%;
   background-color: #fff;
   border-radius: 20px;
