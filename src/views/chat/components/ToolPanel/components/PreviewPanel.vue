@@ -7,18 +7,20 @@
           <template #icon><CloseOutlined /></template>
         </a-button>
       </template>
-      <div class="panel-content" ref="panelContentRef">
+      <div class="panel-content">
         <!-- 文本类型预览 -->
         <template v-if="toolStore.previewType === 'text'">
           <MarkdownRender :markdown-content="String(toolStore.previewData)" />
         </template>
         <!-- 列表类型预览 -->
         <template v-if="toolStore.previewType === 'list'">
-          <a-table
-            :columns="tableColumns"
-            :data-source="tableDataSource"
-            :scroll="{ x: 2000, y: tableHeight }"
-          />
+          <div class="panel-table-wrapper">
+            <a-table
+              :columns="tableColumns"
+              :data-source="tableDataSource"
+              :scroll="{ x: 2000, y: 1000 }"
+            />
+          </div>
         </template>
         <template v-if="loading">
           <p class="panel-loading"><LoadingOutlined :spin="true" /></p>
@@ -43,7 +45,6 @@ withDefaults(defineProps<{ loading: boolean }>(), { loading: false })
 
 // 定义 Refs
 const commonPanelRef = ref()
-const panelContentRef = ref<HTMLElement | null>(null)
 const tableHeight = ref<number>(0)
 
 //  定义 Stores
@@ -68,9 +69,8 @@ const emit = defineEmits(['close', 'download'])
 
 // 获取 panel-content 高度
 const getPanelContentHeight = () => {
-  if (panelContentRef.value) {
-    tableHeight.value = panelContentRef.value.clientHeight
-  }
+  tableHeight.value = commonPanelRef.value.getContentHeight()
+  console.log('tableHeight.value', tableHeight.value)
 }
 
 function onClose() {
@@ -105,6 +105,52 @@ onMounted(() => {
     .panel-loading {
       margin-top: 10px;
       font-size: 20px;
+    }
+
+    .panel-table-wrapper {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      bottom: 16px;
+      left: 16px;
+
+      ::v-deep(.ant-table-wrapper) {
+        height: 100%;
+
+        .ant-spin-nested-loading {
+          height: 100%;
+        }
+
+        .ant-spin-container {
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+
+          .ant-table {
+            flex: 1;
+            height: 0;
+          }
+
+          .ant-pagination {
+            flex-shrink: 0;
+          }
+        }
+
+        .ant-table-container {
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+
+          > .ant-table-header {
+            flex-shrink: 0;
+          }
+
+          > .ant-table-body {
+            flex: 1;
+            height: 0;
+          }
+        }
+      }
     }
   }
 }

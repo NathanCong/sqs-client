@@ -67,3 +67,17 @@ export function searchPatentsFromStrategy(question: string) {
       .catch((err) => reject(err))
   })
 }
+
+/**
+ * 读取文件
+ */
+export function readFile() {
+  return post('/file/read')
+}
+
+/**
+ * 写入文件
+ */
+export function writeFile() {
+  return post('/file/generate', { jsonData: { a: 1, b: 2 } })
+}

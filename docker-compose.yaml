@@ -6,4 +6,4 @@ services:
     restart: unless-stopped
     ports:
       - 3000:80
-    command: ["nginx", "-g", "daemon off;"]
+    command: ['nginx', '-g', 'daemon off;']

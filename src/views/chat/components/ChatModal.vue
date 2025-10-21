@@ -1,7 +1,7 @@
 <template>
   <div class="chat-modal">
     <section class="chat-header">
-      <span class="chat-title">聊天对话</span>
+      <span class="chat-title">AI助手</span>
     </section>
     <section class="chat-content">
       <ul class="chat-list" ref="chatListRef">

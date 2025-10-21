@@ -11,8 +11,8 @@
       </section>
       <section class="tool-panel-wrapper">
         <ToolPanel
-          @onAdvancedFormPanelConfirm="commonSearchPatents"
-          @onBatchFormPanelConfirm="commonSearchPatents"
+          @onAdvancedFormPanelConfirm="handleOthers"
+          @onBatchFormPanelConfirm="handleOthers"
         />
       </section>
     </div>
@@ -27,7 +27,8 @@ import ToolPanel from './components/ToolPanel'
 import {
   consultStream,
   analysisSemantics,
-  searchPatentsFromStrategy
+  readFile
+  // searchPatentsFromStrategy
 } from '@/apis'
 import { useChatStore } from '@/store/chat'
 import { useToolStore } from '@/store/tool'
@@ -64,34 +65,34 @@ function analysisUserCommand(userCommand: string) {
 /**
  * 通用专利检索
  */
-function commonSearchPatents(userCommand: string) {
-  // 插入系统回话
-  chatStore.add('assistant', 'text', '正在查询，请稍候...')
-  chatModalRef.value?.scrollToBottom()
-  // 获取系统回复
-  requestLoading.value = true
-  searchPatentsFromStrategy(userCommand)
-    .then((res) => {
-      chatStore.add('assistant', 'text', '查询完成！请在右侧列表查看')
-      chatModalRef.value?.scrollToBottom()
-      const { total, pageSize, pageNum, list } =
-        res as SearchPatentsFromStrategyResponse
-      toolStore.openPreviewPanel('list', {
-        columns: PATENT_TABLE_COLUMNS,
-        dataSource: list,
-        total,
-        pageNum,
-        pageSize
-      })
-    })
-    .catch((err) => {
-      console.warn(err)
-    })
-    .finally(() => {
-      chatModalRef.value?.scrollToBottom()
-      requestLoading.value = false
-    })
-}
+// function commonSearchPatents(userCommand: string) {
+//   // 插入系统回话
+//   chatStore.add('assistant', 'text', '正在查询，请稍候...')
+//   chatModalRef.value?.scrollToBottom()
+//   // 获取系统回复
+//   requestLoading.value = true
+//   searchPatentsFromStrategy(userCommand)
+//     .then((res) => {
+//       chatStore.add('assistant', 'text', '查询完成！请在右侧列表查看')
+//       chatModalRef.value?.scrollToBottom()
+//       const { total, pageSize, pageNum, list } =
+//         res as SearchPatentsFromStrategyResponse
+//       toolStore.openPreviewPanel('list', {
+//         columns: PATENT_TABLE_COLUMNS,
+//         dataSource: list,
+//         total,
+//         pageNum,
+//         pageSize
+//       })
+//     })
+//     .catch((err) => {
+//       console.warn(err)
+//     })
+//     .finally(() => {
+//       chatModalRef.value?.scrollToBottom()
+//       requestLoading.value = false
+//     })
+// }
 
 /**
  * 处理其他咨询
@@ -105,10 +106,32 @@ function handleOthers(userCommand: string) {
   consultStream(userCommand, (answerForMarkdown: string) => {
     chatStore.update(assistantMessageId, answerForMarkdown)
     chatModalRef.value?.scrollToBottom()
-  }).finally(() => {
-    requestLoading.value = false
-    chatModalRef.value?.scrollToBottom()
   })
+    .then(() => {
+      readFile()
+        .then((res) => {
+          const { patents } = res.data
+          if (patents) {
+            toolStore.openPreviewPanel('list', {
+              columns: PATENT_TABLE_COLUMNS,
+              dataSource: patents,
+              total: patents.length,
+              pageNum: 1,
+              pageSize: 20
+            })
+          }
+        })
+        .catch((err) => {
+          console.warn(err)
+        })
+    })
+    .catch((err) => {
+      console.warn(err)
+    })
+    .finally(() => {
+      requestLoading.value = false
+      chatModalRef.value?.scrollToBottom()
+    })
 }
 
 /**
@@ -118,7 +141,8 @@ function handleUserCommandFromCode(code: string, userCommand: string) {
   console.log('code:', code)
   switch (code) {
     case '1': // 专利普通检索
-      commonSearchPatents(userCommand)
+      // commonSearchPatents(userCommand)
+      handleOthers(userCommand)
       break
     case '2': // 专利高级检索
       chatStore.add('assistant', 'text', '好的，请先在右侧完善信息') // 插入系统预设对话
@@ -172,6 +196,14 @@ onMounted(() => {
   chatStore.create()
   // 关闭所有面板
   toolStore.closeAllPanels()
+  // toolStore.openAdvancedFormPanel()
+  // toolStore.openPreviewPanel('list', {
+  //   columns: PATENT_TABLE_COLUMNS,
+  //   dataSource: [],
+  //   total: 0,
+  //   pageNum: 1,
+  //   pageSize: 10
+  // })
   // 处理路由参数
   const { key } = route.query
   const handleSimpleSearch = () => {
@@ -224,8 +256,8 @@ onMounted(() => {
   justify-content: center;
 
   .chat-mainner {
-    width: 88%;
-    height: 80%;
+    width: 90%;
+    height: 88%;
     display: flex;
     flex-direction: row;
     justify-content: center;
