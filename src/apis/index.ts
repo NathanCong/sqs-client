@@ -81,3 +81,10 @@ export function readFile() {
 export function writeFile() {
   return post('/file/generate', { jsonData: { a: 1, b: 2 } })
 }
+
+/**
+ * 删除文件
+ */
+export function cleanFile() {
+  return post('/file/clean')
+}
