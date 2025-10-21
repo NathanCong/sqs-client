@@ -30,5 +30,9 @@ const htmlContent = computed(() => marked.parse(props.markdownContent))
   li {
     margin-left: 16px;
   }
+
+  img {
+    width: 100%;
+  }
 }
 </style>

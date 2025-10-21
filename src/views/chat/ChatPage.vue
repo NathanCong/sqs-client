@@ -27,7 +27,8 @@ import ToolPanel from './components/ToolPanel'
 import {
   consultStream,
   analysisSemantics,
-  readFile
+  readFile,
+  cleanFile
   // searchPatentsFromStrategy
 } from '@/apis'
 import { useChatStore } from '@/store/chat'
@@ -97,41 +98,38 @@ function analysisUserCommand(userCommand: string) {
 /**
  * 处理其他咨询
  */
-function handleOthers(userCommand: string) {
+async function handleOthers(userCommand: string) {
   // 插入系统回话
   const assistantMessageId = chatStore.add('assistant', 'text', '正在思考...')
   chatModalRef.value?.scrollToBottom()
   // 获取系统回复
   requestLoading.value = true
-  consultStream(userCommand, (answerForMarkdown: string) => {
-    chatStore.update(assistantMessageId, answerForMarkdown)
-    chatModalRef.value?.scrollToBottom()
-  })
-    .then(() => {
-      readFile()
-        .then((res) => {
-          const { patents } = res.data
-          if (patents) {
-            toolStore.openPreviewPanel('list', {
-              columns: PATENT_TABLE_COLUMNS,
-              dataSource: patents,
-              total: patents.length,
-              pageNum: 1,
-              pageSize: 20
-            })
-          }
-        })
-        .catch((err) => {
-          console.warn(err)
-        })
-    })
-    .catch((err) => {
-      console.warn(err)
-    })
-    .finally(() => {
-      requestLoading.value = false
+  try {
+    await cleanFile()
+    await consultStream(userCommand, (answerForMarkdown: string) => {
+      chatStore.update(assistantMessageId, answerForMarkdown)
       chatModalRef.value?.scrollToBottom()
     })
+    const res = await readFile()
+    if (!res) {
+      return
+    }
+    const { patents } = res.data
+    if (patents) {
+      toolStore.openPreviewPanel('list', {
+        columns: PATENT_TABLE_COLUMNS,
+        dataSource: patents,
+        total: patents.length,
+        pageNum: 1,
+        pageSize: 20
+      })
+    }
+  } catch (err) {
+    console.warn(err)
+  } finally {
+    requestLoading.value = false
+    chatModalRef.value?.scrollToBottom()
+  }
 }
 
 /**
@@ -170,6 +168,7 @@ function handleUserCommandFromCode(code: string, userCommand: string) {
       toolStore.openPatentFormPanel() // 打开工具面板
       break
     case '7': // 专利智能分析
+      handleOthers(userCommand)
       break
     default: // 其他（闲聊 or 咨询）
       handleOthers(userCommand)
