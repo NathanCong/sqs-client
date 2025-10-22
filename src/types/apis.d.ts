@@ -9,3 +9,8 @@ interface SearchPatentsFromStrategyResponse {
   pageNum: number
   list: unknown[]
 }
+
+interface HistoryItem {
+  role: string
+  content: unknown
+}
