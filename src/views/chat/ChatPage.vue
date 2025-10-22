@@ -137,18 +137,8 @@ function handleUserCommandFromCode(code: string, userCommand: string) {
   console.log('code:', code)
   switch (code) {
     case '1': // 专利普通检索
-      // commonSearchPatents(userCommand)
-      handleOthers(userCommand)
-      break
     case '2': // 专利高级检索
-      chatStore.add('assistant', 'text', '好的，请先在右侧完善信息') // 插入系统预设对话
-      chatModalRef.value?.scrollToBottom()
-      toolStore.openAdvancedFormPanel() // 打开工具面板
-      break
     case '3': // 专利批量检索
-      // chatStore.add('assistant', 'text', '好的，请先在右侧完善信息') // 插入系统预设对话
-      // chatModalRef.value?.scrollToBottom()
-      // toolStore.openBatchFormPanel() // 打开工具面板
       handleOthers(userCommand)
       break
     case '4': // 专利查新检索
@@ -165,9 +155,6 @@ function handleUserCommandFromCode(code: string, userCommand: string) {
       chatStore.add('assistant', 'text', '好的，请先在右侧提交您的技术交底书') // 插入系统预设对话
       chatModalRef.value?.scrollToBottom()
       toolStore.openPatentFormPanel() // 打开工具面板
-      break
-    case '7': // 专利智能分析
-      handleOthers(userCommand)
       break
     default: // 其他（闲聊 or 咨询）
       handleOthers(userCommand)
@@ -218,10 +205,14 @@ onMounted(() => {
       handleSimpleSearch()
       break
     case '2':
-      onExec({ userCommand: '我想使用高级检索' })
+      chatStore.add('assistant', 'text', '好的，请先在右侧完善信息') // 插入系统预设对话
+      chatModalRef.value?.scrollToBottom()
+      toolStore.openAdvancedFormPanel() // 打开工具面板
       break
     case '3':
-      onExec({ userCommand: '帮我批量查询一批专利' })
+      chatStore.add('assistant', 'text', '好的，请先在右侧完善信息') // 插入系统预设对话
+      chatModalRef.value?.scrollToBottom()
+      toolStore.openBatchFormPanel() // 打开工具面板
       break
     case '4':
       onExec({ userCommand: '帮我做一个专利查新检索' })
@@ -233,12 +224,12 @@ onMounted(() => {
       onExec({ userCommand: '帮我写一篇专利' })
       break
     case '7':
-      chatStore.add('assistant', 'text', '正在思考...')
-      chatStore.add(
-        'assistant',
-        'text',
-        '您需要先检索专利，设定分析维度之后才能进行分析哦 ~'
-      )
+      // chatStore.add('assistant', 'text', '正在思考...')
+      // chatStore.add(
+      //   'assistant',
+      //   'text',
+      //   '您需要先检索专利，设定分析维度之后才能进行分析哦 ~'
+      // )
       break
     default:
   }
