@@ -18,7 +18,10 @@
             <a-table
               :columns="tableColumns"
               :data-source="tableDataSource"
-              :scroll="{ x: 2000, y: 1000 }"
+              :scroll="{ x: 1200, y: 1200 }"
+              :pagination="{
+                showTotal: () => `共 ${total} 条`
+              }"
             />
           </div>
         </template>
@@ -62,6 +65,12 @@ const tableDataSource = computed(() => {
     return toolStore.previewData?.dataSource
   }
   return []
+})
+const total = computed(() => {
+  if (typeof toolStore.previewData === 'object') {
+    return toolStore.previewData?.total
+  }
+  return 0
 })
 
 // 定义 Emit

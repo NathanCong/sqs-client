@@ -114,14 +114,12 @@ async function handleOthers(userCommand: string) {
     if (!res) {
       return
     }
-    const { patents } = res.data
+    const { patents, total_count } = res.data
     if (patents) {
       toolStore.openPreviewPanel('list', {
         columns: PATENT_TABLE_COLUMNS,
         dataSource: patents,
-        total: patents.length,
-        pageNum: 1,
-        pageSize: 20
+        total: total_count
       })
     }
   } catch (err) {
@@ -148,9 +146,10 @@ function handleUserCommandFromCode(code: string, userCommand: string) {
       toolStore.openAdvancedFormPanel() // 打开工具面板
       break
     case '3': // 专利批量检索
-      chatStore.add('assistant', 'text', '好的，请先在右侧完善信息') // 插入系统预设对话
-      chatModalRef.value?.scrollToBottom()
-      toolStore.openBatchFormPanel() // 打开工具面板
+      // chatStore.add('assistant', 'text', '好的，请先在右侧完善信息') // 插入系统预设对话
+      // chatModalRef.value?.scrollToBottom()
+      // toolStore.openBatchFormPanel() // 打开工具面板
+      handleOthers(userCommand)
       break
     case '4': // 专利查新检索
       chatStore.add('assistant', 'text', '好的，请先在右侧完善信息') // 插入系统预设对话
