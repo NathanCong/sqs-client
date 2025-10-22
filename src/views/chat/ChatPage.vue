@@ -102,11 +102,18 @@ async function handleOthers(userCommand: string) {
   // 插入系统回话
   const assistantMessageId = chatStore.add('assistant', 'text', '正在思考...')
   chatModalRef.value?.scrollToBottom()
+  // 获取历史对话
+  const history = chatStore.currentChatList.map((i) => {
+    return {
+      role: i.messageRole,
+      content: i.messageData
+    }
+  })
   // 获取系统回复
   requestLoading.value = true
   try {
     await cleanFile()
-    await consultStream(userCommand, (answerForMarkdown: string) => {
+    await consultStream(userCommand, history, (answerForMarkdown: string) => {
       chatStore.update(assistantMessageId, answerForMarkdown)
       chatModalRef.value?.scrollToBottom()
     })

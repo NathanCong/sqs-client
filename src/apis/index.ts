@@ -5,9 +5,10 @@ import { postForStream, post } from '@/utils/request'
  */
 export function consultStream(
   question: string,
+  history: HistoryItem[],
   onChunk?: (chunk: string) => void
 ) {
-  return postForStream('/consult/stream', { question }, onChunk)
+  return postForStream('/consult/stream', { question, history }, onChunk)
 }
 
 /**
