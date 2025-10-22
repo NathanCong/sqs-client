@@ -2,7 +2,9 @@
 <template>
   <div class="new-advanced-form-panel">
     <CommonPanel title="信息采集">
-      <div class="panel-content">This is new advanced form panel.</div>
+      <div class="panel-content">
+        <img class="panel-form" :src="aFormImageSrc" />
+      </div>
       <template #footer-buttons>
         <a-button type="primary" @click="onConfirm">确认</a-button>
       </template>
@@ -12,6 +14,7 @@
 
 <script lang="ts" setup>
 import { notification } from 'ant-design-vue'
+import aFormImageSrc from './assets/a-form.jpeg'
 import CommonPanel from './common/CommonPanel.vue'
 
 function onConfirm() {
@@ -31,6 +34,11 @@ function onConfirm() {
     width: 100%;
     box-sizing: border-box;
     padding: 16px;
+    overflow-x: auto;
+
+    .panel-form {
+      height: 100%;
+    }
   }
 }
 </style>
