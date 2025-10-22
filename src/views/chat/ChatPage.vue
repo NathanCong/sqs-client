@@ -99,6 +99,8 @@ function analysisUserCommand(userCommand: string) {
  * 处理其他咨询
  */
 async function handleOthers(userCommand: string) {
+  // 关闭所有面板
+  toolStore.closeAllPanels()
   // 插入系统回话
   const assistantMessageId = chatStore.add('assistant', 'text', '正在思考...')
   chatModalRef.value?.scrollToBottom()
