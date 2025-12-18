@@ -8,9 +8,12 @@
         </a-button>
       </template>
       <div class="panel-content">
-        <!-- 文本类型预览 -->
-        <template v-if="toolStore.previewType === 'text'">
-          <MarkdownRender :markdown-content="String(toolStore.previewData)" />
+        <!-- 专利预览 -->
+        <template v-if="toolStore.previewType === 'patent'">
+          <PatentPreview
+            :data="toolStore.previewData as Content[]"
+            ref="patentPreviewRef"
+          />
         </template>
         <!-- 列表类型预览 -->
         <template v-if="toolStore.previewType === 'list'">
@@ -39,9 +42,10 @@
 <script lang="ts" setup>
 import { ref, computed, onMounted } from 'vue'
 import { CloseOutlined, LoadingOutlined } from '@ant-design/icons-vue'
-import MarkdownRender from '@/components/MarkdownRender.vue'
+import PatentPreview from './components/PatentPreview.vue'
 import CommonPanel from './common/CommonPanel.vue'
 import { useToolStore } from '@/store/tool'
+import html2pdf from 'html2pdf.js'
 
 // 定义 Props
 withDefaults(defineProps<{ loading: boolean }>(), { loading: false })
@@ -86,8 +90,39 @@ function onClose() {
   emit('close')
 }
 
+const patentPreviewRef = ref<InstanceType<typeof PatentPreview> | null>(null)
+
+function exportPDF(element: HTMLElement, fileName: string) {
+  if (element) {
+    const exportOptions = {
+      margin: [10, 5, 10, 5],
+      filename: fileName,
+      image: {
+        type: 'jpeg' as const,
+        quality: 0.98
+      },
+      html2canvas: {
+        scale: 1,
+        useCORS: true,
+        scrollY: 0,
+        height: element.scrollHeight // 明确指定高度
+      },
+      jsPDF: {
+        unit: 'mm',
+        format: 'a4',
+        orientation: 'portrait'
+      }
+    }
+    html2pdf().from(element).set(exportOptions).save()
+  }
+}
+
 function onDownload() {
-  emit('download')
+  // 专利下载
+  if (toolStore.previewType === 'patent' && patentPreviewRef.value) {
+    console.log('patentPreviewRef.value.$el', patentPreviewRef.value.$el)
+    exportPDF(patentPreviewRef.value.$el, '技术专利.pdf')
+  }
 }
 
 function scrollToBottom() {

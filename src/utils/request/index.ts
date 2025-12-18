@@ -62,6 +62,9 @@ export function postForStream(
             const dataString = dataLine.replace('data: ', '').trim()
             // 结束标志
             if (dataString === '[DONE]') {
+              if (onChunk) {
+                onChunk(dataString)
+              }
               resolve()
               return
             }

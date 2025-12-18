@@ -1,6 +1,29 @@
 import { postForStream, post } from '@/utils/request'
 
 /**
+ * 专利撰写
+ */
+export function helperPatentStream({
+  sessionId,
+  code,
+  question,
+  fileUrl,
+  onChunk
+}: {
+  sessionId?: string
+  code: string
+  question: string
+  fileUrl?: string
+  onChunk?: (chunk: string) => void
+}) {
+  return postForStream(
+    '/helper/patent/stream',
+    { session_id: sessionId, code, question, file_url: fileUrl },
+    onChunk
+  )
+}
+
+/**
  * 提问接口
  */
 export function consultStream(
@@ -12,13 +35,6 @@ export function consultStream(
 }
 
 /**
- * 语义分析接口
- */
-export function analysisSemantics(question: string) {
-  return post('/analysis/semantics', { question })
-}
-
-/**
  * 技术交底书撰写
  */
 export function helperDisclosureStream(
@@ -26,16 +42,6 @@ export function helperDisclosureStream(
   onChunk?: (chunk: string) => void
 ) {
   return postForStream('/helper/disclosure/stream', { question }, onChunk)
-}
-
-/**
- * 专利撰写
- */
-export function helperPatentStream(
-  question: string,
-  onChunk?: (chunk: string) => void
-) {
-  return postForStream('/helper/patent/stream', { question }, onChunk)
 }
 
 /**
