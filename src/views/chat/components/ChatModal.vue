@@ -25,7 +25,7 @@
                 <span class="tool-data" v-if="isToolShow">
                   <vue-json-pretty
                     :data="getToolData(chatMessage.toolResult)"
-                    :deep="3"
+                    :deep="5"
                     :showLength="true"
                     :collapsedOnClickBrackets="true"
                   />
