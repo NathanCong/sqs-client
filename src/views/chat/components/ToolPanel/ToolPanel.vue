@@ -87,26 +87,52 @@ function onNoveltyFormPanelConfirm(markdown: string) {
 }
 
 /**
- * 交底书撰写 - 表单 @comfirm
+ * 交底书撰写（新版） - 表单 @comfirm
  */
-function onDisclosureFormPanelConfirm(markdown: string) {
+async function onDisclosureFormPanelConfirm(markdown: string) {
   // 插入系统提示消息
   chatStore.add('assistant', 'text', '请查看右侧预览窗口，正在生成中...')
   // 打开 PreviewPanel
-  toolStore.openPreviewPanel('text', '')
+  const previewData = [
+    { code: '1', content: '' },
+    { code: '2', content: '' },
+    { code: '3', content: '' },
+    { code: '4', content: '' },
+    { code: '5', content: '' },
+    { code: '6', content: '' }
+  ]
+  toolStore.openPreviewPanel('disclosure', previewData)
   // 获取技术交底书
   requestLoading.value = true
-  helperDisclosureStream(markdown, (answerForMarkdown: string) => {
-    toolStore.updatePreviewData(answerForMarkdown)
-    previewPanelRef.value.scrollToBottom()
-  }).finally(() => {
-    requestLoading.value = false
-    previewPanelRef.value.scrollToBottom()
-  })
+  const makeContent = (index: number): Promise<void> => {
+    return new Promise((resolve, reject) => {
+      helperDisclosureStream({
+        sessionId: chatStore.currentChatId,
+        code: previewData[index].code,
+        question: markdown,
+        onChunk: (chunk) => {
+          if (chunk === '[DONE]') {
+            return resolve()
+          }
+          previewData[index].content += chunk
+          toolStore.updatePreviewData([...previewData])
+          previewPanelRef.value.scrollToBottom()
+        }
+      }).catch((err) => reject(err))
+    })
+  }
+  for (let i = 0; i < previewData.length; i += 1) {
+    try {
+      await makeContent(i)
+    } catch (err) {
+      console.warn(err)
+    }
+  }
+  requestLoading.value = false
 }
 
 /**
- * 专利撰写 - 表单 @comfirm
+ * 专利撰写（新版） - 表单 @comfirm
  */
 async function onPatentFormPanelConfirm(markdown: string) {
   // 插入系统提示消息

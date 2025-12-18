@@ -6,12 +6,12 @@
         <CommonForm ref="commonFormRef" :form-config="formConfig" />
       </div>
       <template #footer-buttons>
-        <a-button type="primary" style="margin-right: 4px" @click="onClick">
+        <!-- <a-button type="primary" style="margin-right: 4px" @click="onClick">
           交底书查新
         </a-button>
         <a-button type="primary" style="margin-right: 4px" @click="onClick">
           生成专利
-        </a-button>
+        </a-button> -->
         <a-button type="primary" @click="onConfirm">确认</a-button>
       </template>
     </CommonPanel>
@@ -23,7 +23,7 @@ import { ref } from 'vue'
 import json2md from 'json2md'
 import CommonPanel from './common/CommonPanel.vue'
 import CommonForm from './common/CommonForm.vue'
-import { notification } from 'ant-design-vue'
+// import { notification } from 'ant-design-vue'
 
 // 定义 state
 const commonFormRef = ref<InstanceType<typeof CommonForm>>()
@@ -51,12 +51,12 @@ const formConfig = ref<CommonFormConfig>({
 // 定义 emits
 const emit = defineEmits(['confirm'])
 
-function onClick() {
-  notification.info({
-    message: '温馨提示',
-    description: '功能正在开发中，敬请期待...'
-  })
-}
+// function onClick() {
+//   notification.info({
+//     message: '温馨提示',
+//     description: '功能正在开发中，敬请期待...'
+//   })
+// }
 
 async function onConfirm() {
   try {

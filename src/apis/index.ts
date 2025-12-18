@@ -1,7 +1,7 @@
 import { postForStream, post } from '@/utils/request'
 
 /**
- * 专利撰写
+ * 专利撰写（新版）
  */
 export function helperPatentStream({
   sessionId,
@@ -24,6 +24,27 @@ export function helperPatentStream({
 }
 
 /**
+ * 技术交底书撰写（新版）
+ */
+export function helperDisclosureStream({
+  sessionId,
+  code,
+  question,
+  onChunk
+}: {
+  sessionId?: string
+  code: string
+  question: string
+  onChunk?: (chunk: string) => void
+}) {
+  return postForStream(
+    '/helper/disclosure/stream',
+    { session_id: sessionId, code, question },
+    onChunk
+  )
+}
+
+/**
  * 提问接口
  */
 export function consultStream(
@@ -32,16 +53,6 @@ export function consultStream(
   onChunk?: (chunk: string) => void
 ) {
   return postForStream('/consult/stream', { question, history }, onChunk)
-}
-
-/**
- * 技术交底书撰写
- */
-export function helperDisclosureStream(
-  question: string,
-  onChunk?: (chunk: string) => void
-) {
-  return postForStream('/helper/disclosure/stream', { question }, onChunk)
 }
 
 /**

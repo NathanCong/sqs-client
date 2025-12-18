@@ -127,6 +127,12 @@ onMounted(() => {
     case '4':
       break
     case '5':
+      // 插入系统预设对话
+      chatStore.add('user', 'text', '请帮我写一篇技术交底书')
+      chatStore.add('assistant', 'text', '好的，请先在右侧完善信息')
+      chatModalRef.value?.scrollToBottom()
+      // 打开专利工具面板
+      toolStore.openDisclosureFormPanel()
       break
     case '6':
       // 插入系统预设对话

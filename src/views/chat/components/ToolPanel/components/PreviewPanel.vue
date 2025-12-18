@@ -10,9 +10,13 @@
       <div class="panel-content">
         <!-- 专利预览 -->
         <template v-if="toolStore.previewType === 'patent'">
-          <PatentPreview
-            :data="toolStore.previewData as Content[]"
-            ref="patentPreviewRef"
+          <PatentPreview :data="toolStore.previewData" ref="patentPreviewRef" />
+        </template>
+        <!-- 交底书预览 -->
+        <template v-if="toolStore.previewType === 'disclosure'">
+          <DisclosurePreview
+            :data="toolStore.previewData"
+            ref="disclosurePreviewRef"
           />
         </template>
         <!-- 列表类型预览 -->
@@ -43,6 +47,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { CloseOutlined, LoadingOutlined } from '@ant-design/icons-vue'
 import PatentPreview from './components/PatentPreview.vue'
+import DisclosurePreview from './components/DisclosurePreview.vue'
 import CommonPanel from './common/CommonPanel.vue'
 import { useToolStore } from '@/store/tool'
 import html2pdf from 'html2pdf.js'
@@ -90,8 +95,6 @@ function onClose() {
   emit('close')
 }
 
-const patentPreviewRef = ref<InstanceType<typeof PatentPreview> | null>(null)
-
 function exportPDF(element: HTMLElement, fileName: string) {
   if (element) {
     const exportOptions = {
@@ -117,11 +120,19 @@ function exportPDF(element: HTMLElement, fileName: string) {
   }
 }
 
+const patentPreviewRef = ref<InstanceType<typeof PatentPreview> | null>(null)
+const disclosurePreviewRef = ref<InstanceType<typeof DisclosurePreview> | null>(
+  null
+)
+
 function onDownload() {
   // 专利下载
   if (toolStore.previewType === 'patent' && patentPreviewRef.value) {
-    console.log('patentPreviewRef.value.$el', patentPreviewRef.value.$el)
     exportPDF(patentPreviewRef.value.$el, '技术专利.pdf')
+  }
+  // 交底书下载
+  if (toolStore.previewType === 'disclosure' && disclosurePreviewRef.value) {
+    exportPDF(disclosurePreviewRef.value.$el, '技术交底书.pdf')
   }
 }
 

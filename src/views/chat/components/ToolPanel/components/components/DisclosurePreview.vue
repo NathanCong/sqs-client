@@ -1,7 +1,7 @@
 <template>
-  <div class="patent-preview">
+  <div class="disclosure-preview">
     <template v-for="(item, index) in listData" :key="item.code">
-      <section class="patent-item">
+      <section class="disclosure-item">
         <template v-if="item.content">
           <p class="item-content">
             <MarkdownRender :markdown-content="item.content" />
@@ -23,7 +23,7 @@ import MarkdownRender from '@/components/MarkdownRender.vue'
 import { ref, watch } from 'vue'
 import { useChatStore } from '@/store/chat'
 import { useToolStore } from '@/store/tool'
-import { helperPatentStream } from '@/apis'
+import { helperDisclosureStream } from '@/apis'
 
 const props = withDefaults(defineProps<{ data?: Content[] }>(), {
   data: () => []
@@ -46,7 +46,7 @@ function reMake(index: number) {
   const { code, content } = listData.value[index]
   listData.value[index].content = ''
   toolStore.updatePreviewData([...listData.value])
-  helperPatentStream({
+  helperDisclosureStream({
     sessionId: chatStore.currentChatId,
     code,
     question: content,
@@ -62,8 +62,8 @@ function reMake(index: number) {
 </script>
 
 <style lang="less" scoped>
-.patent-preview {
-  .patent-item {
+.disclosure-preview {
+  .disclosure-item {
     display: flex;
     flex-direction: column;
     width: 100%;
