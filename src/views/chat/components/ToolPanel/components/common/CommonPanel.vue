@@ -55,7 +55,7 @@ defineExpose({ scrollToBottom, getContentHeight })
 
 <style lang="less" scoped>
 .common-panel {
-  width: 1000px;
+  width: 100%;
   height: 100%;
   background-color: #fff;
   border-radius: 20px;

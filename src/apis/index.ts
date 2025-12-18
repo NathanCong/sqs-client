@@ -1,41 +1,62 @@
 import { postForStream, post } from '@/utils/request'
 
 /**
- * 提问接口
+ * 专利撰写（新版）
  */
-export function consultStream(
-  question: string,
-  history: HistoryItem[],
+export function helperPatentStream({
+  sessionId,
+  code,
+  question,
+  fileUrl,
+  onChunk
+}: {
+  sessionId?: string
+  code: string
+  question: string
+  fileUrl?: string
   onChunk?: (chunk: string) => void
-) {
-  return postForStream('/consult/stream', { question, history }, onChunk)
+}) {
+  return postForStream(
+    '/helper/patent/stream',
+    { session_id: sessionId, code, question, file_url: fileUrl },
+    onChunk
+  )
 }
 
 /**
- * 语义分析接口
+ * 技术交底书撰写（新版）
  */
-export function analysisSemantics(question: string) {
-  return post('/analysis/semantics', { question })
+export function helperDisclosureStream({
+  sessionId,
+  code,
+  question,
+  onChunk
+}: {
+  sessionId?: string
+  code: string
+  question: string
+  onChunk?: (chunk: string) => void
+}) {
+  return postForStream(
+    '/helper/disclosure/stream',
+    { session_id: sessionId, code, question },
+    onChunk
+  )
 }
 
 /**
- * 技术交底书撰写
+ * 咨询（新版）
  */
-export function helperDisclosureStream(
-  question: string,
+export function consultStream({
+  sessionId,
+  question,
+  onChunk
+}: {
+  sessionId?: string
+  question: string
   onChunk?: (chunk: string) => void
-) {
-  return postForStream('/helper/disclosure/stream', { question }, onChunk)
-}
-
-/**
- * 专利撰写
- */
-export function helperPatentStream(
-  question: string,
-  onChunk?: (chunk: string) => void
-) {
-  return postForStream('/helper/patent/stream', { question }, onChunk)
+}) {
+  return postForStream('/consult/stream', { sessionId, question }, onChunk)
 }
 
 /**

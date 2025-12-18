@@ -10,4 +10,9 @@ interface ListData {
   pageNum?: number
 }
 
-type PreviewData = string | ListData | null
+interface Content {
+  code: string
+  content: string
+}
+
+type PreviewData = string | Content[] | ListData | null

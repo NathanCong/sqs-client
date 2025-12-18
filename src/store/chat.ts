@@ -30,12 +30,17 @@ export const useChatStore = defineStore('chat', {
       return messageId
     },
     // 更新聊天消息
-    update(chatMessageId: string, chatMessageData: unknown) {
+    update(
+      chatMessageId: string,
+      chatMessageData: unknown,
+      toolResult?: string
+    ) {
       const oldChatMessage = this.currentChatList.find((i) => {
         return i.messageId === chatMessageId
       })
       if (oldChatMessage) {
         oldChatMessage.messageData = chatMessageData
+        oldChatMessage.toolResult = toolResult
       }
     }
   }
