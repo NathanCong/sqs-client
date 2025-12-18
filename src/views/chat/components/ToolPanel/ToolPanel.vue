@@ -114,7 +114,7 @@ async function onDisclosureFormPanelConfirm(markdown: string) {
           if (chunk === '[DONE]') {
             return resolve()
           }
-          previewData[index].content += chunk
+          previewData[index].content = chunk
           toolStore.updatePreviewData([...previewData])
           previewPanelRef.value.scrollToBottom()
         }
@@ -161,7 +161,7 @@ async function onPatentFormPanelConfirm(markdown: string) {
           if (chunk === '[DONE]') {
             return resolve()
           }
-          previewData[index].content += chunk
+          previewData[index].content = chunk
           toolStore.updatePreviewData([...previewData])
           previewPanelRef.value.scrollToBottom()
         }

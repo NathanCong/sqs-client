@@ -15,40 +15,33 @@ export const SEMANTICS_TOOLS_MAP = {
 
 export const PATENT_TABLE_COLUMNS = [
   {
-    title: '专利名称',
-    dataIndex: ['title', 'original'],
-    key: 'title'
-    // render: (_: string, record: PatentRecord) => {
-    //   return record.title.original
-    // }
+    key: 'id',
+    dataIndex: 'id',
+    title: '公开号'
   },
   {
-    title: '初始申请人',
-    dataIndex: ['applicants', 0, 'name', 'original'],
-    key: 'applicants'
+    key: 'title',
+    dataIndex: 'title',
+    title: '标题'
   },
   {
-    width: 100,
-    title: '申请号',
-    dataIndex: 'application_number',
-    key: 'application_number'
+    key: 'abstract',
+    dataIndex: 'abstract',
+    title: '摘要'
   },
   {
-    width: 100,
-    title: '申请日',
-    dataIndex: 'application_date',
-    key: 'application_date'
+    key: 'ipc',
+    dataIndex: 'ipc',
+    title: '主分类号'
   },
   {
-    width: 150,
-    title: '公开号/公开日',
-    dataIndex: ['publication_history_new', 0, 'publication_date'],
-    key: 'publication_history_new'
+    key: 'applicant',
+    dataIndex: 'applicant',
+    title: '发明人'
   },
   {
-    width: 100,
-    title: '质量指数',
-    dataIndex: 'pav_score',
-    key: 'pav_score'
+    key: 'score',
+    dataIndex: 'score',
+    title: '检索得分'
   }
 ]

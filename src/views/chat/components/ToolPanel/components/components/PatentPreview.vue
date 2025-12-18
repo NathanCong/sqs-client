@@ -54,7 +54,7 @@ function reMake(index: number) {
       if (chunk === '[DONE]') {
         return
       }
-      listData.value[index].content += chunk
+      listData.value[index].content = chunk
       toolStore.updatePreviewData([...listData.value])
     }
   }).catch((err) => console.warn(err))
