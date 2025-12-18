@@ -8,15 +8,20 @@ import {
 } from './utils'
 
 /**
+ * 创建公共 Headers
+ */
+const commonHeaders = {
+  'Content-Type': 'application/json',
+  Accept: 'application/json'
+}
+
+/**
  * 创建axios实例
  */
 const request: AxiosInstance = axios.create({
   baseURL: import.meta.env.VITE_BASE_URL,
   timeout: 1000 * 100,
-  headers: {
-    'Content-Type': 'application/json',
-    Accept: 'application/json'
-  }
+  headers: { ...commonHeaders }
 })
 
 /**
@@ -39,8 +44,12 @@ export function get(url: string, params?: unknown) {
 /**
  * POST 请求（默认 JSON）
  */
-export function post(url: string, data?: unknown) {
-  return request.post(url, data)
+export function post(
+  url: string,
+  data?: unknown,
+  headers?: Record<string, string>
+) {
+  return request.post(url, data, { headers: { ...commonHeaders, ...headers } })
 }
 
 /**

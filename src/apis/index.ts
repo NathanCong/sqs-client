@@ -30,16 +30,18 @@ export function helperDisclosureStream({
   sessionId,
   code,
   question,
+  fileUrl,
   onChunk
 }: {
   sessionId?: string
   code: string
   question: string
+  fileUrl?: string
   onChunk?: (chunk: string) => void
 }) {
   return postForStream(
     '/helper/disclosure/stream',
-    { session_id: sessionId, code, question },
+    { session_id: sessionId, code, question, file_url: fileUrl },
     onChunk
   )
 }
@@ -109,4 +111,16 @@ export function writeFile() {
  */
 export function cleanFile() {
   return post('/file/clean')
+}
+
+/**
+ * 上传文件
+ */
+export function uploadFile(savePath: string, file: File) {
+  const formData = new FormData()
+  formData.append('savePath', savePath)
+  formData.append('file', file)
+  return post('http://62.234.188.122:7003/resource/upload', formData, {
+    'Content-Type': 'multipart/form-data'
+  })
 }
