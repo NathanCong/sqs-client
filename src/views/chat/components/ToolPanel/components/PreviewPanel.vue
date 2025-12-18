@@ -1,35 +1,55 @@
 <!-- 生成结果查看 -->
 <template>
   <div class="preview-panel">
-    <CommonPanel title="结果预览" ref="commonPanelRef">
+    <CommonPanel
+      title="结果预览"
+      :show-footer="toolStore.previewType !== 'list'"
+      ref="commonPanelRef"
+    >
       <template #header-buttons>
         <a-button shape="circle" @click="onClose">
           <template #icon><CloseOutlined /></template>
         </a-button>
       </template>
       <div class="panel-content">
-        <!-- 专利预览 -->
+        <!-- 专利预览（新版） -->
         <template v-if="toolStore.previewType === 'patent'">
           <PatentPreview :data="toolStore.previewData" ref="patentPreviewRef" />
         </template>
-        <!-- 交底书预览 -->
+        <!-- 交底书预览（新版） -->
         <template v-if="toolStore.previewType === 'disclosure'">
           <DisclosurePreview
             :data="toolStore.previewData"
             ref="disclosurePreviewRef"
           />
         </template>
-        <!-- 列表类型预览 -->
+        <!-- 列表预览（新版） -->
         <template v-if="toolStore.previewType === 'list'">
           <div class="panel-table-wrapper">
-            <a-table
+            <CommonTable
+              :show-header="false"
               :columns="tableColumns"
               :data-source="tableDataSource"
-              :scroll="{ x: 1200, y: 1200 }"
-              :pagination="{
-                showTotal: () => `共 ${total} 条`
-              }"
-            />
+              :pagination="{ pageNum: 1, pageSize: 20, total }"
+            >
+              <!-- 表头单元格 -->
+              <template #thead-cell="{ title }">
+                <span class="thead-cell">{{ title }}</span>
+              </template>
+              <!-- 表主体单元格 -->
+              <template #tbody-cell="{ column, text }">
+                <span class="tbody-cell">
+                  <!-- 摘要太长缩短 -->
+                  <template v-if="column.key === 'abstract'">
+                    {{ text.length > 30 ? text.slice(0, 30) + '...' : text }}
+                  </template>
+                  <template v-else-if="column.key === 'score'">
+                    {{ (parseFloat(text) * 100).toFixed(2) }}
+                  </template>
+                  <template v-else>{{ text || '——' }}</template>
+                </span>
+              </template>
+            </CommonTable>
           </div>
         </template>
         <template v-if="loading">
@@ -44,11 +64,12 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import { CloseOutlined, LoadingOutlined } from '@ant-design/icons-vue'
 import PatentPreview from './components/PatentPreview.vue'
 import DisclosurePreview from './components/DisclosurePreview.vue'
 import CommonPanel from './common/CommonPanel.vue'
+import CommonTable from '@/components/CommonTable.vue'
 import { useToolStore } from '@/store/tool'
 import html2pdf from 'html2pdf.js'
 
@@ -57,7 +78,6 @@ withDefaults(defineProps<{ loading: boolean }>(), { loading: false })
 
 // 定义 Refs
 const commonPanelRef = ref()
-const tableHeight = ref<number>(0)
 
 //  定义 Stores
 const toolStore = useToolStore()
@@ -84,12 +104,6 @@ const total = computed(() => {
 
 // 定义 Emit
 const emit = defineEmits(['close', 'download'])
-
-// 获取 panel-content 高度
-const getPanelContentHeight = () => {
-  tableHeight.value = commonPanelRef.value.getContentHeight()
-  console.log('tableHeight.value', tableHeight.value)
-}
 
 function onClose() {
   emit('close')
@@ -141,10 +155,6 @@ function scrollToBottom() {
 }
 
 defineExpose({ scrollToBottom })
-
-onMounted(() => {
-  getPanelContentHeight()
-})
 </script>
 
 <style lang="less" scoped>
@@ -169,42 +179,11 @@ onMounted(() => {
       bottom: 16px;
       left: 16px;
 
-      ::v-deep(.ant-table-wrapper) {
-        height: 100%;
-
-        .ant-spin-nested-loading {
-          height: 100%;
-        }
-
-        .ant-spin-container {
-          height: 100%;
-          display: flex;
-          flex-direction: column;
-
-          .ant-table {
-            flex: 1;
-            height: 0;
-          }
-
-          .ant-pagination {
-            flex-shrink: 0;
-          }
-        }
-
-        .ant-table-container {
-          height: 100%;
-          display: flex;
-          flex-direction: column;
-
-          > .ant-table-header {
-            flex-shrink: 0;
-          }
-
-          > .ant-table-body {
-            flex: 1;
-            height: 0;
-          }
-        }
+      .thead-cell,
+      .tbody-cell {
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
     }
   }

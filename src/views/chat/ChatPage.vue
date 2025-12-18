@@ -33,7 +33,7 @@ import ToolPanel from './components/ToolPanel'
 import { consultStream } from '@/apis'
 import { useChatStore } from '@/store/chat'
 import { useToolStore } from '@/store/tool'
-// import { PATENT_TABLE_COLUMNS } from '@/consts'
+import { PATENT_TABLE_COLUMNS } from '@/consts'
 
 // 定义 states
 const chatModalRef = ref<InstanceType<typeof ChatModal>>()
@@ -55,9 +55,24 @@ async function handleOthers(userCommand: string) {
   console.log('userCommand', userCommand)
 }
 
+function getToolData(toolResult: string) {
+  const regex = /<output>([\s\S]*?)<\/output>/g
+  const matches = regex.exec(toolResult)
+  let toolData = {}
+  if (matches) {
+    try {
+      toolData = JSON.parse(matches[1])
+    } catch (err) {
+      console.warn(err)
+    }
+  }
+  return toolData
+}
+
 async function handleAsk(userCommand: string) {
   const messageId = chatStore.add('assistant', 'text', '请稍等，正在思考中...')
   let tempContent = ''
+  let toolResult = ''
   requestLoading.value = true
   try {
     await consultStream({
@@ -65,20 +80,37 @@ async function handleAsk(userCommand: string) {
       question: userCommand,
       onChunk: (chunk) => {
         if (chunk === '[DONE]') {
+          if (toolResult) {
+            const { sources } = getToolData(toolResult) as {
+              sources: unknown[]
+            }
+            // 关闭所有面板
+            toolStore.closeAllPanels()
+            toolStore.openPreviewPanel('list', {
+              columns: PATENT_TABLE_COLUMNS,
+              dataSource: sources,
+              total: sources.length,
+              pageNum: 1,
+              pageSize: sources.length
+            })
+          }
           return
         }
-        console.log('chunk', chunk)
         const regex = /<tool_result>([\s\S]*?)<\/tool_result>/g
         const matches = regex.exec(chunk)
         // 有 tool_result 情况
-        if (chunk.includes('<tool_result>') && matches) {
-          const toolResult = `<tool_result>${matches[1]}</tool_result>`
-          tempContent += chunk.replace(toolResult, '')
-          chatStore.update(messageId, tempContent, toolResult)
-        } else {
-          tempContent += chunk
-          chatStore.update(messageId, tempContent)
+        if (chunk.includes('<tool_result>')) {
+          if (matches) {
+            toolResult = `<tool_result>${matches[1]}</tool_result>`
+            tempContent = chunk.replace(toolResult, '')
+            chatStore.update(messageId, tempContent, toolResult)
+            chatModalRef.value?.scrollToBottom()
+          }
+          return
         }
+        // 没有 tool_result 情况
+        tempContent = chunk
+        chatStore.update(messageId, tempContent)
         chatModalRef.value?.scrollToBottom()
       }
     })
@@ -104,14 +136,6 @@ onMounted(() => {
   chatStore.create()
   // 关闭所有面板
   toolStore.closeAllPanels()
-  // toolStore.openAdvancedFormPanel()
-  // toolStore.openPreviewPanel('list', {
-  //   columns: PATENT_TABLE_COLUMNS,
-  //   dataSource: [],
-  //   total: 0,
-  //   pageNum: 1,
-  //   pageSize: 10
-  // })
   // 处理路由参数
   const { key } = route.query
   switch (key) {
