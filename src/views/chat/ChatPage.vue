@@ -56,7 +56,6 @@ async function handleOthers(userCommand: string) {
 }
 
 async function handleAsk(userCommand: string) {
-  chatStore.add('user', 'text', userCommand)
   const messageId = chatStore.add('assistant', 'text', '请稍等，正在思考中...')
   let tempContent = ''
   requestLoading.value = true
@@ -68,14 +67,18 @@ async function handleAsk(userCommand: string) {
         if (chunk === '[DONE]') {
           return
         }
+        console.log('chunk', chunk)
         const regex = /<tool_result>([\s\S]*?)<\/tool_result>/g
         const matches = regex.exec(chunk)
-        if (!matches) {
-          return
+        // 有 tool_result 情况
+        if (chunk.includes('<tool_result>') && matches) {
+          const toolResult = `<tool_result>${matches[1]}</tool_result>`
+          tempContent += chunk.replace(toolResult, '')
+          chatStore.update(messageId, tempContent, toolResult)
+        } else {
+          tempContent += chunk
+          chatStore.update(messageId, tempContent)
         }
-        const toolResult = `<tool_result>${matches[1]}</tool_result>`
-        tempContent += chunk.replace(toolResult, '')
-        chatStore.update(messageId, tempContent, toolResult)
         chatModalRef.value?.scrollToBottom()
       }
     })
