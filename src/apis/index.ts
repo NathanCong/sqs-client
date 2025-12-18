@@ -45,14 +45,18 @@ export function helperDisclosureStream({
 }
 
 /**
- * 提问接口
+ * 咨询（新版）
  */
-export function consultStream(
-  question: string,
-  history: HistoryItem[],
+export function consultStream({
+  sessionId,
+  question,
+  onChunk
+}: {
+  sessionId?: string
+  question: string
   onChunk?: (chunk: string) => void
-) {
-  return postForStream('/consult/stream', { question, history }, onChunk)
+}) {
+  return postForStream('/consult/stream', { sessionId, question }, onChunk)
 }
 
 /**

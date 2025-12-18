@@ -3,6 +3,7 @@ interface ChatMessage {
   messageRole: string // user | assistant
   messageType: string // text | ?
   messageData: unknown
+  toolResult?: string
 }
 
 interface CommandInputExecParams {

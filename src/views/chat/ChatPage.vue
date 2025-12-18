@@ -1,7 +1,10 @@
 <template>
   <div class="chat">
     <div class="chat-mainner">
-      <section class="chat-modal-wrapper">
+      <section
+        class="chat-modal-wrapper"
+        :class="{ full: toolStore.activePanel === '' }"
+      >
         <ChatModal
           ref="chatModalRef"
           :chatList="chatStore.currentChatList"
@@ -9,7 +12,10 @@
           @exec="onExec"
         />
       </section>
-      <section class="tool-panel-wrapper">
+      <section
+        class="tool-panel-wrapper"
+        :class="{ show: toolStore.activePanel !== '' }"
+      >
         <ToolPanel
           @onAdvancedFormPanelConfirm="handleOthers"
           @onBatchFormPanelConfirm="handleOthers"
@@ -24,15 +30,10 @@ import { ref, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import ChatModal from './components/ChatModal.vue'
 import ToolPanel from './components/ToolPanel'
-import {
-  consultStream,
-  readFile,
-  cleanFile
-  // searchPatentsFromStrategy
-} from '@/apis'
+import { consultStream } from '@/apis'
 import { useChatStore } from '@/store/chat'
 import { useToolStore } from '@/store/tool'
-import { PATENT_TABLE_COLUMNS } from '@/consts'
+// import { PATENT_TABLE_COLUMNS } from '@/consts'
 
 // 定义 states
 const chatModalRef = ref<InstanceType<typeof ChatModal>>()
@@ -51,48 +52,48 @@ const execDisabled = computed(() => requestLoading.value)
  * 处理其他咨询
  */
 async function handleOthers(userCommand: string) {
-  // 关闭所有面板
-  toolStore.closeAllPanels()
-  // 插入系统回话
-  const assistantMessageId = chatStore.add('assistant', 'text', '正在思考...')
-  chatModalRef.value?.scrollToBottom()
-  // 获取历史对话
-  const history = chatStore.currentChatList.map((i) => {
-    return {
-      role: i.messageRole,
-      content: i.messageData
-    }
-  })
-  // 获取系统回复
+  console.log('userCommand', userCommand)
+}
+
+async function handleAsk(userCommand: string) {
+  chatStore.add('user', 'text', userCommand)
+  const messageId = chatStore.add('assistant', 'text', '请稍等，正在思考中...')
+  let tempContent = ''
   requestLoading.value = true
   try {
-    await cleanFile()
-    await consultStream(userCommand, history, (answerForMarkdown: string) => {
-      chatStore.update(assistantMessageId, answerForMarkdown)
-      chatModalRef.value?.scrollToBottom()
+    await consultStream({
+      sessionId: chatStore.currentChatId,
+      question: userCommand,
+      onChunk: (chunk) => {
+        if (chunk === '[DONE]') {
+          return
+        }
+        const regex = /<tool_result>([\s\S]*?)<\/tool_result>/g
+        const matches = regex.exec(chunk)
+        if (!matches) {
+          return
+        }
+        const toolResult = `<tool_result>${matches[1]}</tool_result>`
+        tempContent += chunk.replace(toolResult, '')
+        chatStore.update(messageId, tempContent, toolResult)
+        chatModalRef.value?.scrollToBottom()
+      }
     })
-    const res = await readFile()
-    if (!res) {
-      return
-    }
-    const { patents, total_count } = res.data
-    if (patents) {
-      toolStore.openPreviewPanel('list', {
-        columns: PATENT_TABLE_COLUMNS,
-        dataSource: patents,
-        total: total_count
-      })
-    }
   } catch (err) {
     console.warn(err)
   } finally {
     requestLoading.value = false
-    chatModalRef.value?.scrollToBottom()
   }
 }
 
 function onExec({ userCommand }: { userCommand: string }) {
   chatStore.add('user', 'text', userCommand)
+  // 判断查询模式
+  const { key } = route.query
+  if (key === '1') {
+    handleAsk(userCommand)
+    return
+  }
 }
 
 onMounted(() => {
@@ -112,6 +113,8 @@ onMounted(() => {
   const { key } = route.query
   switch (key) {
     case '1':
+      const userCommand = window.localStorage.getItem('userCommand') || ''
+      onExec({ userCommand })
       break
     case '2':
       // 插入系统预设对话
@@ -166,17 +169,25 @@ onMounted(() => {
     align-items: center;
 
     .chat-modal-wrapper {
-      width: auto;
+      width: 350px;
       height: 100%;
-      flex: 1;
+
+      &.full {
+        width: 100%;
+        flex: 1;
+      }
     }
 
     .tool-panel-wrapper {
       width: auto;
       height: 100%;
-      flex: 1;
       // background: #999;
       margin-left: 16px;
+
+      &.show {
+        width: 100%;
+        flex: 1;
+      }
     }
   }
 }

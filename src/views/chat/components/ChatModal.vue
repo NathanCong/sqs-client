@@ -16,6 +16,22 @@
         >
           <span class="message-avator"></span>
           <span class="message-content">
+            <!-- 工具展示 -->
+            <template v-if="chatMessage.toolResult">
+              <span class="message-tool" @click="handleChangeToolShow">
+                <span class="tool-name">
+                  {{ getToolName(chatMessage.toolResult) }}
+                </span>
+                <span class="tool-data" v-if="isToolShow">
+                  <vue-json-pretty
+                    :data="getToolData(chatMessage.toolResult)"
+                    :deep="3"
+                    :showLength="true"
+                    :collapsedOnClickBrackets="true"
+                  />
+                </span>
+              </span>
+            </template>
             <!-- 文字消息类型 -->
             <template v-if="chatMessage.messageType === 'text'">
               <span class="message-text">
@@ -39,6 +55,8 @@
 import { ref, nextTick } from 'vue'
 import MarkdownRender from '@/components/MarkdownRender.vue'
 import CommandInput from '@/components/CommandInput.vue'
+import VueJsonPretty from 'vue-json-pretty'
+import 'vue-json-pretty/lib/styles.css'
 
 withDefaults(
   defineProps<{ chatList?: ChatMessage[]; execDisabled?: boolean }>(),
@@ -49,6 +67,12 @@ withDefaults(
 )
 
 const chatListRef = ref<Element | null>(null)
+
+const isToolShow = ref(false)
+
+function handleChangeToolShow() {
+  isToolShow.value = !isToolShow.value
+}
 
 const emit = defineEmits(['exec'])
 
@@ -62,6 +86,30 @@ function scrollToBottom() {
       chatListRef.value.scrollTop = chatListRef.value.scrollHeight
     }
   })
+}
+
+function getToolName(toolResult: string) {
+  const regex = /<name>([\s\S]*?)<\/name>/g
+  const matches = regex.exec(toolResult)
+  if (matches) {
+    console.log('matches', matches)
+    return matches[1]
+  }
+  return ''
+}
+
+function getToolData(toolResult: string) {
+  const regex = /<output>([\s\S]*?)<\/output>/g
+  const matches = regex.exec(toolResult)
+  let toolData = {}
+  if (matches) {
+    try {
+      toolData = JSON.parse(matches[1])
+    } catch (err) {
+      console.warn(err)
+    }
+  }
+  return toolData
 }
 
 defineExpose({ scrollToBottom })
@@ -168,6 +216,24 @@ defineExpose({ scrollToBottom })
         .message-content {
           padding: 16px;
           max-width: 50%;
+        }
+
+        .message-tool {
+          width: 100%;
+          display: flex;
+          flex-direction: column;
+          box-sizing: border-box;
+          padding: 16px;
+          background-color: #eee;
+          border-radius: 8px;
+          margin-bottom: 16px;
+
+          .tool-name {
+            font-size: 16px;
+            font-weight: bold;
+            // padding-bottom: 16px;
+            cursor: pointer;
+          }
         }
       }
     }
