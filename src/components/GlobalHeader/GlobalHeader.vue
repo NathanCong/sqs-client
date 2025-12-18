@@ -5,14 +5,14 @@
       <span class="logo-text">{{ title }}</span>
     </div>
     <div class="user-wrapper">
-      <UserLoginStatus />
+      <!-- <UserLoginStatus /> -->
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { useRouter } from 'vue-router'
-import UserLoginStatus from './components/UserLoginStatus.vue'
+// import UserLoginStatus from './components/UserLoginStatus.vue'
 
 withDefaults(defineProps<{ title?: string; bgColor?: string }>(), {
   title: 'AI专利检索分析平台',

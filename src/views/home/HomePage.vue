@@ -37,10 +37,10 @@ function onExec({ userCommand }: CommandInputExecParams) {
 }
 
 function onClick(key: string) {
-  if (key === '7') {
+  if (['2', '3', '4', '7'].includes(key)) {
     notification.info({
-      message: '温馨提示',
-      description: '功能正在开发中，敬请期待...'
+      message: '提示',
+      description: '数据库同步数据中，请稍后再试...'
     })
     return
   }

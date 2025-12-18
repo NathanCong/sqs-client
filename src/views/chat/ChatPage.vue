@@ -115,14 +115,14 @@ onMounted(() => {
       break
     case '2':
       // 插入系统预设对话
-      chatStore.add('assistant', 'text', '好的，请先在右侧完善信息')
-      chatModalRef.value?.scrollToBottom()
-      toolStore.openAdvancedFormPanel() // 打开工具面板
+      // chatStore.add('assistant', 'text', '好的，请先在右侧完善信息')
+      // chatModalRef.value?.scrollToBottom()
+      // toolStore.openAdvancedFormPanel() // 打开工具面板
       break
     case '3':
-      chatStore.add('assistant', 'text', '好的，请先在右侧完善信息') // 插入系统预设对话
-      chatModalRef.value?.scrollToBottom()
-      toolStore.openBatchFormPanel() // 打开工具面板
+      // chatStore.add('assistant', 'text', '好的，请先在右侧完善信息') // 插入系统预设对话
+      // chatModalRef.value?.scrollToBottom()
+      // toolStore.openBatchFormPanel() // 打开工具面板
       break
     case '4':
       break
