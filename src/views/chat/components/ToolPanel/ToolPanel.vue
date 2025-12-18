@@ -89,7 +89,13 @@ function onNoveltyFormPanelConfirm(markdown: string) {
 /**
  * 交底书撰写（新版） - 表单 @comfirm
  */
-async function onDisclosureFormPanelConfirm(markdown: string) {
+async function onDisclosureFormPanelConfirm({
+  markdown,
+  fileUrl
+}: {
+  markdown: string
+  fileUrl?: string
+}) {
   // 插入系统提示消息
   chatStore.add('assistant', 'text', '请查看右侧预览窗口，正在生成中...')
   // 打开 PreviewPanel
@@ -110,6 +116,7 @@ async function onDisclosureFormPanelConfirm(markdown: string) {
         sessionId: chatStore.currentChatId,
         code: previewData[index].code,
         question: markdown,
+        fileUrl,
         onChunk: (chunk) => {
           if (chunk === '[DONE]') {
             return resolve()
@@ -134,7 +141,13 @@ async function onDisclosureFormPanelConfirm(markdown: string) {
 /**
  * 专利撰写（新版） - 表单 @comfirm
  */
-async function onPatentFormPanelConfirm(markdown: string) {
+async function onPatentFormPanelConfirm({
+  markdown,
+  fileUrl
+}: {
+  markdown: string
+  fileUrl?: string
+}) {
   // 插入系统提示消息
   chatStore.add('assistant', 'text', '请查看右侧预览窗口，正在生成中...')
   // 打开 PreviewPanel
@@ -157,6 +170,7 @@ async function onPatentFormPanelConfirm(markdown: string) {
         sessionId: chatStore.currentChatId,
         code: previewData[index].code,
         question: markdown,
+        fileUrl,
         onChunk: (chunk) => {
           if (chunk === '[DONE]') {
             return resolve()

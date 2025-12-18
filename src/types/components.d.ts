@@ -18,6 +18,7 @@ declare module 'vue' {
     ARangePicker: typeof import('ant-design-vue/es')['RangePicker']
     ATable: typeof import('ant-design-vue/es')['Table']
     ATextarea: typeof import('ant-design-vue/es')['Textarea']
+    AUpload: typeof import('ant-design-vue/es')['Upload']
     CommandInput: typeof import('./../components/CommandInput.vue')['default']
     CommonEmpty: typeof import('./../components/CommonEmpty.vue')['default']
     CommonLoading: typeof import('./../components/CommonLoading.vue')['default']
