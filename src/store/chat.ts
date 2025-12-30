@@ -33,14 +33,16 @@ export const useChatStore = defineStore('chat', {
     update(
       chatMessageId: string,
       chatMessageData: unknown,
-      toolResult?: string
+      toolResults?: string[],
+      showRate?: boolean
     ) {
       const oldChatMessage = this.currentChatList.find((i) => {
         return i.messageId === chatMessageId
       })
       if (oldChatMessage) {
         oldChatMessage.messageData = chatMessageData
-        oldChatMessage.toolResult = toolResult
+        oldChatMessage.toolResults = toolResults
+        oldChatMessage.showRate = showRate
       }
     }
   }

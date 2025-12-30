@@ -17,20 +17,22 @@
           <span class="message-avator"></span>
           <span class="message-content">
             <!-- 工具展示 -->
-            <template v-if="chatMessage.toolResult">
-              <span class="message-tool" @click="handleChangeToolShow">
-                <span class="tool-name">
-                  {{ getToolName(chatMessage.toolResult) }}
+            <template v-if="chatMessage.toolResults?.length">
+              <template v-for="result in chatMessage.toolResults" :key="result">
+                <span class="message-tool" @click="handleChangeToolShow">
+                  <span class="tool-name">
+                    {{ getToolName(result) }}
+                  </span>
+                  <span class="tool-data" v-if="isToolShow">
+                    <vue-json-pretty
+                      :data="getToolData(result)"
+                      :deep="5"
+                      :showLength="true"
+                      :collapsedOnClickBrackets="true"
+                    />
+                  </span>
                 </span>
-                <span class="tool-data" v-if="isToolShow">
-                  <vue-json-pretty
-                    :data="getToolData(chatMessage.toolResult)"
-                    :deep="5"
-                    :showLength="true"
-                    :collapsedOnClickBrackets="true"
-                  />
-                </span>
-              </span>
+              </template>
             </template>
             <!-- 文字消息类型 -->
             <template v-if="chatMessage.messageType === 'text'">
@@ -41,6 +43,11 @@
               </span>
             </template>
             <!-- 其他消息类型 -->
+            <template v-if="chatMessage.showRate">
+              <span class="message-rate">
+                <a-rate allow-half />
+              </span>
+            </template>
           </span>
         </li>
       </ul>
@@ -92,7 +99,6 @@ function getToolName(toolResult: string) {
   const regex = /<name>([\s\S]*?)<\/name>/g
   const matches = regex.exec(toolResult)
   if (matches) {
-    console.log('matches', matches)
     return matches[1]
   }
   return ''
@@ -216,23 +222,29 @@ defineExpose({ scrollToBottom })
         .message-content {
           padding: 16px;
           max-width: 50%;
-        }
-
-        .message-tool {
-          width: 100%;
           display: flex;
           flex-direction: column;
-          box-sizing: border-box;
-          padding: 16px;
-          background-color: #eee;
-          border-radius: 8px;
-          margin-bottom: 16px;
 
-          .tool-name {
-            font-size: 16px;
-            font-weight: bold;
-            // padding-bottom: 16px;
-            cursor: pointer;
+          .message-tool {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+            padding: 16px;
+            background-color: #eee;
+            border-radius: 8px;
+            margin-bottom: 16px;
+
+            .tool-name {
+              font-size: 16px;
+              font-weight: bold;
+              // padding-bottom: 16px;
+              cursor: pointer;
+            }
+          }
+
+          .message-rate {
+            margin-top: 8px;
           }
         }
       }
