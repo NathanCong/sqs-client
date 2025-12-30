@@ -72,7 +72,7 @@ function getToolData(toolResult: string) {
 async function handleAsk(userCommand: string) {
   const messageId = chatStore.add('assistant', 'text', '请稍等，正在思考中...')
   let tempContent = ''
-  let toolResult = ''
+  let toolResults: string[] = []
   requestLoading.value = true
   try {
     await consultStream({
@@ -80,8 +80,8 @@ async function handleAsk(userCommand: string) {
       question: userCommand,
       onChunk: (chunk) => {
         if (chunk === '[DONE]') {
-          if (toolResult) {
-            const { sources } = getToolData(toolResult) as {
+          if (toolResults.length > 1) {
+            const { sources } = getToolData(toolResults[1]) as {
               sources: unknown[]
             }
             // 关闭所有面板
@@ -96,21 +96,21 @@ async function handleAsk(userCommand: string) {
           }
           return
         }
-        const regex = /<tool_result>([\s\S]*?)<\/tool_result>/g
-        const matches = regex.exec(chunk)
         // 有 tool_result 情况
         if (chunk.includes('<tool_result>')) {
+          const regex = /<tool_result>([\s\S]*?)<\/tool_result>/g
+          const matches = chunk.match(regex) || []
           if (matches) {
-            toolResult = `<tool_result>${matches[1]}</tool_result>`
-            tempContent = chunk.replace(toolResult, '')
-            chatStore.update(messageId, tempContent, toolResult)
+            toolResults = matches
+            tempContent = chunk.replace(regex, '')
+            chatStore.update(messageId, tempContent, toolResults, true)
             chatModalRef.value?.scrollToBottom()
           }
           return
         }
         // 没有 tool_result 情况
         tempContent = chunk
-        chatStore.update(messageId, tempContent)
+        chatStore.update(messageId, tempContent, toolResults, true)
         chatModalRef.value?.scrollToBottom()
       }
     })
@@ -188,15 +188,17 @@ onMounted(() => {
   justify-content: center;
 
   .chat-mainner {
-    width: 90%;
-    height: 88%;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    padding: 16px;
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
 
     .chat-modal-wrapper {
-      width: 350px;
+      width: 550px;
       height: 100%;
 
       &.full {
