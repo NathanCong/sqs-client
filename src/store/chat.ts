@@ -19,13 +19,21 @@ export const useChatStore = defineStore('chat', {
       this.chatHistory[this.currentChatId] = []
     },
     // 添加聊天消息
-    add(messageRole: string, messageType: string, messageData: unknown) {
+    add(
+      messageRole: string,
+      messageType: string,
+      messageData: unknown,
+      showRate?: boolean,
+      rate?: number
+    ) {
       const messageId = createId()
       this.chatHistory[this.currentChatId].push({
         messageId,
         messageRole,
         messageType,
-        messageData
+        messageData,
+        showRate,
+        rate: rate || 0
       })
       return messageId
     },
@@ -34,7 +42,8 @@ export const useChatStore = defineStore('chat', {
       chatMessageId: string,
       chatMessageData: unknown,
       toolResults?: string[],
-      showRate?: boolean
+      showRate?: boolean,
+      rate?: number
     ) {
       const oldChatMessage = this.currentChatList.find((i) => {
         return i.messageId === chatMessageId
@@ -43,6 +52,7 @@ export const useChatStore = defineStore('chat', {
         oldChatMessage.messageData = chatMessageData
         oldChatMessage.toolResults = toolResults
         oldChatMessage.showRate = showRate
+        oldChatMessage.rate = rate
       }
     }
   }

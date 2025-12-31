@@ -9,25 +9,22 @@
       </template>
       <template v-if="isShowChat">
         <section class="chat-modal-wrapper">
-          <div class="chat-button hide" @click="onChatHide">
-            <LeftOutlined />
-          </div>
+          <template v-if="isShowTool">
+            <div class="chat-button hide" @click="onChatHide">
+              <LeftOutlined />
+            </div>
+          </template>
           <ChatModal
             ref="chatModalRef"
             :chatList="chatStore.currentChatList"
-            :execDisabled="execDisabled"
+            :execDisabled="requestLoading"
             @exec="onExec"
           />
         </section>
       </template>
       <!-- 功能面板 -->
-      <template v-if="true">
-        <section class="tool-panel-wrapper">
-          <ToolPanel
-            @onAdvancedFormPanelConfirm="handleOthers"
-            @onBatchFormPanelConfirm="handleOthers"
-          />
-        </section>
+      <template v-if="isShowTool">
+        <section class="tool-panel-wrapper"></section>
       </template>
     </div>
   </div>
@@ -35,14 +32,11 @@
 
 <script lang="ts" setup>
 import { LeftOutlined, RightOutlined } from '@ant-design/icons-vue'
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import ChatModal from './components/ChatModal.vue'
-import ToolPanel from './components/ToolPanel'
+import ChatModal from './components/ChatModal'
 // import { consultStream } from '@/apis'
 import { useChatStore } from '@/store/chat'
-import { useToolStore } from '@/store/tool'
-// import { PATENT_TABLE_COLUMNS } from '@/consts'
 
 const isShowChat = ref(true)
 
@@ -54,25 +48,17 @@ function onChatHide() {
   isShowChat.value = false
 }
 
-// 定义 states
+const isShowTool = ref(false)
+
+/**
+ * 待优化逻辑
+ */
 const chatModalRef = ref<InstanceType<typeof ChatModal>>()
 const requestLoading = ref(false)
 const route = useRoute()
-// const router = useRouter()
 
 // 定义 store
 const chatStore = useChatStore()
-const toolStore = useToolStore()
-
-// 定义计算属性
-const execDisabled = computed(() => requestLoading.value)
-
-/**
- * 处理其他咨询
- */
-async function handleOthers(userCommand: string) {
-  console.log('userCommand', userCommand)
-}
 
 // function getToolData(toolResult: string) {
 //   const regex = /<output>([\s\S]*?)<\/output>/g
@@ -103,15 +89,6 @@ async function handleOthers(userCommand: string) {
 //             const { sources } = getToolData(toolResults[1]) as {
 //               sources: unknown[]
 //             }
-//             // 关闭所有面板
-//             toolStore.closeAllPanels()
-//             toolStore.openPreviewPanel('list', {
-//               columns: PATENT_TABLE_COLUMNS,
-//               dataSource: sources,
-//               total: sources.length,
-//               pageNum: 1,
-//               pageSize: sources.length
-//             })
 //           }
 //           return
 //         }
@@ -151,50 +128,17 @@ function onExec({ userCommand }: { userCommand: string }) {
 }
 
 onMounted(() => {
-  // 创建新对话
-  chatStore.create()
-  // 关闭所有面板
-  toolStore.closeAllPanels()
-  // 处理路由参数
-  const { key } = route.query
-  switch (key) {
-    case '1':
-      const userCommand = window.localStorage.getItem('userCommand') || ''
-      onExec({ userCommand })
-      break
-    case '2':
-      // 插入系统预设对话
-      // chatStore.add('assistant', 'text', '好的，请先在右侧完善信息')
-      // chatModalRef.value?.scrollToBottom()
-      // toolStore.openAdvancedFormPanel() // 打开工具面板
-      break
-    case '3':
-      // chatStore.add('assistant', 'text', '好的，请先在右侧完善信息') // 插入系统预设对话
-      // chatModalRef.value?.scrollToBottom()
-      // toolStore.openBatchFormPanel() // 打开工具面板
-      break
-    case '4':
-      break
-    case '5':
-      // 插入系统预设对话
-      chatStore.add('user', 'text', '请帮我写一篇技术交底书')
-      chatStore.add('assistant', 'text', '好的，请先在右侧完善信息')
-      chatModalRef.value?.scrollToBottom()
-      // 打开专利工具面板
-      toolStore.openDisclosureFormPanel()
-      break
-    case '6':
-      // 插入系统预设对话
-      chatStore.add('user', 'text', '请帮我写一篇专利')
-      chatStore.add('assistant', 'text', '好的，请先在右侧完善信息')
-      chatModalRef.value?.scrollToBottom()
-      // 打开专利工具面板
-      toolStore.openPatentFormPanel()
-      break
-    case '7':
-      break
-    default:
-  }
+  // // 创建新对话
+  // chatStore.create()
+  // // 处理路由参数
+  // const { key } = route.query
+  // switch (key) {
+  //   case '1':
+  //     const userCommand = window.localStorage.getItem('userCommand') || ''
+  //     onExec({ userCommand })
+  //     break
+  //   default:
+  // }
 })
 </script>
 
