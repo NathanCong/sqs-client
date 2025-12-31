@@ -14,12 +14,7 @@
               <LeftOutlined />
             </div>
           </template>
-          <ChatModal
-            ref="chatModalRef"
-            :chatList="chatStore.currentChatList"
-            :execDisabled="requestLoading"
-            @exec="onExec"
-          />
+          <ChatModal />
         </section>
       </template>
       <!-- 功能面板 -->
@@ -32,11 +27,8 @@
 
 <script lang="ts" setup>
 import { LeftOutlined, RightOutlined } from '@ant-design/icons-vue'
-import { ref, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref } from 'vue'
 import ChatModal from './components/ChatModal'
-// import { consultStream } from '@/apis'
-import { useChatStore } from '@/store/chat'
 
 const isShowChat = ref(true)
 
@@ -49,97 +41,6 @@ function onChatHide() {
 }
 
 const isShowTool = ref(false)
-
-/**
- * 待优化逻辑
- */
-const chatModalRef = ref<InstanceType<typeof ChatModal>>()
-const requestLoading = ref(false)
-const route = useRoute()
-
-// 定义 store
-const chatStore = useChatStore()
-
-// function getToolData(toolResult: string) {
-//   const regex = /<output>([\s\S]*?)<\/output>/g
-//   const matches = regex.exec(toolResult)
-//   let toolData = {}
-//   if (matches) {
-//     try {
-//       toolData = JSON.parse(matches[1])
-//     } catch (err) {
-//       console.warn(err)
-//     }
-//   }
-//   return toolData
-// }
-
-// async function handleAsk(userCommand: string) {
-//   const messageId = chatStore.add('assistant', 'text', '请稍等，正在思考中...')
-//   let tempContent = ''
-//   let toolResults: string[] = []
-//   requestLoading.value = true
-//   try {
-//     await consultStream({
-//       sessionId: chatStore.currentChatId,
-//       question: userCommand,
-//       onChunk: (chunk) => {
-//         if (chunk === '[DONE]') {
-//           if (toolResults.length > 1) {
-//             const { sources } = getToolData(toolResults[1]) as {
-//               sources: unknown[]
-//             }
-//           }
-//           return
-//         }
-//         // 有 tool_result 情况
-//         if (chunk.includes('<tool_result>')) {
-//           const regex = /<tool_result>([\s\S]*?)<\/tool_result>/g
-//           const matches = chunk.match(regex) || []
-//           if (matches) {
-//             toolResults = matches
-//             tempContent = chunk.replace(regex, '')
-//             chatStore.update(messageId, tempContent, toolResults, true)
-//             chatModalRef.value?.scrollToBottom()
-//           }
-//           return
-//         }
-//         // 没有 tool_result 情况
-//         tempContent = chunk
-//         chatStore.update(messageId, tempContent, toolResults, true)
-//         chatModalRef.value?.scrollToBottom()
-//       }
-//     })
-//   } catch (err) {
-//     console.warn(err)
-//   } finally {
-//     requestLoading.value = false
-//   }
-// }
-
-function onExec({ userCommand }: { userCommand: string }) {
-  chatStore.add('user', 'text', userCommand)
-  // 判断查询模式
-  const { key } = route.query
-  if (key === '1') {
-    // handleAsk(userCommand)
-    return
-  }
-}
-
-onMounted(() => {
-  // // 创建新对话
-  // chatStore.create()
-  // // 处理路由参数
-  // const { key } = route.query
-  // switch (key) {
-  //   case '1':
-  //     const userCommand = window.localStorage.getItem('userCommand') || ''
-  //     onExec({ userCommand })
-  //     break
-  //   default:
-  // }
-})
 </script>
 
 <style lang="less" scoped>

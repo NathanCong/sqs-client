@@ -19,17 +19,13 @@
             </template>
             <template v-if="c.type === 'tool'">
               <span class="message-tool">
-                <span class="tool-header">
+                <span class="tool-header" @click="changeToolVisible(i)">
                   <span class="tool-name">{{ (c.data as Tool).name }}</span>
                   <template v-if="isToolShow(i)">
-                    <span class="tool-hide" @click="onToolHide(i)">
-                      <UpOutlined />
-                    </span>
+                    <span class="tool-hide"><UpOutlined /></span>
                   </template>
                   <template v-if="!isToolShow(i)">
-                    <span class="tool-show" @click="onToolShow(i)">
-                      <DownOutlined />
-                    </span>
+                    <span class="tool-show"><DownOutlined /></span>
                   </template>
                 </span>
                 <template v-if="isToolShow(i)">
@@ -79,12 +75,13 @@
 </template>
 
 <script lang="ts">
-interface Tool {
+export interface Tool {
   name: string
   data: JSONDataType
+  html?: string
 }
 
-interface Content {
+export interface Content {
   type: 'text' | 'tool'
   data: string | Tool
 }
@@ -101,13 +98,14 @@ interface Pdf {
   url: string
 }
 
-interface ComponentProps {
-  id: string
-  role: 'user' | 'assistant'
-  type: 'text' | 'list' | 'pdf'
+export interface ComponentProps {
+  id?: string
+  role?: 'user' | 'assistant'
+  type?: 'text' | 'list' | 'pdf'
   data?: Content[] | List | Pdf
   showRate?: boolean
   rate?: number
+  model?: string
 }
 </script>
 
@@ -125,10 +123,12 @@ import {
 import { computed, ref } from 'vue'
 
 const props = withDefaults(defineProps<ComponentProps>(), {
+  id: '',
   role: 'user',
   type: 'text',
   data: () => [],
-  showRate: false
+  showRate: false,
+  rate: 0
 })
 
 const contents = computed(() => {
@@ -144,12 +144,8 @@ function isToolShow(index: number): boolean {
   return toolVisibleMap.value.get(index) ?? false
 }
 
-function onToolShow(index: number): void {
-  toolVisibleMap.value.set(index, true)
-}
-
-function onToolHide(index: number): void {
-  toolVisibleMap.value.set(index, false)
+function changeToolVisible(index: number): void {
+  toolVisibleMap.value.set(index, !isToolShow(index))
 }
 
 function onListClick(): void {
@@ -258,7 +254,7 @@ function onRateChange(value: number): void {
         .tool-header {
           width: 100%;
           box-sizing: border-box;
-          padding: 16px 0;
+          padding: 16px;
           padding-left: 16px;
           display: flex;
           flex-direction: row;
@@ -266,27 +262,38 @@ function onRateChange(value: number): void {
           justify-content: space-between;
           background-color: #eee;
           border-radius: 8px;
+          cursor: pointer;
 
           .tool-name {
             font-size: 16px;
+            line-height: 24px;
             font-weight: bold;
           }
 
           .tool-show,
           .tool-hide {
-            cursor: pointer;
-            height: auto;
-            padding: 0 16px;
+            width: auto;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
           }
         }
 
         .tool-mainer {
           width: 100%;
           height: auto;
+          max-height: 300px;
           box-sizing: border-box;
           padding: 16px;
-          max-height: 300px;
-          overflow-y: auto;
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+
+          .tool-data {
+            flex: 1;
+            overflow-y: auto;
+          }
         }
       }
     }
