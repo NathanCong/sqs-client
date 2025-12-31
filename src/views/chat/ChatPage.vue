@@ -7,19 +7,19 @@
           <RightOutlined />
         </div>
       </template>
-      <template v-if="isShowChat">
-        <section class="chat-modal-wrapper">
-          <template v-if="isShowTool">
-            <div class="chat-button hide" @click="onChatHide">
-              <LeftOutlined />
-            </div>
-          </template>
-          <ChatModal />
-        </section>
-      </template>
+      <section class="chat-modal-wrapper" v-show="isShowChat">
+        <template v-if="isShowTool">
+          <div class="chat-button hide" @click="onChatHide">
+            <LeftOutlined />
+          </div>
+        </template>
+        <ChatModal />
+      </section>
       <!-- 功能面板 -->
       <template v-if="isShowTool">
-        <section class="tool-panel-wrapper"></section>
+        <section class="tool-panel-wrapper" :class="{ full: !isShowChat }">
+          <ToolPanel />
+        </section>
       </template>
     </div>
   </div>
@@ -27,8 +27,10 @@
 
 <script lang="ts" setup>
 import { LeftOutlined, RightOutlined } from '@ant-design/icons-vue'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import ChatModal from './components/ChatModal'
+import ToolPanel from './components/ToolPanel'
+import { useToolStore } from '@/store/tool'
 
 const isShowChat = ref(true)
 
@@ -40,7 +42,9 @@ function onChatHide() {
   isShowChat.value = false
 }
 
-const isShowTool = ref(false)
+const toolStore = useToolStore()
+
+const isShowTool = computed(() => toolStore.activePanel)
 </script>
 
 <style lang="less" scoped>
@@ -110,6 +114,10 @@ const isShowTool = ref(false)
       height: 100%;
       box-sizing: border-box;
       padding-left: 16px;
+
+      &.full {
+        padding-left: 0;
+      }
     }
   }
 }

@@ -1,5 +1,5 @@
 <template>
-  <div class="command-input">
+  <div class="command-input" :class="{ 'show-upload': showUpload }">
     <!-- Input -->
     <section class="input-wrapper">
       <a-input
@@ -10,25 +10,27 @@
     </section>
     <!-- Exec Button -->
     <section class="buttons-wrapper">
-      <span class="upload-button">
-        <template v-if="fileUrl">
-          <span class="upload-file"><FilePdfOutlined /></span>
-        </template>
-        <template v-else>
-          <a-upload
-            accept=".pdf"
-            v-model:file-list="fileList"
-            :before-upload="() => false"
-            :multiple="false"
-            :show-upload-list="false"
-            @change="onChange"
-          >
-            <a-button type="default" shape="circle">
-              <CloudUploadOutlined />
-            </a-button>
-          </a-upload>
-        </template>
-      </span>
+      <template v-if="showUpload">
+        <span class="upload-button">
+          <template v-if="fileUrl">
+            <span class="upload-file"><FilePdfOutlined /></span>
+          </template>
+          <template v-else>
+            <a-upload
+              accept=".pdf"
+              v-model:file-list="fileList"
+              :before-upload="() => false"
+              :multiple="false"
+              :show-upload-list="false"
+              @change="onChange"
+            >
+              <a-button type="default" shape="circle">
+                <CloudUploadOutlined />
+              </a-button>
+            </a-upload>
+          </template>
+        </span>
+      </template>
       <span class="exec-button">
         <template v-if="isLoading || uploadLoading">
           <span class="loading"><LoadingOutlined :spin="true" /></span>
@@ -46,6 +48,7 @@
 <script lang="ts">
 interface ComponentProps {
   isLoading?: boolean
+  showUpload?: boolean
 }
 
 export interface ExecParams {
@@ -68,7 +71,10 @@ import { uploadFile } from '@/apis'
 
 const userCommand = ref('')
 
-withDefaults(defineProps<ComponentProps>(), { isLoading: false })
+withDefaults(defineProps<ComponentProps>(), {
+  isLoading: false,
+  showUpload: false
+})
 
 const fileList = ref([])
 
@@ -177,6 +183,9 @@ function onExec() {
   height: 48px;
   border-radius: 24px;
   padding: 6px 16px;
+  padding-right: calc(100px + 16px);
+}
+.show-upload :deep(.ant-input) {
   padding-right: calc(100px + 16px + 32px);
 }
 .exec-button :deep(.ant-btn) {

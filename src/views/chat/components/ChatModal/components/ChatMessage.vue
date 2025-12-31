@@ -145,6 +145,7 @@ import { computed, ref } from 'vue'
 import type { SelectValue } from 'ant-design-vue/es/select'
 import { SELECTOR_OPTIONS } from '../constants'
 import { useChatStore } from '@/store/chat'
+import { useToolStore } from '@/store/tool'
 
 const props = withDefaults(defineProps<ComponentProps>(), {
   id: '',
@@ -174,8 +175,15 @@ function changeToolVisible(index: number): void {
   toolVisibleMap.value.set(index, !isToolShow(index))
 }
 
+const toolStore = useToolStore()
+
 function onListClick(): void {
   const list = props.data as List
+  toolStore.openPreviewPanel('list', {
+    columns: list.columns,
+    dataSource: list.dataSource,
+    total: list.dataSource.length
+  })
   console.log('List clicked:', list)
 }
 

@@ -28,7 +28,11 @@
     </section>
     <!-- Chat Footer -->
     <section class="chat-footer">
-      <CommandInput :is-loading="requestLoading" @exec="onExec" />
+      <CommandInput
+        :is-loading="requestLoading"
+        :show-upload="true"
+        @exec="onExec"
+      />
     </section>
   </div>
 </template>
@@ -38,9 +42,15 @@ import { ref, nextTick, onMounted } from 'vue'
 import CommandInput from '@/components/CommandInput.vue'
 import type { ExecParams } from '@/components/CommandInput.vue'
 import ChatMessage from './components/ChatMessage.vue'
-import type { Content } from './components/ChatMessage.vue'
+import type {
+  Tool,
+  Content,
+  ComponentProps as Message
+} from './components/ChatMessage.vue'
 import { useChatStore } from '@/store/chat'
 import { consultStream } from '@/apis'
+import { TABLE_COLUMNS } from './constants'
+import { getStorage, delStorage } from '@/utils/storage'
 
 const chatStore = useChatStore()
 
@@ -133,10 +143,36 @@ async function ask(messageId: string, userCommand: string, fileUrl?: string) {
       fileUrl,
       onChunk: (chunk) => {
         if (chunk === '[DONE]') {
+          // 展示用户评分
           chatStore.setMessage(messageId, {
             showSelector: true,
             showRate: true
           })
+          // 列表类型需要展示数据
+          const message = chatStore.getMessage(messageId) as Message
+          const toolItem = (message.data as Content[]).find(
+            (i) => i.type === 'tool' && (i.data as Tool).name === 'rag_search'
+          )
+          if (toolItem) {
+            chatStore.addMessage({
+              role: 'assistant',
+              type: 'list',
+              data: {
+                name: '查询结果',
+                columns: TABLE_COLUMNS,
+                dataSource: (
+                  (toolItem.data as Tool).data as { sources: unknown[] }
+                ).sources,
+                pagination: {
+                  total: 0,
+                  pageNum: 1,
+                  pageSize: 10
+                }
+              },
+              showSelector: true,
+              showRate: true
+            })
+          }
           return
         }
         handleChunk(messageId, chunk)
@@ -175,6 +211,11 @@ function onExec(params: ExecParams) {
 
 onMounted(() => {
   chatStore.createNewChat()
+  const userCommand = getStorage('userCommand')
+  if (userCommand) {
+    onExec({ userCommand })
+    delStorage('userCommand')
+  }
 })
 </script>
 
