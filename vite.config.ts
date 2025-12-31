@@ -5,7 +5,9 @@ import { AntDesignVueResolver } from 'unplugin-vue-components/resolvers'
 import { resolve } from 'path'
 
 export default defineConfig({
-  // 插件（可根据需要添加 Vue 插件等）
+  /**
+   * 插件（可根据需要添加 Vue 插件等）
+   */
   plugins: [
     vue(),
     Components({
@@ -13,15 +15,17 @@ export default defineConfig({
       resolvers: [AntDesignVueResolver({ importStyle: false })]
     })
   ],
-
-  // 解析配置
+  /**
+   * 解析配置
+   */
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src/')
     }
   },
-
-  // CSS 配置
+  /**
+   * CSS 配置
+   */
   css: {
     preprocessorOptions: {
       less: {
@@ -29,19 +33,21 @@ export default defineConfig({
       }
     }
   },
-
-  // 服务配置
+  /**
+   * 服务配置
+   */
   server: {
     host: '0.0.0.0',
     port: 3000,
-    open: true, // 启动时自动打开浏览器
+    open: true,
     hmr: true
   },
-
-  // 构建配置
+  /**
+   * 构建配置
+   */
   build: {
-    outDir: 'dist', // 输出目录
-    assetsDir: 'assets', // 静态资源目录
-    sourcemap: false // 是否生成源码映射
+    outDir: 'dist',
+    assetsDir: 'assets',
+    sourcemap: false
   }
 })

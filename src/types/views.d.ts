@@ -7,10 +7,6 @@ interface ChatMessage {
   showRate?: boolean
 }
 
-interface CommandInputExecParams {
-  userCommand: string
-}
-
 type ChatModalExecParams = CommandInputExecParams
 
 type CommonFormItemValue = never | undefined

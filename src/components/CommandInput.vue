@@ -8,10 +8,8 @@
       />
     </section>
     <section class="button-wrapper">
-      <template v-if="execDisabled">
-        <span class="loading">
-          <LoadingOutlined :spin="true" />
-        </span>
+      <template v-if="isLoading">
+        <span class="loading"><LoadingOutlined :spin="true" /></span>
       </template>
       <template v-else>
         <a-button type="primary" size="large" @click="onExec">
@@ -22,15 +20,23 @@
   </div>
 </template>
 
+<script lang="ts">
+interface ComponentProps {
+  isLoading?: boolean
+}
+
+export interface ExecParams {
+  userCommand: string
+}
+</script>
+
 <script lang="ts" setup>
 import { RightCircleOutlined, LoadingOutlined } from '@ant-design/icons-vue'
 import { ref } from 'vue'
 
-const userCommand = ref('') // 用户指令
+const userCommand = ref('')
 
-withDefaults(defineProps<{ execDisabled?: boolean }>(), {
-  execDisabled: false
-})
+withDefaults(defineProps<ComponentProps>(), { isLoading: false })
 
 const emit = defineEmits(['exec'])
 
@@ -38,7 +44,10 @@ function onExec() {
   if (!userCommand.value) {
     return
   }
-  emit('exec', { userCommand: userCommand.value })
+  const params: ExecParams = {
+    userCommand: userCommand.value
+  }
+  emit('exec', params)
   userCommand.value = ''
 }
 </script>
@@ -53,13 +62,6 @@ function onExec() {
 
   .input-wrapper {
     width: 100%;
-
-    ::v-deep(.ant-input) {
-      height: 48px;
-      border-radius: 24px;
-      padding: 6px 16px;
-      padding-right: calc(100px + 16px);
-    }
   }
 
   .button-wrapper {
@@ -67,12 +69,6 @@ function onExec() {
     height: auto;
     position: absolute;
     right: -1px;
-
-    ::v-deep(.ant-btn) {
-      width: 100px;
-      height: 48px;
-      border-radius: 24px;
-    }
 
     .loading {
       width: 100px;
@@ -87,5 +83,19 @@ function onExec() {
       font-size: 24px;
     }
   }
+}
+</style>
+
+<style scoped>
+:deep(.ant-input) {
+  height: 48px;
+  border-radius: 24px;
+  padding: 6px 16px;
+  padding-right: calc(100px + 16px);
+}
+:deep(.ant-btn) {
+  width: 100px;
+  height: 48px;
+  border-radius: 24px;
 }
 </style>
