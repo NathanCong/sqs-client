@@ -1,21 +1,19 @@
 <template>
   <div class="home home-background">
-    <section class="home-header">
-      <GlobalHeader />
-    </section>
+    <!-- Header -->
+    <section class="home-header"><GlobalHeader /></section>
+    <!-- Mainer -->
     <section class="home-mainer">
       <div class="mainer-content">
-        <!-- 系统提示语 -->
+        <!-- 系统提示 -->
         <div class="system-tips">
           <span class="tips-item">Hi，下午好！ 我是您的专属AI助手~</span>
         </div>
         <!-- 搜索栏 -->
-        <div class="search-wrapper">
-          <CommandInput @exec="onExec" />
-        </div>
+        <div class="search-wrapper"><CommandInput @exec="onExec" /></div>
         <!-- 功能快捷入口 -->
         <div class="tools-wrapper">
-          <HomeTools @click="onClick" />
+          <HomeTools :toolList="TOOL_LIST" @active="onActive" />
         </div>
       </div>
     </section>
@@ -24,23 +22,27 @@
 
 <script lang="ts" setup>
 import { useRouter } from 'vue-router'
+import { setStorage } from '@/utils/storage'
 import GlobalHeader from '@/components/GlobalHeader'
 import CommandInput from '@/components/CommandInput.vue'
+import type { ExecParams } from '@/components/CommandInput.vue'
+import { TOOL_LIST } from './constants/index'
 import HomeTools from './components/HomeTools.vue'
+import type { ActiveParams } from './components/HomeTools.vue'
 import { notification } from 'ant-design-vue'
 
 const router = useRouter()
 
-function onExec({ userCommand }: CommandInputExecParams) {
-  window.localStorage.setItem('userCommand', userCommand)
+function onExec({ userCommand }: ExecParams) {
+  setStorage('userCommand', userCommand)
   router.replace({ path: '/chat', query: { key: '1' } })
 }
 
-function onClick(key: string) {
-  if (['2', '3', '4', '7'].includes(key)) {
+function onActive({ key }: ActiveParams) {
+  if (['2', '3', '4', '5', '6', '7'].includes(key)) {
     notification.info({
       message: '提示',
-      description: '数据库同步数据中，请稍后再试...'
+      description: 'POC 验证阶段，功能暂未开放！'
     })
     return
   }
@@ -71,7 +73,6 @@ function onClick(key: string) {
 
 .home-mainer {
   flex: 1;
-  // background-color: #999;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -86,7 +87,6 @@ function onClick(key: string) {
     .search-wrapper,
     .tools-wrapper {
       width: 100%;
-      // background-color: #999;
       display: flex;
       justify-content: center;
       align-items: center;

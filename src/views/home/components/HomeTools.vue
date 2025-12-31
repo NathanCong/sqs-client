@@ -4,59 +4,34 @@
       <span class="header-text">您可以尝试以下功能</span>
     </section>
     <section class="tools-mainer">
-      <div
-        class="tools-item"
-        v-for="tool in toolList"
-        :key="tool.key"
-        @click="onClick(tool.key)"
-      >
-        <span class="tool-name">{{ tool.name }}</span>
-        <span class="tool-desc">{{ tool.desc }}</span>
-      </div>
+      <template v-for="t in toolList" :key="t.key">
+        <div class="tools-item" @click="onClick(t.key)">
+          <span class="tool-name">{{ t.name }}</span>
+          <span class="tool-desc">{{ t.desc }}</span>
+        </div>
+      </template>
     </section>
   </div>
 </template>
 
+<script lang="ts">
+interface ComponentProps {
+  toolList: Array<{ key: string; name: string; desc: string }>
+}
+
+export interface ActiveParams {
+  key: string
+}
+</script>
+
 <script lang="ts" setup>
-import { ref } from 'vue'
+withDefaults(defineProps<ComponentProps>(), { toolList: () => [] })
 
-const toolList = ref([
-  {
-    key: '2',
-    name: '专利高级检索',
-    desc: '通过精确条件搜索专利、文献、论文等'
-  },
-  {
-    key: '3',
-    name: '专利批量检索',
-    desc: '通过专利号等信息批量查找专利、文献'
-  },
-  {
-    key: '4',
-    name: '专利查新检索',
-    desc: '根据专利内容进行相似对比分析'
-  },
-  {
-    key: '5',
-    name: '交底书撰写助手',
-    desc: '根据您的需求自动撰写技术交底书'
-  },
-  {
-    key: '6',
-    name: '专利撰写助手',
-    desc: '根据提供的技术交底书自动撰写专利'
-  },
-  {
-    key: '7',
-    name: '专利智能分析',
-    desc: '利用搜索到的专利文献进行中和分析'
-  }
-])
-
-const emit = defineEmits(['click'])
+const emit = defineEmits(['active'])
 
 function onClick(key: string) {
-  emit('click', key)
+  const params: ActiveParams = { key }
+  emit('active', params)
 }
 </script>
 

@@ -17,6 +17,7 @@ declare module 'vue' {
     APagination: typeof import('ant-design-vue/es')['Pagination']
     ARangePicker: typeof import('ant-design-vue/es')['RangePicker']
     ARate: typeof import('ant-design-vue/es')['Rate']
+    ASelect: typeof import('ant-design-vue/es')['Select']
     ASpin: typeof import('ant-design-vue/es')['Spin']
     ATable: typeof import('ant-design-vue/es')['Table']
     ATextarea: typeof import('ant-design-vue/es')['Textarea']

@@ -12,36 +12,3 @@ export const SEMANTICS_TOOLS_MAP = {
   '6': '专利撰写助手', // 触发 -> 专利相关信息采集
   '7': '专利智能分析' // ?
 }
-
-export const PATENT_TABLE_COLUMNS = [
-  {
-    key: 'id',
-    dataIndex: 'id',
-    title: '公开号'
-  },
-  {
-    key: 'title',
-    dataIndex: 'title',
-    title: '标题'
-  },
-  {
-    key: 'abstract',
-    dataIndex: 'abstract',
-    title: '摘要'
-  },
-  {
-    key: 'ipc',
-    dataIndex: 'ipc',
-    title: '主分类号'
-  },
-  {
-    key: 'applicant',
-    dataIndex: 'applicant',
-    title: '发明人'
-  },
-  {
-    key: 'score',
-    dataIndex: 'score',
-    title: '检索得分'
-  }
-]

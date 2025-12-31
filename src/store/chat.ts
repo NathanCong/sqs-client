@@ -1,49 +1,70 @@
 import { defineStore } from 'pinia'
+import { ref, computed } from 'vue'
 import { v4 as createId } from 'uuid'
+import type { ComponentProps as ChatMessage } from '@/views/chat/components/ChatModal/components/ChatMessage.vue'
 
-export const useChatStore = defineStore('chat', {
-  state: () => ({
-    currentChatId: '' as string, // 当前聊天id
-    chatHistory: {} as ChatHistory // 聊天历史数据
-  }),
-  getters: {
-    // 获取当前聊天
-    currentChatList(state) {
-      return state.chatHistory[state.currentChatId]
+export const useChatStore = defineStore('chat', () => {
+  /**
+   * State
+   */
+  const currentChatId = ref<string>('') // 当前聊天id
+  const chatHistory = ref<Map<string, ChatMessage[]>>(new Map()) // 聊天历史记录
+
+  /**
+   * Getters
+   */
+  const currentChatList = computed(() => {
+    return chatHistory.value.get(currentChatId.value) || []
+  })
+
+  /**
+   * Actions
+   */
+  function createNewChat(): string {
+    const chatId = createId()
+    currentChatId.value = chatId
+    chatHistory.value.set(chatId, [])
+    console.log('Created new chat with ID:', chatId)
+    return chatId
+  }
+
+  function addMessage(message: ChatMessage): string {
+    const messageId = createId()
+    chatHistory.value.get(currentChatId.value)?.push({
+      ...message,
+      id: messageId
+    })
+    return messageId
+  }
+
+  function getMessage(id: string) {
+    return currentChatList.value.find((i) => i.id === id)
+  }
+
+  function setMessage(id: string, message: ChatMessage) {
+    const index = currentChatList.value.findIndex((i) => i.id === id)
+    if (index === -1) {
+      return
     }
-  },
-  actions: {
-    // 创建新的聊天
-    create() {
-      this.currentChatId = createId()
-      this.chatHistory[this.currentChatId] = []
-    },
-    // 添加聊天消息
-    add(messageRole: string, messageType: string, messageData: unknown) {
-      const messageId = createId()
-      this.chatHistory[this.currentChatId].push({
-        messageId,
-        messageRole,
-        messageType,
-        messageData
-      })
-      return messageId
-    },
-    // 更新聊天消息
-    update(
-      chatMessageId: string,
-      chatMessageData: unknown,
-      toolResults?: string[],
-      showRate?: boolean
-    ) {
-      const oldChatMessage = this.currentChatList.find((i) => {
-        return i.messageId === chatMessageId
-      })
-      if (oldChatMessage) {
-        oldChatMessage.messageData = chatMessageData
-        oldChatMessage.toolResults = toolResults
-        oldChatMessage.showRate = showRate
-      }
+    currentChatList.value[index] = {
+      ...currentChatList.value[index],
+      ...message
     }
+  }
+
+  /**
+   * Exports
+   */
+  return {
+    // state
+    currentChatId,
+    chatHistory,
+    // getters
+    currentChatList,
+    // actions
+    createNewChat,
+    addMessage,
+    getMessage,
+    setMessage
   }
 })

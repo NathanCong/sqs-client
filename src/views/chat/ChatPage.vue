@@ -1,182 +1,50 @@
 <template>
   <div class="chat">
     <div class="chat-mainner">
-      <section
-        class="chat-modal-wrapper"
-        :class="{ full: toolStore.activePanel === '' }"
-      >
-        <ChatModal
-          ref="chatModalRef"
-          :chatList="chatStore.currentChatList"
-          :execDisabled="execDisabled"
-          @exec="onExec"
-        />
+      <!-- 聊天对话 -->
+      <template v-if="!isShowChat">
+        <div class="chat-button show" @click="onChatShow">
+          <RightOutlined />
+        </div>
+      </template>
+      <section class="chat-modal-wrapper" v-show="isShowChat">
+        <template v-if="isShowTool">
+          <div class="chat-button hide" @click="onChatHide">
+            <LeftOutlined />
+          </div>
+        </template>
+        <ChatModal />
       </section>
-      <section
-        class="tool-panel-wrapper"
-        :class="{ show: toolStore.activePanel !== '' }"
-      >
-        <ToolPanel
-          @onAdvancedFormPanelConfirm="handleOthers"
-          @onBatchFormPanelConfirm="handleOthers"
-        />
-      </section>
+      <!-- 功能面板 -->
+      <template v-if="isShowTool">
+        <section class="tool-panel-wrapper" :class="{ full: !isShowChat }">
+          <ToolPanel />
+        </section>
+      </template>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, computed } from 'vue'
-import { useRoute } from 'vue-router'
-import ChatModal from './components/ChatModal.vue'
+import { LeftOutlined, RightOutlined } from '@ant-design/icons-vue'
+import { ref, computed } from 'vue'
+import ChatModal from './components/ChatModal'
 import ToolPanel from './components/ToolPanel'
-import { consultStream } from '@/apis'
-import { useChatStore } from '@/store/chat'
 import { useToolStore } from '@/store/tool'
-import { PATENT_TABLE_COLUMNS } from '@/consts'
 
-// 定义 states
-const chatModalRef = ref<InstanceType<typeof ChatModal>>()
-const requestLoading = ref(false)
-const route = useRoute()
-// const router = useRouter()
+const isShowChat = ref(true)
 
-// 定义 store
-const chatStore = useChatStore()
+function onChatShow() {
+  isShowChat.value = true
+}
+
+function onChatHide() {
+  isShowChat.value = false
+}
+
 const toolStore = useToolStore()
 
-// 定义计算属性
-const execDisabled = computed(() => requestLoading.value)
-
-/**
- * 处理其他咨询
- */
-async function handleOthers(userCommand: string) {
-  console.log('userCommand', userCommand)
-}
-
-function getToolData(toolResult: string) {
-  const regex = /<output>([\s\S]*?)<\/output>/g
-  const matches = regex.exec(toolResult)
-  let toolData = {}
-  if (matches) {
-    try {
-      toolData = JSON.parse(matches[1])
-    } catch (err) {
-      console.warn(err)
-    }
-  }
-  return toolData
-}
-
-async function handleAsk(userCommand: string) {
-  const messageId = chatStore.add('assistant', 'text', '请稍等，正在思考中...')
-  let tempContent = ''
-  let toolResults: string[] = []
-  requestLoading.value = true
-  try {
-    await consultStream({
-      sessionId: chatStore.currentChatId,
-      question: userCommand,
-      onChunk: (chunk) => {
-        if (chunk === '[DONE]') {
-          if (toolResults.length > 1) {
-            const { sources } = getToolData(toolResults[1]) as {
-              sources: unknown[]
-            }
-            // 关闭所有面板
-            toolStore.closeAllPanels()
-            toolStore.openPreviewPanel('list', {
-              columns: PATENT_TABLE_COLUMNS,
-              dataSource: sources,
-              total: sources.length,
-              pageNum: 1,
-              pageSize: sources.length
-            })
-          }
-          return
-        }
-        // 有 tool_result 情况
-        if (chunk.includes('<tool_result>')) {
-          const regex = /<tool_result>([\s\S]*?)<\/tool_result>/g
-          const matches = chunk.match(regex) || []
-          if (matches) {
-            toolResults = matches
-            tempContent = chunk.replace(regex, '')
-            chatStore.update(messageId, tempContent, toolResults, true)
-            chatModalRef.value?.scrollToBottom()
-          }
-          return
-        }
-        // 没有 tool_result 情况
-        tempContent = chunk
-        chatStore.update(messageId, tempContent, toolResults, true)
-        chatModalRef.value?.scrollToBottom()
-      }
-    })
-  } catch (err) {
-    console.warn(err)
-  } finally {
-    requestLoading.value = false
-  }
-}
-
-function onExec({ userCommand }: { userCommand: string }) {
-  chatStore.add('user', 'text', userCommand)
-  // 判断查询模式
-  const { key } = route.query
-  if (key === '1') {
-    handleAsk(userCommand)
-    return
-  }
-}
-
-onMounted(() => {
-  // 创建新对话
-  chatStore.create()
-  // 关闭所有面板
-  toolStore.closeAllPanels()
-  // 处理路由参数
-  const { key } = route.query
-  switch (key) {
-    case '1':
-      const userCommand = window.localStorage.getItem('userCommand') || ''
-      onExec({ userCommand })
-      break
-    case '2':
-      // 插入系统预设对话
-      // chatStore.add('assistant', 'text', '好的，请先在右侧完善信息')
-      // chatModalRef.value?.scrollToBottom()
-      // toolStore.openAdvancedFormPanel() // 打开工具面板
-      break
-    case '3':
-      // chatStore.add('assistant', 'text', '好的，请先在右侧完善信息') // 插入系统预设对话
-      // chatModalRef.value?.scrollToBottom()
-      // toolStore.openBatchFormPanel() // 打开工具面板
-      break
-    case '4':
-      break
-    case '5':
-      // 插入系统预设对话
-      chatStore.add('user', 'text', '请帮我写一篇技术交底书')
-      chatStore.add('assistant', 'text', '好的，请先在右侧完善信息')
-      chatModalRef.value?.scrollToBottom()
-      // 打开专利工具面板
-      toolStore.openDisclosureFormPanel()
-      break
-    case '6':
-      // 插入系统预设对话
-      chatStore.add('user', 'text', '请帮我写一篇专利')
-      chatStore.add('assistant', 'text', '好的，请先在右侧完善信息')
-      chatModalRef.value?.scrollToBottom()
-      // 打开专利工具面板
-      toolStore.openPatentFormPanel()
-      break
-    case '7':
-      break
-    default:
-  }
-})
+const isShowTool = computed(() => toolStore.activePanel)
 </script>
 
 <style lang="less" scoped>
@@ -193,29 +61,62 @@ onMounted(() => {
     box-sizing: border-box;
     padding: 16px;
     display: flex;
-    flex-direction: row;
     justify-content: center;
     align-items: center;
+    position: relative;
 
     .chat-modal-wrapper {
-      width: 550px;
+      flex: 1;
       height: 100%;
+      position: relative;
+    }
 
-      &.full {
-        width: 100%;
-        flex: 1;
+    .chat-button {
+      width: 32px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #eee;
+      cursor: pointer;
+
+      &:hover {
+        background-color: #ddd;
+      }
+
+      &:active {
+        background-color: #ccc;
+      }
+
+      &.hide {
+        border-top-left-radius: 50%;
+        border-bottom-left-radius: 50%;
+        position: absolute;
+        top: 50%;
+        right: 0;
+        transform: translateY(-50%);
+        z-index: 1000;
+      }
+
+      &.show {
+        border-top-right-radius: 50%;
+        border-bottom-right-radius: 50%;
+        position: absolute;
+        top: 50%;
+        left: 16px;
+        transform: translateY(-50%);
+        z-index: 1000;
       }
     }
 
     .tool-panel-wrapper {
-      width: auto;
+      flex: 1;
       height: 100%;
-      // background: #999;
-      margin-left: 16px;
+      box-sizing: border-box;
+      padding-left: 16px;
 
-      &.show {
-        width: 100%;
-        flex: 1;
+      &.full {
+        padding-left: 0;
       }
     }
   }

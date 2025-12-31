@@ -42,6 +42,36 @@
   </div>
 </template>
 
+<script lang="ts">
+type CommonFormItemValue = never | undefined
+
+interface CommonFormItem {
+  key: string
+  name: string
+  label: string
+  value?: CommonFormItemValue
+  defaultValue?: CommonFormItemValue
+  rules?: Array<{ required?: boolean; message?: string }>
+  placeholder?: string
+  type?: string // input
+}
+
+interface CommonFormStyleConfig {
+  layout?: string
+  colon?: boolean
+  labelCol?: { span?: number; offset?: number }
+  wrapperCol?: { span?: number; offset?: number }
+}
+
+interface CommonFormConfig extends CommonFormStyleConfig {
+  fields: Array<CommonFormItem>
+}
+
+interface CommonFormState {
+  [key: string]: CommonFormItemValue
+}
+</script>
+
 <script lang="ts" setup>
 import { reactive, ref, watch } from 'vue'
 import type { FormInstance } from 'ant-design-vue'

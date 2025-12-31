@@ -52,13 +52,19 @@ export function helperDisclosureStream({
 export function consultStream({
   sessionId,
   question,
+  fileUrl,
   onChunk
 }: {
   sessionId?: string
   question: string
+  fileUrl?: string
   onChunk?: (chunk: string) => void
 }) {
-  return postForStream('/consult/stream', { sessionId, question }, onChunk)
+  return postForStream(
+    '/consult/stream',
+    { sessionId, question, file_url: fileUrl },
+    onChunk
+  )
 }
 
 /**
