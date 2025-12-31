@@ -124,12 +124,13 @@ function scrollToBottom() {
 
 const requestLoading = ref(false)
 
-async function ask(messageId: string, userCommand: string) {
+async function ask(messageId: string, userCommand: string, fileUrl?: string) {
   requestLoading.value = true
   try {
     await consultStream({
       sessionId: chatStore.currentChatId,
       question: userCommand,
+      fileUrl,
       onChunk: (chunk) => {
         if (chunk === '[DONE]') {
           chatStore.setMessage(messageId, {
@@ -149,7 +150,15 @@ async function ask(messageId: string, userCommand: string) {
   }
 }
 
-function onExec({ userCommand }: ExecParams) {
+function onExec(params: ExecParams) {
+  const { userCommand, fileName, fileUrl } = params
+  if (fileName && fileUrl) {
+    chatStore.addMessage({
+      role: 'user',
+      type: 'pdf',
+      data: { name: fileName, url: fileUrl }
+    })
+  }
   chatStore.addMessage({
     role: 'user',
     type: 'text',
@@ -161,7 +170,7 @@ function onExec({ userCommand }: ExecParams) {
     data: [{ type: 'text', data: '正在思考中...' }]
   })
   scrollToBottom()
-  ask(messageId, userCommand)
+  ask(messageId, userCommand, fileUrl)
 }
 
 onMounted(() => {

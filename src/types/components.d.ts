@@ -13,6 +13,7 @@ declare module 'vue' {
     AInput: typeof import('ant-design-vue/es')['Input']
     ARate: typeof import('ant-design-vue/es')['Rate']
     ASelect: typeof import('ant-design-vue/es')['Select']
+    AUpload: typeof import('ant-design-vue/es')['Upload']
     CommandInput: typeof import('./../components/CommandInput.vue')['default']
     CommonEmpty: typeof import('./../components/CommonEmpty.vue')['default']
     CommonLoading: typeof import('./../components/CommonLoading.vue')['default']

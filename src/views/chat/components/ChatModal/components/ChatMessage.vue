@@ -7,7 +7,10 @@
     }"
   >
     <!-- 消息头像 -->
-    <span class="message-avator"></span>
+    <span class="message-avator">
+      <template v-if="role === 'user'">U</template>
+      <template v-if="role === 'assistant'">A</template>
+    </span>
     <!-- 消息内容 -->
     <span class="message-content">
       <!-- text 类型 -->
@@ -141,6 +144,7 @@ import {
 import { computed, ref } from 'vue'
 import type { SelectValue } from 'ant-design-vue/es/select'
 import { SELECTOR_OPTIONS } from '../constants'
+import { useChatStore } from '@/store/chat'
 
 const props = withDefaults(defineProps<ComponentProps>(), {
   id: '',
@@ -180,10 +184,13 @@ function onPdfClick(): void {
   console.log('PDF clicked:', pdf)
 }
 
+const chatStore = useChatStore()
+
 const selectorValue = ref<string | undefined>(props.selectorValue)
 
 function onSelectorChange(value: SelectValue): void {
   selectorValue.value = value as string
+  chatStore.setMessage(props.id, { selectorValue: value as string })
   console.log('Selector changed:', value)
 }
 
@@ -191,6 +198,7 @@ const rateValue = ref<number>(props.rateValue || 0)
 
 function onRateChange(value: number): void {
   rateValue.value = value
+  chatStore.setMessage(props.id, { rateValue: value })
   console.log('Rating changed:', value)
 }
 </script>
@@ -215,6 +223,18 @@ function onRateChange(value: number): void {
       .message-list,
       .message-pdf {
         color: #fff;
+      }
+
+      .message-pdf {
+        cursor: auto;
+
+        &:hover {
+          background-color: transparent;
+        }
+
+        &:active {
+          background-color: transparent;
+        }
       }
     }
 
@@ -251,6 +271,10 @@ function onRateChange(value: number): void {
     width: 30px;
     height: 30px;
     border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
   }
 
   .message-content {
