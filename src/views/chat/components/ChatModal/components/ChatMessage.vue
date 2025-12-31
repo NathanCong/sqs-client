@@ -59,15 +59,31 @@
           <span class="pdf-name">{{ (data as Pdf).name }}</span>
         </span>
       </template>
-      <!-- 用户评价星 -->
-      <template v-if="showRate">
-        <span class="message-rate">
-          <a-rate
-            v-model:value="rateValue"
-            allow-half
-            :allow-clear="false"
-            @change="onRateChange"
-          />
+      <template v-if="showSelector || showRate">
+        <span class="message-poc">
+          <!-- 用户评价类型 -->
+          <template v-if="showSelector">
+            <span class="message-selector">
+              <a-select
+                v-model:value="selectorValue"
+                placeholder="请选择问题类型"
+                :options="SELECTOR_OPTIONS"
+                :allow-clear="false"
+                @change="onSelectorChange"
+              ></a-select>
+            </span>
+          </template>
+          <!-- 用户评价打分 -->
+          <template v-if="showRate">
+            <span class="message-rate">
+              <a-rate
+                v-model:value="rateValue"
+                allow-half
+                :allow-clear="false"
+                @change="onRateChange"
+              />
+            </span>
+          </template>
         </span>
       </template>
     </span>
@@ -103,9 +119,11 @@ export interface ComponentProps {
   role?: 'user' | 'assistant'
   type?: 'text' | 'list' | 'pdf'
   data?: Content[] | List | Pdf
-  showRate?: boolean
-  rate?: number
   model?: string
+  showSelector?: boolean
+  selectorValue?: string
+  showRate?: boolean
+  rateValue?: number
 }
 </script>
 
@@ -121,14 +139,18 @@ import {
   DownOutlined
 } from '@ant-design/icons-vue'
 import { computed, ref } from 'vue'
+import type { SelectValue } from 'ant-design-vue/es/select'
+import { SELECTOR_OPTIONS } from '../constants'
 
 const props = withDefaults(defineProps<ComponentProps>(), {
   id: '',
   role: 'user',
   type: 'text',
   data: () => [],
+  showSelector: false,
+  selectorValue: undefined,
   showRate: false,
-  rate: 0
+  rateValue: 0
 })
 
 const contents = computed(() => {
@@ -158,7 +180,14 @@ function onPdfClick(): void {
   console.log('PDF clicked:', pdf)
 }
 
-const rateValue = ref<number>(props.rate || 0)
+const selectorValue = ref<string | undefined>(props.selectorValue)
+
+function onSelectorChange(value: SelectValue): void {
+  selectorValue.value = value as string
+  console.log('Selector changed:', value)
+}
+
+const rateValue = ref<number>(props.rateValue || 0)
 
 function onRateChange(value: number): void {
   rateValue.value = value
@@ -330,10 +359,31 @@ function onRateChange(value: number): void {
       }
     }
 
-    .message-rate {
+    .message-poc {
+      width: 100%;
+      height: auto;
+      box-sizing: border-box;
       padding: 16px;
       border-top: 1px solid #eee;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+
+      .message-selector {
+        margin-bottom: 8px;
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
     }
   }
+}
+</style>
+
+<style scoped>
+:deep(.ant-select) {
+  width: 150px;
 }
 </style>

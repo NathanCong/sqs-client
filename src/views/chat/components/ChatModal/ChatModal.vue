@@ -17,8 +17,10 @@
               :role="chatMessage.role"
               :type="chatMessage.type"
               :data="chatMessage.data"
+              :show-selector="chatMessage.showSelector"
+              :selector-value="chatMessage.selectorValue"
               :showRate="chatMessage.showRate"
-              :rate="chatMessage.rate"
+              :rate-value="chatMessage.rateValue"
             />
           </li>
         </template>
@@ -130,7 +132,10 @@ async function ask(messageId: string, userCommand: string) {
       question: userCommand,
       onChunk: (chunk) => {
         if (chunk === '[DONE]') {
-          chatStore.setMessage(messageId, { showRate: true })
+          chatStore.setMessage(messageId, {
+            showSelector: true,
+            showRate: true
+          })
           return
         }
         handleChunk(messageId, chunk)
