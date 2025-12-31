@@ -1,39 +1,58 @@
 <template>
   <div class="chat">
     <div class="chat-mainner">
-      <section
-        class="chat-modal-wrapper"
-        :class="{ full: toolStore.activePanel === '' }"
-      >
-        <ChatModal
-          ref="chatModalRef"
-          :chatList="chatStore.currentChatList"
-          :execDisabled="execDisabled"
-          @exec="onExec"
-        />
-      </section>
-      <section
-        class="tool-panel-wrapper"
-        :class="{ show: toolStore.activePanel !== '' }"
-      >
-        <ToolPanel
-          @onAdvancedFormPanelConfirm="handleOthers"
-          @onBatchFormPanelConfirm="handleOthers"
-        />
-      </section>
+      <!-- 聊天对话 -->
+      <template v-if="!isShowChat">
+        <div class="chat-button show" @click="onChatShow">
+          <RightOutlined />
+        </div>
+      </template>
+      <template v-if="isShowChat">
+        <section class="chat-modal-wrapper">
+          <div class="chat-button hide" @click="onChatHide">
+            <LeftOutlined />
+          </div>
+          <ChatModal
+            ref="chatModalRef"
+            :chatList="chatStore.currentChatList"
+            :execDisabled="execDisabled"
+            @exec="onExec"
+          />
+        </section>
+      </template>
+      <!-- 功能面板 -->
+      <template v-if="true">
+        <section class="tool-panel-wrapper">
+          <ToolPanel
+            @onAdvancedFormPanelConfirm="handleOthers"
+            @onBatchFormPanelConfirm="handleOthers"
+          />
+        </section>
+      </template>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
+import { LeftOutlined, RightOutlined } from '@ant-design/icons-vue'
 import { ref, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import ChatModal from './components/ChatModal.vue'
 import ToolPanel from './components/ToolPanel'
-import { consultStream } from '@/apis'
+// import { consultStream } from '@/apis'
 import { useChatStore } from '@/store/chat'
 import { useToolStore } from '@/store/tool'
-import { PATENT_TABLE_COLUMNS } from '@/consts'
+// import { PATENT_TABLE_COLUMNS } from '@/consts'
+
+const isShowChat = ref(true)
+
+function onChatShow() {
+  isShowChat.value = true
+}
+
+function onChatHide() {
+  isShowChat.value = false
+}
 
 // 定义 states
 const chatModalRef = ref<InstanceType<typeof ChatModal>>()
@@ -55,78 +74,78 @@ async function handleOthers(userCommand: string) {
   console.log('userCommand', userCommand)
 }
 
-function getToolData(toolResult: string) {
-  const regex = /<output>([\s\S]*?)<\/output>/g
-  const matches = regex.exec(toolResult)
-  let toolData = {}
-  if (matches) {
-    try {
-      toolData = JSON.parse(matches[1])
-    } catch (err) {
-      console.warn(err)
-    }
-  }
-  return toolData
-}
+// function getToolData(toolResult: string) {
+//   const regex = /<output>([\s\S]*?)<\/output>/g
+//   const matches = regex.exec(toolResult)
+//   let toolData = {}
+//   if (matches) {
+//     try {
+//       toolData = JSON.parse(matches[1])
+//     } catch (err) {
+//       console.warn(err)
+//     }
+//   }
+//   return toolData
+// }
 
-async function handleAsk(userCommand: string) {
-  const messageId = chatStore.add('assistant', 'text', '请稍等，正在思考中...')
-  let tempContent = ''
-  let toolResults: string[] = []
-  requestLoading.value = true
-  try {
-    await consultStream({
-      sessionId: chatStore.currentChatId,
-      question: userCommand,
-      onChunk: (chunk) => {
-        if (chunk === '[DONE]') {
-          if (toolResults.length > 1) {
-            const { sources } = getToolData(toolResults[1]) as {
-              sources: unknown[]
-            }
-            // 关闭所有面板
-            toolStore.closeAllPanels()
-            toolStore.openPreviewPanel('list', {
-              columns: PATENT_TABLE_COLUMNS,
-              dataSource: sources,
-              total: sources.length,
-              pageNum: 1,
-              pageSize: sources.length
-            })
-          }
-          return
-        }
-        // 有 tool_result 情况
-        if (chunk.includes('<tool_result>')) {
-          const regex = /<tool_result>([\s\S]*?)<\/tool_result>/g
-          const matches = chunk.match(regex) || []
-          if (matches) {
-            toolResults = matches
-            tempContent = chunk.replace(regex, '')
-            chatStore.update(messageId, tempContent, toolResults, true)
-            chatModalRef.value?.scrollToBottom()
-          }
-          return
-        }
-        // 没有 tool_result 情况
-        tempContent = chunk
-        chatStore.update(messageId, tempContent, toolResults, true)
-        chatModalRef.value?.scrollToBottom()
-      }
-    })
-  } catch (err) {
-    console.warn(err)
-  } finally {
-    requestLoading.value = false
-  }
-}
+// async function handleAsk(userCommand: string) {
+//   const messageId = chatStore.add('assistant', 'text', '请稍等，正在思考中...')
+//   let tempContent = ''
+//   let toolResults: string[] = []
+//   requestLoading.value = true
+//   try {
+//     await consultStream({
+//       sessionId: chatStore.currentChatId,
+//       question: userCommand,
+//       onChunk: (chunk) => {
+//         if (chunk === '[DONE]') {
+//           if (toolResults.length > 1) {
+//             const { sources } = getToolData(toolResults[1]) as {
+//               sources: unknown[]
+//             }
+//             // 关闭所有面板
+//             toolStore.closeAllPanels()
+//             toolStore.openPreviewPanel('list', {
+//               columns: PATENT_TABLE_COLUMNS,
+//               dataSource: sources,
+//               total: sources.length,
+//               pageNum: 1,
+//               pageSize: sources.length
+//             })
+//           }
+//           return
+//         }
+//         // 有 tool_result 情况
+//         if (chunk.includes('<tool_result>')) {
+//           const regex = /<tool_result>([\s\S]*?)<\/tool_result>/g
+//           const matches = chunk.match(regex) || []
+//           if (matches) {
+//             toolResults = matches
+//             tempContent = chunk.replace(regex, '')
+//             chatStore.update(messageId, tempContent, toolResults, true)
+//             chatModalRef.value?.scrollToBottom()
+//           }
+//           return
+//         }
+//         // 没有 tool_result 情况
+//         tempContent = chunk
+//         chatStore.update(messageId, tempContent, toolResults, true)
+//         chatModalRef.value?.scrollToBottom()
+//       }
+//     })
+//   } catch (err) {
+//     console.warn(err)
+//   } finally {
+//     requestLoading.value = false
+//   }
+// }
 
 function onExec({ userCommand }: { userCommand: string }) {
   chatStore.add('user', 'text', userCommand)
   // 判断查询模式
   const { key } = route.query
   if (key === '1') {
-    handleAsk(userCommand)
+    // handleAsk(userCommand)
     return
   }
 }
@@ -193,30 +212,59 @@ onMounted(() => {
     box-sizing: border-box;
     padding: 16px;
     display: flex;
-    flex-direction: row;
     justify-content: center;
     align-items: center;
+    position: relative;
 
     .chat-modal-wrapper {
-      width: 550px;
+      flex: 1;
       height: 100%;
+      position: relative;
+    }
 
-      &.full {
-        width: 100%;
-        flex: 1;
+    .chat-button {
+      width: 32px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #eee;
+      cursor: pointer;
+
+      &:hover {
+        background-color: #ddd;
+      }
+
+      &:active {
+        background-color: #ccc;
+      }
+
+      &.hide {
+        border-top-left-radius: 50%;
+        border-bottom-left-radius: 50%;
+        position: absolute;
+        top: 50%;
+        right: 0;
+        transform: translateY(-50%);
+        z-index: 1000;
+      }
+
+      &.show {
+        border-top-right-radius: 50%;
+        border-bottom-right-radius: 50%;
+        position: absolute;
+        top: 50%;
+        left: 16px;
+        transform: translateY(-50%);
+        z-index: 1000;
       }
     }
 
     .tool-panel-wrapper {
-      width: auto;
+      flex: 1;
       height: 100%;
-      // background: #999;
-      margin-left: 16px;
-
-      &.show {
-        width: 100%;
-        flex: 1;
-      }
+      box-sizing: border-box;
+      padding-left: 16px;
     }
   }
 }
