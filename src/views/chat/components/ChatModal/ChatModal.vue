@@ -19,7 +19,7 @@
               :data="chatMessage.data"
               :selector-value="chatMessage.questionType"
               :showRate="chatMessage.showRate"
-              :rate-value="chatMessage.rateValue"
+              :score="chatMessage.score"
             />
           </li>
         </template>

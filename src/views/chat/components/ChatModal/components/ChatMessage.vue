@@ -66,7 +66,7 @@
       <template v-if="showRate">
         <span class="message-rate">
           <a-rate
-            v-model:value="rateValue"
+            v-model:value="score"
             allow-half
             :disabled="isRateDisabled"
             :allow-clear="false"
@@ -109,9 +109,9 @@ export interface ComponentProps {
   type?: 'text' | 'list' | 'pdf'
   data?: Content[] | List | Pdf
   model?: string
-  questionType?: string
   showRate?: boolean
-  rateValue?: number
+  score?: number
+  questionType?: string
 }
 </script>
 
@@ -140,7 +140,7 @@ const props = withDefaults(defineProps<ComponentProps>(), {
   data: () => [],
   questionType: undefined,
   showRate: false,
-  rateValue: 0
+  score: 0
 })
 
 const contents = computed(() => {
@@ -179,15 +179,15 @@ function onPdfClick(): void {
 
 const chatStore = useChatStore()
 
-const rateValue = ref<number>(props.rateValue || 0)
+const score = ref<number>(props.score || 0)
 
-const isRateDisabled = computed(() => rateValue.value > 0)
+const isRateDisabled = computed(() => score.value > 0)
 
 const questionTypeModalRef = ref<InstanceType<typeof QuestionTypeModal>>()
 
 function onRateChange(value: number): void {
-  rateValue.value = value
-  chatStore.setMessage(props.id, { rateValue: value })
+  score.value = value
+  chatStore.setMessage(props.id, { score: value })
   console.log('Rating changed:', value)
   questionTypeModalRef.value?.open()
 }
