@@ -42,6 +42,7 @@ import type { LoginParams } from '@/apis/index'
 import { notification } from 'ant-design-vue'
 import { setStorage } from '@/utils/storage'
 import md5 from 'md5'
+import { useRouter } from 'vue-router'
 
 const isLogin = ref(true)
 
@@ -51,6 +52,8 @@ const fields = computed(() =>
 )
 
 const commonFormRef = ref<InstanceType<typeof CommonForm>>()
+
+const router = useRouter()
 
 async function onLogin() {
   try {
@@ -68,6 +71,7 @@ async function onLogin() {
     notification.success({ message: '登录成功' })
     const { accessToken } = response
     setStorage('accessToken', accessToken)
+    router.replace({ path: '/' })
   } catch (error) {
     console.warn('onLogin error', error)
   }
