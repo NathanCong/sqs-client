@@ -17,9 +17,9 @@
               :role="chatMessage.role"
               :type="chatMessage.type"
               :data="chatMessage.data"
-              :selector-value="chatMessage.questionType"
               :showRate="chatMessage.showRate"
               :score="chatMessage.score"
+              :question-type="chatMessage.questionType"
             />
           </li>
         </template>

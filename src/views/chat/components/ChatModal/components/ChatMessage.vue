@@ -132,6 +132,9 @@ import { computed, ref } from 'vue'
 import { useChatStore } from '@/store/chat'
 import { useToolStore } from '@/store/tool'
 import QuestionTypeModal from './QuestionTypeModal.vue'
+import { useUserStore } from '@/store/user'
+import { poc } from '@/apis/index'
+import { notification } from 'ant-design-vue'
 
 const props = withDefaults(defineProps<ComponentProps>(), {
   id: '',
@@ -186,15 +189,40 @@ const isRateDisabled = computed(() => score.value > 0)
 const questionTypeModalRef = ref<InstanceType<typeof QuestionTypeModal>>()
 
 function onRateChange(value: number): void {
+  // 更新数据
   score.value = value
+  // 更新消息
   chatStore.setMessage(props.id, { score: value })
-  console.log('Rating changed:', value)
+  // 打开问题采集弹窗
   questionTypeModalRef.value?.open()
 }
 
-function onOk(value: string): void {
+const userStore = useUserStore()
+
+async function onOk(value: string): Promise<void> {
+  // 更新消息
   chatStore.setMessage(props.id, { questionType: value })
-  console.log('current message: ', chatStore.getMessage(props.id))
+  // 提交用户评分
+  const message = chatStore.getMessage(props.id) as ComponentProps
+  console.log('current message: ', message)
+  const { model = '', questionType = '', score = 0 } = message
+  try {
+    const { data } = await poc({
+      userEmail: userStore.userEmail,
+      modelName: model,
+      questionType,
+      score,
+      originData: JSON.stringify(message)
+    })
+    const { success, message: description } = data
+    if (!success) {
+      notification.error({ message: '评分提交失败', description })
+      return
+    }
+    notification.success({ message: '评分提交成功' })
+  } catch (error) {
+    console.warn(error)
+  }
 }
 </script>
 
