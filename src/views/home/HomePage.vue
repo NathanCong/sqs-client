@@ -60,7 +60,7 @@ function onActive({ key }: ActiveParams) {
 
 .home-background {
   background-color: #999;
-  background-image: url('./assets/images/bg.jpeg');
+  background-image: url('@/assets/images/bg.jpeg');
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;

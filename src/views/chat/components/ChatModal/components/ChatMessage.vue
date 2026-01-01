@@ -8,8 +8,8 @@
   >
     <!-- 消息头像 -->
     <span class="message-avator">
-      <template v-if="role === 'user'">U</template>
-      <template v-if="role === 'assistant'">A</template>
+      <template v-if="role === 'user'"><UserOutlined /></template>
+      <template v-if="role === 'assistant'"><RobotOutlined /></template>
     </span>
     <!-- 消息内容 -->
     <span class="message-content">
@@ -62,33 +62,19 @@
           <span class="pdf-name">{{ (data as Pdf).name }}</span>
         </span>
       </template>
-      <template v-if="showSelector || showRate">
-        <span class="message-poc">
-          <!-- 用户评价类型 -->
-          <template v-if="showSelector">
-            <span class="message-selector">
-              <a-select
-                v-model:value="selectorValue"
-                placeholder="请选择问题类型"
-                :options="SELECTOR_OPTIONS"
-                :allow-clear="false"
-                @change="onSelectorChange"
-              ></a-select>
-            </span>
-          </template>
-          <!-- 用户评价打分 -->
-          <template v-if="showRate">
-            <span class="message-rate">
-              <a-rate
-                v-model:value="rateValue"
-                allow-half
-                :allow-clear="false"
-                @change="onRateChange"
-              />
-            </span>
-          </template>
+      <!-- 用户评价打分 -->
+      <template v-if="showRate">
+        <span class="message-rate">
+          <a-rate
+            v-model:value="score"
+            allow-half
+            :disabled="isRateDisabled"
+            :allow-clear="false"
+            @change="onRateChange"
+          />
         </span>
       </template>
+      <QuestionTypeModal @ok="onOk" ref="questionTypeModalRef" />
     </span>
   </span>
 </template>
@@ -123,10 +109,9 @@ export interface ComponentProps {
   type?: 'text' | 'list' | 'pdf'
   data?: Content[] | List | Pdf
   model?: string
-  showSelector?: boolean
-  selectorValue?: string
   showRate?: boolean
-  rateValue?: number
+  score?: number
+  questionType?: string
 }
 </script>
 
@@ -136,26 +121,29 @@ import 'vue-json-pretty/lib/styles.css'
 import MarkdownRender from '@/components/MarkdownRender.vue'
 import { JSONDataType } from 'vue-json-pretty/types/utils'
 import {
+  UserOutlined,
+  RobotOutlined,
   TableOutlined,
   FilePdfOutlined,
   UpOutlined,
   DownOutlined
 } from '@ant-design/icons-vue'
 import { computed, ref } from 'vue'
-import type { SelectValue } from 'ant-design-vue/es/select'
-import { SELECTOR_OPTIONS } from '../constants'
 import { useChatStore } from '@/store/chat'
 import { useToolStore } from '@/store/tool'
+import QuestionTypeModal from './QuestionTypeModal.vue'
+import { useUserStore } from '@/store/user'
+import { poc } from '@/apis/index'
+import { notification } from 'ant-design-vue'
 
 const props = withDefaults(defineProps<ComponentProps>(), {
   id: '',
   role: 'user',
   type: 'text',
   data: () => [],
-  showSelector: false,
-  selectorValue: undefined,
+  questionType: undefined,
   showRate: false,
-  rateValue: 0
+  score: 0
 })
 
 const contents = computed(() => {
@@ -194,20 +182,47 @@ function onPdfClick(): void {
 
 const chatStore = useChatStore()
 
-const selectorValue = ref<string | undefined>(props.selectorValue)
+const score = ref<number>(props.score || 0)
 
-function onSelectorChange(value: SelectValue): void {
-  selectorValue.value = value as string
-  chatStore.setMessage(props.id, { selectorValue: value as string })
-  console.log('Selector changed:', value)
-}
+const isRateDisabled = computed(() => score.value > 0)
 
-const rateValue = ref<number>(props.rateValue || 0)
+const questionTypeModalRef = ref<InstanceType<typeof QuestionTypeModal>>()
 
 function onRateChange(value: number): void {
-  rateValue.value = value
-  chatStore.setMessage(props.id, { rateValue: value })
-  console.log('Rating changed:', value)
+  // 更新数据
+  score.value = value
+  // 更新消息
+  chatStore.setMessage(props.id, { score: value })
+  // 打开问题采集弹窗
+  questionTypeModalRef.value?.open()
+}
+
+const userStore = useUserStore()
+
+async function onOk(value: string): Promise<void> {
+  // 更新消息
+  chatStore.setMessage(props.id, { questionType: value })
+  // 提交用户评分
+  const message = chatStore.getMessage(props.id) as ComponentProps
+  console.log('current message: ', message)
+  const { model = '', questionType = '', score = 0 } = message
+  try {
+    const { data } = await poc({
+      userEmail: userStore.userEmail,
+      modelName: model,
+      questionType,
+      score,
+      originData: JSON.stringify(message)
+    })
+    const { success, message: description } = data
+    if (!success) {
+      notification.error({ message: '评分提交失败', description })
+      return
+    }
+    notification.success({ message: '评分提交成功' })
+  } catch (error) {
+    console.warn(error)
+  }
 }
 </script>
 
@@ -391,31 +406,13 @@ function onRateChange(value: number): void {
       }
     }
 
-    .message-poc {
+    .message-rate {
       width: 100%;
       height: auto;
       box-sizing: border-box;
       padding: 16px;
       border-top: 1px solid #eee;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      justify-content: center;
-
-      .message-selector {
-        margin-bottom: 8px;
-
-        &:last-child {
-          margin-bottom: 0;
-        }
-      }
     }
   }
-}
-</style>
-
-<style scoped>
-:deep(.ant-select) {
-  width: 150px;
 }
 </style>

@@ -17,10 +17,9 @@
               :role="chatMessage.role"
               :type="chatMessage.type"
               :data="chatMessage.data"
-              :show-selector="chatMessage.showSelector"
-              :selector-value="chatMessage.selectorValue"
               :showRate="chatMessage.showRate"
-              :rate-value="chatMessage.rateValue"
+              :score="chatMessage.score"
+              :question-type="chatMessage.questionType"
             />
           </li>
         </template>
@@ -144,10 +143,7 @@ async function ask(messageId: string, userCommand: string, fileUrl?: string) {
       onChunk: (chunk) => {
         if (chunk === '[DONE]') {
           // 展示用户评分
-          chatStore.setMessage(messageId, {
-            showSelector: true,
-            showRate: true
-          })
+          chatStore.setMessage(messageId, { showRate: true })
           // 列表类型需要展示数据
           const message = chatStore.getMessage(messageId) as Message
           const toolItem = (message.data as Content[]).find(
@@ -169,7 +165,6 @@ async function ask(messageId: string, userCommand: string, fileUrl?: string) {
                   pageSize: 10
                 }
               },
-              showSelector: true,
               showRate: true
             })
           }

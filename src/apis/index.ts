@@ -1,4 +1,11 @@
 import { postForStream, post } from '@/utils/request'
+import type { AxiosResponse } from 'axios'
+
+interface CommonResponse {
+  code: number
+  message: string
+  success: boolean
+}
 
 /**
  * 专利撰写（新版）
@@ -99,27 +106,6 @@ export function searchPatentsFromStrategy(question: string) {
 }
 
 /**
- * 读取文件
- */
-export function readFile() {
-  return post('/file/read')
-}
-
-/**
- * 写入文件
- */
-export function writeFile() {
-  return post('/file/generate', { jsonData: { a: 1, b: 2 } })
-}
-
-/**
- * 删除文件
- */
-export function cleanFile() {
-  return post('/file/clean')
-}
-
-/**
  * 上传文件
  */
 export function uploadFile(savePath: string, file: File) {
@@ -129,4 +115,61 @@ export function uploadFile(savePath: string, file: File) {
   return post('http://62.234.188.122:7003/resource/upload', formData, {
     'Content-Type': 'multipart/form-data'
   })
+}
+
+export interface RegisterParams {
+  userName: string
+  userPhone: string
+  userEmail: string
+  userPassword: string
+}
+
+export interface RegisterResponse extends CommonResponse {
+  data: null
+}
+
+/**
+ * 新用户注册
+ */
+export function register(
+  params: RegisterParams
+): Promise<AxiosResponse<RegisterResponse>> {
+  return post('/register', params)
+}
+
+export interface LoginParams {
+  userEmail: string
+  userPassword: string
+}
+
+export interface LoginResponse extends CommonResponse {
+  data: { accessToken: string }
+}
+
+/**
+ * 老用户登录
+ */
+export function login(
+  params: LoginParams
+): Promise<AxiosResponse<LoginResponse>> {
+  return post('/login', params)
+}
+
+export interface PocParams {
+  userEmail: string
+  modelName: string
+  questionType: string
+  score: number
+  originData: string
+}
+
+export interface PocResponse extends CommonResponse {
+  data: null
+}
+
+/**
+ * 用户评分
+ */
+export function poc(params: PocParams): Promise<AxiosResponse<PocResponse>> {
+  return post('/poc', params)
 }

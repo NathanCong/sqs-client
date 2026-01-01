@@ -49,3 +49,9 @@ withDefaults(
   }
 }
 </style>
+
+<style scoped>
+:deep(.ant-spin-text) {
+  margin-top: 8px;
+}
+</style>

@@ -4,7 +4,25 @@ const routes = [
   // 根路由
   {
     path: '/',
-    redirect: '/home'
+    redirect: '/access'
+  },
+  // 权限
+  {
+    path: '/access',
+    name: 'access',
+    component: () => import('@/views/access/AccessPage.vue'),
+    meta: {
+      layout: 'BlankLayout'
+    }
+  },
+  // 登录
+  {
+    path: '/login',
+    name: 'login',
+    component: () => import('@/views/login/LoginPage.vue'),
+    meta: {
+      layout: 'BlankLayout'
+    }
   },
   // 首页
   {

@@ -25,6 +25,7 @@
   },
   "devDependencies": {
     "@types/json2md": "^1.5.4",
+    "@types/md5": "^2.3.6",
     "@types/node": "^24.7.2",
     "@typescript-eslint/parser": "^8.46.1",
     "@vitejs/plugin-vue": "^6.0.3",
@@ -46,8 +47,10 @@
     "axios": "^1.12.2",
     "dayjs": "^1.11.18",
     "html2pdf.js": "^0.12.1",
+    "js-base64": "^3.7.8",
     "json2md": "^2.0.3",
     "marked": "^16.4.1",
+    "md5": "^2.3.0",
     "pinia": "^3.0.3",
     "uuid": "^13.0.0",
     "vue": "^3.5.26",
