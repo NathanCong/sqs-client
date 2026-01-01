@@ -1,16 +1,11 @@
 <template>
-  <div class="user-login-status" @click="onClick">
+  <div class="user-login-status">
     <!-- 用户登录头像 -->
     <span class="user-login-avatar">
       <!-- 用户已经登录，并且有用户头像 -->
       <template v-if="userloginStatus && userLoginAvatarUrl">
         <img :src="userLoginAvatarUrl" />
       </template>
-      <!-- 用户已经登录，但是没有用户头像 -->
-      <template v-else-if="userloginStatus && !userLoginAvatarUrl">
-        {{ userLoginName.slice(0, 1) }}
-      </template>
-      <!-- 用户未登录 -->
       <template v-else>
         <UserOutlined />
       </template>
@@ -27,19 +22,19 @@
 
 <script lang="ts" setup>
 import { UserOutlined } from '@ant-design/icons-vue'
-import { notification } from 'ant-design-vue'
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useUserStore } from '@/store/user'
 
-const userloginStatus = ref(false) // 用户登录状态
 const userLoginAvatarUrl = ref('') // 用户登录头像 URL
 const userLoginName = ref('') // 用户登录名
 
-function onClick() {
-  notification.info({
-    message: '温馨提示',
-    description: '功能正在开发中，敬请期待...'
-  })
-}
+const userloginStatus = computed(() => userLoginName.value)
+
+const userStore = useUserStore()
+
+onMounted(() => {
+  userLoginName.value = userStore.userEmail
+})
 </script>
 
 <style lang="less" scoped>
@@ -52,8 +47,6 @@ function onClick() {
     height: 24px;
     border-radius: 12px;
     border: 1px solid #333;
-    // width: 14px;
-    // height: 14px;
     box-sizing: border-box;
     display: flex;
     align-items: center;
