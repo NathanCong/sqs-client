@@ -6,6 +6,15 @@ const routes = [
     path: '/',
     redirect: '/home'
   },
+  // 登录
+  {
+    path: '/login',
+    name: 'login',
+    component: () => import('@/views/login/LoginPage.vue'),
+    meta: {
+      layout: 'BlankLayout'
+    }
+  },
   // 首页
   {
     path: '/home',
