@@ -1,57 +1,23 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import type { RouteLocationNormalized } from 'vue-router'
+import routes from './routes'
+import { getStorage } from '@/utils/storage'
 
-const routes = [
-  // 根路由
-  {
-    path: '/',
-    redirect: '/access'
-  },
-  // 权限
-  {
-    path: '/access',
-    name: 'access',
-    component: () => import('@/views/access/AccessPage.vue'),
-    meta: {
-      layout: 'BlankLayout'
+const router = createRouter({ history: createWebHistory(), routes })
+
+router.beforeEach(
+  (to: RouteLocationNormalized, _from: RouteLocationNormalized, next) => {
+    const { requiredAccess } = to.meta
+    console.log('requiredAccess', requiredAccess)
+    const isLogin = Boolean(getStorage('accessToken'))
+    console.log('isLogin', isLogin)
+    // 需要登录，但未登录
+    if (requiredAccess && !isLogin) {
+      next({ name: 'login', query: { redirect: to.fullPath } })
+      return
     }
-  },
-  // 登录
-  {
-    path: '/login',
-    name: 'login',
-    component: () => import('@/views/login/LoginPage.vue'),
-    meta: {
-      layout: 'BlankLayout'
-    }
-  },
-  // 首页
-  {
-    path: '/home',
-    name: 'home',
-    component: () => import('@/views/home/HomePage.vue'),
-    meta: {
-      layout: 'BlankLayout'
-    }
-  },
-  // 主功能页
-  {
-    path: '/chat',
-    name: 'chat',
-    component: () => import('@/views/chat/ChatPage.vue'),
-    meta: {
-      layout: 'MainLayout'
-    }
-  },
-  // 通配符路由 - 匹配所有未找到的路由，默认跳转到首页
-  {
-    path: '/:pathMatch(.*)*',
-    redirect: '/home'
+    next()
   }
-]
-
-const router = createRouter({
-  history: createWebHistory(),
-  routes
-})
+)
 
 export default router

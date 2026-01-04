@@ -3,6 +3,9 @@ import { ref, computed } from 'vue'
 import { v4 as createId } from 'uuid'
 import type { ComponentProps as ChatMessage } from '@/views/chat/components/ChatModal/components/ChatMessage.vue'
 
+/**
+ * Chat Store（聊天会话数据）
+ */
 export const useChatStore = defineStore('chat', () => {
   /**
    * State
