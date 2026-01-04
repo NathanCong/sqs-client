@@ -69,7 +69,7 @@ export function consultStream({
 }) {
   return postForStream(
     '/consult/stream',
-    { sessionId, question, file_url: fileUrl },
+    { session_id: sessionId, question, file_url: fileUrl },
     onChunk
   )
 }
