@@ -105,10 +105,26 @@ export function searchPatentsFromStrategy(question: string) {
   })
 }
 
+interface UploadFileResponse extends CommonResponse {
+  data: {
+    createTime: string
+    creator: string
+    resourceHash: string
+    resourceId: string
+    resourceName: string
+    resourceSize: number
+    resourceType: string
+    resourceUrl: string
+  }
+}
+
 /**
  * 上传文件
  */
-export function uploadFile(savePath: string, file: File) {
+export function uploadFile(
+  savePath: string,
+  file: File
+): Promise<AxiosResponse<UploadFileResponse>> {
   const formData = new FormData()
   formData.append('savePath', savePath)
   formData.append('file', file)
