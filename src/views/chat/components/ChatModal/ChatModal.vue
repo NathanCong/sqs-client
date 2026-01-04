@@ -77,10 +77,11 @@ function getToolData(toolResult: string) {
 function handleChunk(messageId: string, chunk: string) {
   let newChunk = chunk
   // 处理 model_result
-  const matches = /<model_result>([\s\S]*?)<\/model_result>/.exec(newChunk)
-  if (matches) {
-    chatStore.setMessage(messageId, { model: matches[1].trim() })
-    newChunk = newChunk.replace(matches[0], '')
+  const modelResultRegex = /<model_result>([\s\S]*?)<\/model_result>/g
+  const modelResultMatches = modelResultRegex.exec(newChunk)
+  if (modelResultMatches) {
+    chatStore.setMessage(messageId, { model: modelResultMatches[1].trim() })
+    newChunk = newChunk.replace(modelResultRegex, '')
   }
   // 不包含 tool_result 情况，直接更新
   if (!newChunk.includes('<tool_result>')) {
@@ -94,17 +95,17 @@ function handleChunk(messageId: string, chunk: string) {
     return
   }
   // tool_result 生成完毕，拆分内容
-  const regex = /(<tool_result>[\s\S]*?<\/tool_result>)/
-  const results = newChunk.split(regex)
-  const newData: Content[] = []
-  results.forEach((content) => {
+  const toolResultRegex = /(<tool_result>[\s\S]*?<\/tool_result>)/
+  const contentResults = newChunk.split(toolResultRegex)
+  const contents: Content[] = []
+  contentResults.forEach((content) => {
     // 空内容跳过
     if (!content) {
       return
     }
     // tool_result 内容
     if (content.includes('<tool_result>')) {
-      newData.push({
+      contents.push({
         type: 'tool',
         data: {
           name: getToolName(content),
@@ -115,10 +116,9 @@ function handleChunk(messageId: string, chunk: string) {
       return
     }
     // text 内容
-    newData.push({ type: 'text', data: content })
+    contents.push({ type: 'text', data: content })
   })
-  console.log('newData', newData)
-  chatStore.setMessage(messageId, { data: newData })
+  chatStore.setMessage(messageId, { data: contents })
 }
 
 const chatListRef = ref<Element | null>(null)
