@@ -74,7 +74,11 @@
           />
         </span>
       </template>
-      <QuestionTypeModal @ok="onOk" ref="questionTypeModalRef" />
+      <QuestionTypeModal
+        @ok="onOk"
+        @cancel="onCancel"
+        ref="questionTypeModalRef"
+      />
     </span>
   </span>
 </template>
@@ -204,11 +208,11 @@ async function onOk(value: string): Promise<void> {
   chatStore.setMessage(props.id, { questionType: value })
   // 提交用户评分
   const message = chatStore.getMessage(props.id) as ComponentProps
-  console.log('current message: ', message)
   const { model = '', questionType = '', score = 0 } = message
+  const { userEmail = '' } = userStore.getUserInfo() || {}
   try {
     const { data } = await poc({
-      userEmail: userStore.userEmail,
+      userEmail,
       modelName: model,
       questionType,
       score,
@@ -223,6 +227,14 @@ async function onOk(value: string): Promise<void> {
   } catch (error) {
     console.warn(error)
   }
+}
+
+function onCancel() {
+  score.value = 0
+  chatStore.setMessage(props.id, {
+    score: score.value,
+    questionType: undefined
+  })
 }
 </script>
 

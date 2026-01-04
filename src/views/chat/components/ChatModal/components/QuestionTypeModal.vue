@@ -22,6 +22,7 @@
       <a-button type="primary" :disabled="isOkDisabled" @click="onOk">
         确定
       </a-button>
+      <a-button type="default" @click="onCancel">取消</a-button>
     </template>
   </a-modal>
 </template>
@@ -49,11 +50,16 @@ function onSelectorChange(value: SelectValue): void {
   selectorValue.value = value
 }
 
-const emit = defineEmits(['ok'])
+const emit = defineEmits(['ok', 'cancel'])
 
 function onOk() {
   close()
   emit('ok', selectorValue.value)
+}
+
+function onCancel() {
+  close()
+  emit('cancel')
 }
 
 defineExpose({ open, close })

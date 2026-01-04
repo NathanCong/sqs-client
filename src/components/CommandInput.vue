@@ -89,13 +89,19 @@ async function onChange() {
   const savePath = 'sqs/'
   uploadLoading.value = true
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const result = (await uploadFile(savePath, file.originFileObj)) as any
-    fileName.value = `${result.resourceName}.${result.resourceType}`
-    fileUrl.value = result.resourceUrl
+    const { data } = await uploadFile(savePath, file.originFileObj)
+    const { success, message: description, data: response } = data
+    // 文件上传失败
+    if (!success) {
+      notification.error({ message: '文件上传失败', description })
+      return
+    }
+    // 文件上传成功
     notification.success({ message: '文件上传成功' })
+    const { resourceName, resourceType, resourceUrl } = response
+    fileName.value = `${resourceName}.${resourceType}`
+    fileUrl.value = resourceUrl
   } catch (err) {
-    notification.error({ message: '文件上传失败' })
     console.warn(err)
   } finally {
     uploadLoading.value = false

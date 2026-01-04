@@ -36,24 +36,36 @@
 import GlobalHeader from '@/components/GlobalHeader'
 import CommonForm from '@/components/CommonForm.vue'
 import { LOGIN_FORM_FIELDS, REGISTER_FORM_FIELDS } from './constants/index'
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { login, register } from '@/apis/index'
 import type { LoginParams } from '@/apis/index'
 import { notification } from 'ant-design-vue'
-import { setStorage } from '@/utils/storage'
+import { useRoute, useRouter } from 'vue-router'
+import { useUserStore } from '@/store/user'
 import md5 from 'md5'
-import { useRouter } from 'vue-router'
 
 const isLogin = ref(true)
 
 const title = computed(() => (isLogin.value ? '用户登录' : '新用户注册'))
+
 const fields = computed(() =>
   isLogin.value ? LOGIN_FORM_FIELDS : REGISTER_FORM_FIELDS
 )
 
 const commonFormRef = ref<InstanceType<typeof CommonForm>>()
 
+const route = useRoute()
+
 const router = useRouter()
+
+function jumpRedirect() {
+  // 获取重定向地址
+  const { redirect = '/' } = route.query
+  // 跳转重定向地址
+  router.replace({ path: redirect?.toString() })
+}
+
+const userStore = useUserStore()
 
 async function onLogin() {
   try {
@@ -63,15 +75,17 @@ async function onLogin() {
       userEmail,
       userPassword: md5(userPassword)
     })
-    const { success, message, data: response } = data
+    const { success, message: description, data: response } = data
     if (!success) {
-      notification.error({ message: '登录失败', description: message })
+      notification.error({ message: '登录失败', description })
       return
     }
     notification.success({ message: '登录成功' })
     const { accessToken } = response
-    setStorage('accessToken', accessToken)
-    router.replace({ path: '/' })
+    // 设置 token
+    userStore.setAccessToken(accessToken)
+    // 跳转页面
+    jumpRedirect()
   } catch (error) {
     console.warn('onLogin error', error)
   }
@@ -111,6 +125,12 @@ async function onRegister() {
     console.warn('onRegister error', error)
   }
 }
+
+onMounted(() => {
+  if (userStore.getAccessToken()) {
+    jumpRedirect()
+  }
+})
 </script>
 
 <style lang="less" scoped>

@@ -27,7 +27,7 @@
 
 <script lang="ts" setup>
 import { LeftOutlined, RightOutlined } from '@ant-design/icons-vue'
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import ChatModal from './components/ChatModal'
 import ToolPanel from './components/ToolPanel'
 import { useToolStore } from '@/store/tool'
@@ -45,6 +45,16 @@ function onChatHide() {
 const toolStore = useToolStore()
 
 const isShowTool = computed(() => toolStore.activePanel)
+
+watch(
+  () => isShowTool.value,
+  (value) => {
+    if (!value) {
+      isShowChat.value = true
+    }
+  },
+  { immediate: true }
+)
 </script>
 
 <style lang="less" scoped>
