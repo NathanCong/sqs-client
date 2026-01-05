@@ -44,7 +44,7 @@ import { CloseCircleOutlined } from '@ant-design/icons-vue'
 import CommonEmpty from '@/components/CommonEmpty.vue'
 import { getPatentManual } from '@/apis'
 
-const visible = ref(true)
+const visible = ref(false)
 
 const detail = ref<{
   applicationNumber: string
