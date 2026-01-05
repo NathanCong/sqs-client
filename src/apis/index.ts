@@ -82,13 +82,6 @@ export function searchStrategy(question: string) {
 }
 
 /**
- * 专利检索
- */
-export function searchPatents(params: unknown) {
-  return post('/search/patents', params)
-}
-
-/**
  * 专利检索（通过检索式）
  */
 export function searchPatentsFromStrategy(question: string) {
@@ -188,4 +181,11 @@ export interface PocResponse extends CommonResponse {
  */
 export function poc(params: PocParams): Promise<AxiosResponse<PocResponse>> {
   return post('/poc', params)
+}
+
+/**
+ * 专利检索
+ */
+export function searchPatents(params: unknown) {
+  return post('/search/patents', params)
 }
