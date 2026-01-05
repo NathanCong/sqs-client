@@ -47,7 +47,7 @@ import type {
   ComponentProps as Message
 } from './components/ChatMessage.vue'
 import { useChatStore } from '@/store/chat'
-import { consultStream } from '@/apis'
+import { consultStream, searchPatents } from '@/apis'
 import { TABLE_COLUMNS } from './constants'
 import { getStorage, delStorage } from '@/utils/storage'
 
@@ -131,6 +131,84 @@ function scrollToBottom() {
   })
 }
 
+async function handleList(messageId: string) {
+  const message = chatStore.getMessage(messageId) as Message
+  const toolItem = (message.data as Content[]).find(
+    (i) => i.type === 'tool' && (i.data as Tool).name === 'rag_search'
+  )
+  if (!toolItem) {
+    return
+  }
+  const { data } = toolItem.data as Tool
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { sources } = data as { sources: any[] }
+  requestLoading.value = true
+  try {
+    const q = `${sources.map((i) => `(an=${(i as { id: string }).id})`).join(' or ')}`
+    console.log('向量库查询到的条数：', sources.length)
+    console.log('q', q)
+    const { data: res } = await searchPatents({ page: 1, q })
+    const {
+      data: { list, total }
+    } = res as { success: boolean; data: { list: unknown[]; total: number } }
+    console.log('万象云查询到的条数：', total)
+    chatStore.addMessage({
+      role: 'assistant',
+      type: 'list',
+      data: {
+        name: '查询结果',
+        columns: TABLE_COLUMNS,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        dataSource: list.map((item: any) => {
+          const {
+            title: { original },
+            applicants,
+            application_number,
+            application_date,
+            earliest_publication_date,
+            inventors,
+            assignees,
+            main_ipc,
+            pav
+          } = item
+          return {
+            // 专利名称
+            patentName: original,
+            // 初始申请人
+            initialApplicant: applicants[0].name.original,
+            // 申请号
+            applicationNumber: application_number,
+            // 申请日
+            applicationDate: application_date,
+            // 公开号/公开日
+            publicationDate: earliest_publication_date,
+            // 发明人
+            inventors: inventors
+              .map((i: { name: { original: string } }) => i.name.original)
+              .join(','),
+            // 当前权利人
+            currentAssignee: assignees[0].name.original,
+            // 主分类号
+            mainIpc: main_ipc.ipc,
+            // 相关性评分
+            relevanceScore: sources
+              .find((i: { id: string }) => i.id === application_number)
+              ?.score.toFixed(2),
+            // 价值评分
+            valueScore: pav
+          }
+        }),
+        pagination: { total: 0, pageNum: 1, pageSize: 10 }
+      },
+      showRate: true
+    })
+  } catch (error) {
+    console.warn(error)
+  } finally {
+    requestLoading.value = false
+  }
+}
+
 const requestLoading = ref(false)
 
 async function ask(messageId: string, userCommand: string, fileUrl?: string) {
@@ -144,30 +222,9 @@ async function ask(messageId: string, userCommand: string, fileUrl?: string) {
         if (chunk === '[DONE]') {
           // 展示用户评分
           chatStore.setMessage(messageId, { showRate: true })
-          // 列表类型需要展示数据
-          const message = chatStore.getMessage(messageId) as Message
-          const toolItem = (message.data as Content[]).find(
-            (i) => i.type === 'tool' && (i.data as Tool).name === 'rag_search'
-          )
-          if (toolItem) {
-            chatStore.addMessage({
-              role: 'assistant',
-              type: 'list',
-              data: {
-                name: '查询结果',
-                columns: TABLE_COLUMNS,
-                dataSource: (
-                  (toolItem.data as Tool).data as { sources: unknown[] }
-                ).sources,
-                pagination: {
-                  total: 0,
-                  pageNum: 1,
-                  pageSize: 10
-                }
-              },
-              showRate: true
-            })
-          }
+          // 处理列表类型消息
+          handleList(messageId)
+          scrollToBottom()
           return
         }
         handleChunk(messageId, chunk)

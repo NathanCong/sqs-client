@@ -320,6 +320,7 @@ function onCancel() {
 
     .message-text {
       padding: 16px;
+      overflow-x: auto;
 
       .message-tool {
         width: 100%;
@@ -361,6 +362,7 @@ function onCancel() {
           .tool-show,
           .tool-hide {
             width: auto;
+            padding-left: 16px;
             height: 24px;
             display: flex;
             align-items: center;
