@@ -189,3 +189,10 @@ export function poc(params: PocParams): Promise<AxiosResponse<PocResponse>> {
 export function searchPatents(params: unknown) {
   return post('/search/patents', params)
 }
+
+/**
+ * 专利详情 - 说明书
+ */
+export function getPatentManual(params: { id: string }) {
+  return post('/wanxiang/getPatentManual', params)
+}

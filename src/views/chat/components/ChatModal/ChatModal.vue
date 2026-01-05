@@ -157,10 +157,11 @@ async function handleList(messageId: string) {
       type: 'list',
       data: {
         name: '查询结果',
-        columns: TABLE_COLUMNS,
+        columns: TABLE_COLUMNS as ColumnItem[],
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         dataSource: list.map((item: any) => {
           const {
+            id,
             title: { original },
             applicants,
             application_number,
@@ -172,6 +173,7 @@ async function handleList(messageId: string) {
             pav
           } = item
           return {
+            id,
             // 专利名称
             patentName: original,
             // 初始申请人
@@ -191,9 +193,9 @@ async function handleList(messageId: string) {
             // 主分类号
             mainIpc: main_ipc.ipc,
             // 相关性评分
-            relevanceScore: sources
-              .find((i: { id: string }) => i.id === application_number)
-              ?.score.toFixed(2),
+            relevanceScore: sources.find(
+              (i: { id: string }) => i.id === application_number
+            )?.score,
             // 价值评分
             valueScore: pav
           }
@@ -206,6 +208,7 @@ async function handleList(messageId: string) {
     console.warn(error)
   } finally {
     requestLoading.value = false
+    scrollToBottom()
   }
 }
 
@@ -224,7 +227,6 @@ async function ask(messageId: string, userCommand: string, fileUrl?: string) {
           chatStore.setMessage(messageId, { showRate: true })
           // 处理列表类型消息
           handleList(messageId)
-          scrollToBottom()
           return
         }
         handleChunk(messageId, chunk)

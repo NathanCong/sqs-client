@@ -37,15 +37,19 @@
                 <span class="thead-cell">{{ title }}</span>
               </template>
               <!-- 表主体单元格 -->
-              <template #tbody-cell="{ column, text }">
+              <template #tbody-cell="{ column, text, record }">
                 <span class="tbody-cell">
                   <!-- 摘要太长缩短 -->
-                  <template v-if="column.key === 'abstract'">
-                    {{ text.length > 30 ? text.slice(0, 30) + '...' : text }}
+                  <template v-if="column.key === 'actions'">
+                    <a-button type="link" @click="onDetail(record)">
+                      查看详情
+                    </a-button>
                   </template>
-                  <template v-else-if="column.key === 'score'">
+                  <!-- 相关性评分 -->
+                  <template v-else-if="column.key === 'relevanceScore'">
                     {{ (parseFloat(text) * 100).toFixed(2) }}
                   </template>
+                  <!-- 其他 -->
                   <template v-else>{{ text || '——' }}</template>
                 </span>
               </template>
@@ -60,6 +64,7 @@
         <a-button type="primary" @click="onDownload">下载</a-button>
       </template>
     </CommonPanel>
+    <ParentDetail ref="parentDetailRef" />
   </div>
 </template>
 
@@ -72,6 +77,7 @@ import CommonPanel from './common/CommonPanel.vue'
 import CommonTable from '@/components/CommonTable.vue'
 import { useToolStore } from '@/store/tool'
 import html2pdf from 'html2pdf.js'
+import ParentDetail from './ParentDetail.vue'
 
 // 定义 Props
 withDefaults(defineProps<{ loading: boolean }>(), { loading: false })
@@ -152,6 +158,13 @@ function onDownload() {
 
 function scrollToBottom() {
   commonPanelRef.value.scrollToBottom()
+}
+
+const parentDetailRef = ref<InstanceType<typeof ParentDetail> | null>(null)
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function onDetail(record: any) {
+  parentDetailRef.value?.open(record)
 }
 
 defineExpose({ scrollToBottom })
