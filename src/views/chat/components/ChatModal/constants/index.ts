@@ -54,5 +54,11 @@ export const TABLE_COLUMNS = [
     key: 'valueScore',
     dataIndex: 'valueScore',
     title: '价值评分'
+  },
+  {
+    key: 'actions',
+    width: 120,
+    fixed: 'right',
+    title: '操作'
   }
 ]
