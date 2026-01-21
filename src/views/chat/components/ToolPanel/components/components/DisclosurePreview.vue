@@ -66,7 +66,7 @@ function reMake(index: number) {
       console.log('chunk: ', chunk)
       listData.value[index].content = chunk
         .replace(/<model_result>([\s\S]*?)<\/model_result>/g, '')
-        .replace(/###([\s\S]*?)\n\n/, '')
+        .replace(/\n{0,2}#{1,3}([\s\S]*?)\n{1,2}/, '')
       toolStore.updatePreviewData([...listData.value])
     }
   }).catch((err) => console.warn(err))
@@ -86,6 +86,7 @@ function reMake(index: number) {
       color: #333;
       font-weight: bold;
       margin-bottom: 8px;
+      font-size: 16px;
     }
 
     .item-content,

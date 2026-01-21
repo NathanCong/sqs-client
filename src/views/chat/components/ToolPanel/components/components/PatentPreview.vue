@@ -1,26 +1,39 @@
 <template>
   <div class="patent-preview">
     <template v-for="(item, index) in listData" :key="item.code">
-      <section class="patent-item">
-        <!-- 标题 -->
-        <template v-if="item.title">
-          <p class="item-title">{{ item.title }}</p>
-        </template>
-        <!-- 内容 -->
-        <template v-if="item.content">
-          <p class="item-content">
-            <MarkdownRender :markdown-content="item.content" />
+      <!-- 区域标题 -->
+      <template v-if="item.code === '-1'">
+        <section class="patent-item">
+          <p class="item-title large">{{ item.title }}</p>
+        </section>
+      </template>
+      <!-- 内容主体 -->
+      <template v-else>
+        <section class="patent-item">
+          <!-- 大标题 -->
+          <template v-if="item.title && item.code === '-1'">
+            <p class="item-title large">{{ item.title }}</p>
+          </template>
+          <!-- 小标题 -->
+          <template v-if="item.title && item.code !== '-1'">
+            <p class="item-title">{{ item.title }}</p>
+          </template>
+          <!-- 内容 -->
+          <template v-if="item.content">
+            <p class="item-content">
+              <MarkdownRender :markdown-content="item.content" />
+            </p>
+          </template>
+          <!-- 加载中 -->
+          <template v-else>
+            <p class="item-loading">加载中...</p>
+          </template>
+          <!-- 重新生成 -->
+          <p class="item-links">
+            <a-button type="link" @click="reMake(index)">重新生成</a-button>
           </p>
-        </template>
-        <!-- 加载中 -->
-        <template v-else>
-          <p class="item-loading">加载中...</p>
-        </template>
-        <!-- 重新生成 -->
-        <p class="item-links">
-          <a-button type="link" @click="reMake(index)">重新生成</a-button>
-        </p>
-      </section>
+        </section>
+      </template>
     </template>
   </div>
 </template>
@@ -67,10 +80,9 @@ function reMake(index: number) {
       if (chunk === '[DONE]') {
         return
       }
-      listData.value[index].content = chunk.replace(
-        /<model_result>([\s\S]*?)<\/model_result>/g,
-        ''
-      )
+      listData.value[index].content = chunk
+        .replace(/<model_result>([\s\S]*?)<\/model_result>/g, '')
+        .replace(/\n{0,2}#{1,3}([\s\S]*?)\n{1,2}/, '')
       toolStore.updatePreviewData([...listData.value])
     }
   }).catch((err) => console.warn(err))
@@ -90,6 +102,11 @@ function reMake(index: number) {
       color: #333;
       font-weight: bold;
       margin-bottom: 8px;
+      font-size: 16px;
+
+      &.large {
+        font-size: 20px;
+      }
     }
 
     .item-content,

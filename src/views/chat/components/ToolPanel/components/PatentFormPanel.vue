@@ -15,7 +15,7 @@
             v-model:file-list="fileList"
             :before-upload="() => false"
             :multiple="false"
-            :show-upload-list="false"
+            :show-upload-list="true"
             @change="handleChange"
           >
             <a-button type="default">
@@ -63,6 +63,29 @@ const formConfig = ref<CommonFormConfig>({
   ]
 })
 
+const fileList = ref([])
+const fileUrl = ref('')
+
+async function handleChange() {
+  const file = fileList.value[0] as { originFileObj: File }
+  if (!file) {
+    return
+  }
+  const savePath = 'sqs/'
+  try {
+    const { data: response } = await uploadFile(savePath, file.originFileObj)
+    const { success, message: description, data } = response
+    if (!success) {
+      notification.error({ message: '文件上传失败', description })
+      return
+    }
+    fileUrl.value = data.resourceUrl
+    notification.success({ message: '文件上传成功' })
+  } catch (err) {
+    console.warn(err)
+  }
+}
+
 // 定义 emits
 const emit = defineEmits(['confirm'])
 
@@ -74,25 +97,16 @@ async function onConfirm() {
     if (content) {
       markdown = json2md([{ h1: '技术交底书内容' }, { p: content }])
     }
+    console.log('{ markdown, fileUrl: fileUrl.value }', {
+      markdown,
+      fileUrl: fileUrl.value
+    })
+    if (!markdown && !fileUrl.value) {
+      notification.error({ message: '请填写表单或上传文件' })
+      return
+    }
     emit('confirm', { markdown, fileUrl: fileUrl.value })
   } catch (err) {
-    console.warn(err)
-  }
-}
-
-const fileList = ref([])
-const fileUrl = ref('')
-
-async function handleChange() {
-  const file = fileList.value[0] as { originFileObj: File }
-  const savePath = 'sqs/'
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const result = (await uploadFile(savePath, file.originFileObj)) as any
-    fileUrl.value = result.resourceUrl
-    notification.success({ message: '文件上传成功' })
-  } catch (err) {
-    notification.error({ message: '文件上传失败' })
     console.warn(err)
   }
 }
