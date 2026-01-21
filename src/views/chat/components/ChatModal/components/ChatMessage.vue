@@ -303,11 +303,6 @@ function onCancel() {
       .message-pdf {
         color: var(--text-primary);
       }
-
-      .message-text {
-        padding-top: 0;
-        padding-left: 0;
-      }
     }
   }
 
@@ -316,6 +311,7 @@ function onCancel() {
     height: 40px;
     min-width: 40px;
     border-radius: 50%;
+    margin-top: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
