@@ -2,6 +2,11 @@
 <template>
   <div class="disclosure-form-panel">
     <CommonPanel title="信息采集">
+      <template #header-buttons>
+        <a-button shape="circle" @click="onClose">
+          <template #icon><CloseOutlined /></template>
+        </a-button>
+      </template>
       <div class="panel-content">
         <CommonForm ref="commonFormRef" :form-config="formConfig" />
         <section>
@@ -37,9 +42,18 @@ import { ref } from 'vue'
 import json2md from 'json2md'
 import CommonPanel from './common/CommonPanel.vue'
 import CommonForm from './common/CommonForm.vue'
+import type { CommonFormConfig } from './common/CommonForm.vue'
 import { notification } from 'ant-design-vue'
 import { UploadOutlined } from '@ant-design/icons-vue'
 import { uploadFile } from '@/apis'
+import { useToolStore } from '@/store/tool'
+import { CloseOutlined } from '@ant-design/icons-vue'
+
+const toolStore = useToolStore()
+
+function onClose() {
+  toolStore.closeAllPanels()
+}
 
 // 定义 state
 const commonFormRef = ref<InstanceType<typeof CommonForm>>()
@@ -66,13 +80,6 @@ const formConfig = ref<CommonFormConfig>({
 
 // 定义 emits
 const emit = defineEmits(['confirm'])
-
-// function onClick() {
-//   notification.info({
-//     message: '温馨提示',
-//     description: '功能正在开发中，敬请期待...'
-//   })
-// }
 
 const fileList = ref([])
 const fileUrl = ref('')

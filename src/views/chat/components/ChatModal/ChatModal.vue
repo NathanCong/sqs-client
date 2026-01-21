@@ -294,6 +294,16 @@ onMounted(() => {
     })
     return
   }
+  // 处理交底书撰写助手
+  if (key === '5') {
+    toolStore.openDisclosureFormPanel()
+    chatStore.addMessage({
+      role: 'assistant',
+      type: 'text',
+      data: [{ type: 'text', data: '请在右侧表单完善信息' }]
+    })
+    return
+  }
 })
 </script>
 

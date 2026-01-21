@@ -86,15 +86,19 @@ async function onDisclosureFormPanelConfirm({
   fileUrl?: string
 }) {
   // 插入系统提示消息
-  chatStore.add('assistant', 'text', '请查看右侧预览窗口，正在生成中...')
+  chatStore.addMessage({
+    role: 'assistant',
+    type: 'text',
+    data: [{ type: 'text', data: '请查看右侧预览窗口，正在生成中...' }]
+  })
   // 打开 PreviewPanel
   const previewData = [
-    { code: '1', content: '' },
-    { code: '2', content: '' },
-    { code: '3', content: '' },
-    { code: '4', content: '' },
-    { code: '5', content: '' },
-    { code: '6', content: '' }
+    { code: '1', title: '标题', content: '' },
+    { code: '2', title: '技术领域', content: '' },
+    { code: '3', title: '创新背景', content: '' },
+    { code: '4', title: '发明目的', content: '' },
+    { code: '5', title: '技术方案', content: '' },
+    { code: '6', title: '具体实施方式', content: '' }
   ]
   toolStore.openPreviewPanel('disclosure', previewData)
   // 获取技术交底书
@@ -110,7 +114,10 @@ async function onDisclosureFormPanelConfirm({
           if (chunk === '[DONE]') {
             return resolve()
           }
-          previewData[index].content = chunk
+          previewData[index].content = chunk.replace(
+            /<model_result>([\s\S]*?)<\/model_result>/g,
+            ''
+          )
           toolStore.updatePreviewData([...previewData])
           previewPanelRef.value.scrollToBottom()
         }
