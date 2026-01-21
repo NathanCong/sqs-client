@@ -304,6 +304,16 @@ onMounted(() => {
     })
     return
   }
+  // 处理专利撰写助手
+  if (key === '6') {
+    toolStore.openPatentFormPanel()
+    chatStore.addMessage({
+      role: 'assistant',
+      type: 'text',
+      data: [{ type: 'text', data: '请在右侧表单完善信息' }]
+    })
+    return
+  }
 })
 </script>
 

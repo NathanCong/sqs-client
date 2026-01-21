@@ -2,14 +2,21 @@
   <div class="patent-preview">
     <template v-for="(item, index) in listData" :key="item.code">
       <section class="patent-item">
+        <!-- 标题 -->
+        <template v-if="item.title">
+          <p class="item-title">{{ item.title }}</p>
+        </template>
+        <!-- 内容 -->
         <template v-if="item.content">
           <p class="item-content">
             <MarkdownRender :markdown-content="item.content" />
           </p>
         </template>
+        <!-- 加载中 -->
         <template v-else>
           <p class="item-loading">加载中...</p>
         </template>
+        <!-- 重新生成 -->
         <p class="item-links">
           <a-button type="link" @click="reMake(index)">重新生成</a-button>
         </p>
@@ -24,6 +31,12 @@ import { ref, watch } from 'vue'
 import { useChatStore } from '@/store/chat'
 import { useToolStore } from '@/store/tool'
 import { helperPatentStream } from '@/apis'
+
+interface Content {
+  code: string
+  title?: string
+  content: string
+}
 
 const props = withDefaults(defineProps<{ data?: Content[] }>(), {
   data: () => []
@@ -54,7 +67,10 @@ function reMake(index: number) {
       if (chunk === '[DONE]') {
         return
       }
-      listData.value[index].content = chunk
+      listData.value[index].content = chunk.replace(
+        /<model_result>([\s\S]*?)<\/model_result>/g,
+        ''
+      )
       toolStore.updatePreviewData([...listData.value])
     }
   }).catch((err) => console.warn(err))
@@ -68,9 +84,23 @@ function reMake(index: number) {
     flex-direction: column;
     width: 100%;
     box-sizing: border-box;
-    padding: 16px;
-    background-color: #eee;
     margin-bottom: 16px;
+
+    .item-title {
+      color: #333;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    .item-content,
+    .item-loading {
+      width: 100%;
+      height: auto;
+      box-sizing: border-box;
+      padding: 16px;
+      background-color: var(--bg-secondary);
+      border-radius: var(--radius-lg);
+    }
 
     .item-loading {
       display: flex;

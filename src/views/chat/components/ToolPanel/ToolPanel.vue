@@ -1,9 +1,5 @@
 <template>
   <div class="tool-panel">
-    <!-- 专利撰写表单 -->
-    <template v-if="toolStore.patentFormPanelVisible">
-      <PatentFormPanel @confirm="onPatentFormPanelConfirm" />
-    </template>
     <!-- 高级检索表单 -->
     <template v-if="toolStore.advancedFormPanelVisible">
       <AdvancedFormPanel @confirm="onAdvancedFormPanelConfirm" />
@@ -19,6 +15,10 @@
     <!-- 交底书撰写表单 -->
     <template v-if="toolStore.disclosureFormPanelVisible">
       <DisclosureFormPanel @confirm="onDisclosureFormPanelConfirm" />
+    </template>
+    <!-- 专利撰写表单 -->
+    <template v-if="toolStore.patentFormPanelVisible">
+      <PatentFormPanel @confirm="onPatentFormPanelConfirm" />
     </template>
     <!-- 结果预览 -->
     <template v-if="toolStore.previewPanelVisible">
@@ -145,17 +145,21 @@ async function onPatentFormPanelConfirm({
   fileUrl?: string
 }) {
   // 插入系统提示消息
-  chatStore.add('assistant', 'text', '请查看右侧预览窗口，正在生成中...')
+  chatStore.addMessage({
+    role: 'assistant',
+    type: 'text',
+    data: [{ type: 'text', data: '请查看右侧预览窗口，正在生成中...' }]
+  })
   // 打开 PreviewPanel
   const previewData = [
-    { code: '1', content: '' },
-    { code: '2', content: '' },
-    { code: '3', content: '' },
-    { code: '4', content: '' },
-    { code: '5', content: '' },
-    { code: '6', content: '' },
-    { code: '7', content: '' },
-    { code: '8', content: '' }
+    { code: '1', title: '技术领域', content: '' },
+    { code: '2', title: '背景技术', content: '' },
+    { code: '3', title: '发明内容-要解决的技术问题', content: '' },
+    { code: '4', title: '发明内容-技术方案', content: '' },
+    { code: '5', title: '发明内容-有益效果', content: '' },
+    { code: '6', title: '附图说明', content: '' },
+    { code: '7', title: '具体实施方式', content: '' },
+    { code: '8', title: '说明书', content: '' }
   ]
   toolStore.openPreviewPanel('patent', previewData)
   // 获取技术专利
@@ -171,7 +175,10 @@ async function onPatentFormPanelConfirm({
           if (chunk === '[DONE]') {
             return resolve()
           }
-          previewData[index].content = chunk
+          previewData[index].content = chunk.replace(
+            /<model_result>([\s\S]*?)<\/model_result>/g,
+            ''
+          )
           toolStore.updatePreviewData([...previewData])
           previewPanelRef.value.scrollToBottom()
         }
