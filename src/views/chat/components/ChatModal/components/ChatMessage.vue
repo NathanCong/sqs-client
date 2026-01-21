@@ -62,6 +62,28 @@
           <span class="pdf-name">{{ (data as Pdf).name }}</span>
         </span>
       </template>
+      <!-- 点赞、点踩、复制 -->
+      <template v-if="role === 'assistant'">
+        <span class="message-actions">
+          <button
+            class="action-btn"
+            :class="{ active: isLiked }"
+            @click="onLike"
+          >
+            <DianZanIcon />
+          </button>
+          <button
+            class="action-btn"
+            :class="{ active: isDisliked }"
+            @click="onDislike"
+          >
+            <DianCaiIcon />
+          </button>
+          <button class="action-btn" @click="onCopy">
+            <CopyIcon />
+          </button>
+        </span>
+      </template>
       <!-- 用户评价打分 -->
       <template v-if="showRate">
         <span class="message-rate">
@@ -139,6 +161,9 @@ import QuestionTypeModal from './QuestionTypeModal.vue'
 import { useUserStore } from '@/store/user'
 import { poc } from '@/apis/index'
 import { notification } from 'ant-design-vue'
+import DianZanIcon from './icons/DianZanIcon.vue'
+import DianCaiIcon from './icons/DianCaiIcon.vue'
+import CopyIcon from './icons/CopyIcon.vue'
 
 const props = withDefaults(defineProps<ComponentProps>(), {
   id: '',
@@ -235,6 +260,57 @@ function onCancel() {
     score: score.value,
     questionType: undefined
   })
+}
+
+// 操作按钮状态
+const isLiked = ref(false)
+const isDisliked = ref(false)
+
+// 点赞
+function onLike() {
+  isLiked.value = !isLiked.value
+  if (isLiked.value) {
+    isDisliked.value = false
+    notification.success({ message: '感谢反馈', description: '已记录您的点赞' })
+  }
+}
+
+// 点踩
+function onDislike() {
+  isDisliked.value = !isDisliked.value
+  if (isDisliked.value) {
+    isLiked.value = false
+    notification.info({
+      message: '感谢反馈',
+      description: '已记录您的反馈，我们会持续改进'
+    })
+  }
+}
+
+// 复制回答内容
+function onCopy() {
+  const currentData = (props.data || []) as Content[]
+  const textContent = currentData
+    .filter((c) => c.type === 'text')
+    .map((c) => c.data)
+    .join('\n')
+
+  if (textContent) {
+    navigator.clipboard
+      .writeText(textContent as string)
+      .then(() => {
+        notification.success({
+          message: '复制成功',
+          description: '内容已复制到剪贴板'
+        })
+      })
+      .catch(() => {
+        notification.error({
+          message: '复制失败',
+          description: '请手动复制内容'
+        })
+      })
+  }
 }
 </script>
 
@@ -447,14 +523,6 @@ function onCancel() {
         font-size: 15px;
         font-weight: 500;
       }
-    }
-
-    .message-actions-wrapper {
-      display: flex;
-      align-items: center;
-      padding: 0 var(--spacing-xl);
-      padding-bottom: var(--spacing-md);
-      gap: var(--spacing-md);
     }
 
     .message-actions {
