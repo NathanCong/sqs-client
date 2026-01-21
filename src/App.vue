@@ -34,15 +34,18 @@ const layoutComponent = computed(() => {
   width: 100%;
   height: 100vh;
   min-width: 1200px;
-  // background-color: #999;
 }
 
 .app-font {
   font-family:
     -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
-    Arial, sans-serif;
+    Arial, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑',
+    'SimSun', '宋体', sans-serif;
   font-size: 14px;
-  font-weight: normal;
-  color: #333;
+  font-weight: 400;
+  color: var(--text-primary);
+  line-height: 1.6;
+  letter-spacing: 0.2px;
+  text-rendering: optimizeLegibility;
 }
 </style>

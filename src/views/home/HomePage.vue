@@ -1,5 +1,6 @@
 <template>
   <div class="home home-background">
+    <CommonBackground />
     <!-- Header -->
     <section class="home-header"><GlobalHeader /></section>
     <!-- Mainer -->
@@ -21,6 +22,7 @@
 </template>
 
 <script lang="ts" setup>
+import CommonBackground from '@/components/CommonBackground.vue'
 import { useRouter } from 'vue-router'
 import { setStorage } from '@/utils/storage'
 import GlobalHeader from '@/components/GlobalHeader'
