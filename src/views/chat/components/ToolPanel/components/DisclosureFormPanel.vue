@@ -72,7 +72,8 @@ const formConfig = ref<CommonFormConfig>({
       name: 'content',
       label: '核心内容',
       rules: [{ required: false, message: '核心内容是必填项' }],
-      placeholder: '请输入核心内容',
+      placeholder:
+        '请输入要解决的技术问题、达到的效果、以及采用的技术手段方法等',
       type: 'textarea'
     }
   ]
