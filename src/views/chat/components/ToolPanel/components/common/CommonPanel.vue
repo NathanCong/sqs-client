@@ -58,8 +58,9 @@ defineExpose({ scrollToBottom, getContentHeight })
   width: 100%;
   height: 100%;
   background-color: #fff;
-  border-radius: 20px;
   overflow: hidden;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
   display: flex;
   flex-direction: column;
 

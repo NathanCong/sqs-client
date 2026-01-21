@@ -42,10 +42,10 @@ function onExec({ userCommand }: ExecParams) {
 }
 
 function onActive({ key }: ActiveParams) {
-  if (['2', '3', '4', '5', '6', '7'].includes(key)) {
+  if (['2', '4', '7'].includes(key)) {
     notification.info({
       message: '提示',
-      description: 'POC 验证阶段，功能暂未开放！'
+      description: '功能开发中，敬请期待...'
     })
     return
   }

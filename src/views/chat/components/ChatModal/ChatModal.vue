@@ -50,6 +50,8 @@ import { useChatStore } from '@/store/chat'
 import { consultStream, searchPatents } from '@/apis'
 import { TABLE_COLUMNS } from './constants'
 import { getStorage, delStorage } from '@/utils/storage'
+import { useRoute } from 'vue-router'
+import { useToolStore } from '@/store/tool'
 
 const chatStore = useChatStore()
 
@@ -131,6 +133,21 @@ function scrollToBottom() {
   })
 }
 
+async function handleBatchQuery(ids: string[]) {
+  try {
+    const q = `(${ids.map((id) => `an=${id}`).join(' or ')})`
+    console.log('q', q)
+    const { data: res } = await searchPatents({ page: 1, q })
+    const {
+      data: { list, total }
+    } = res as { success: boolean; data: { list: unknown[]; total: number } }
+    console.log('万象云查询到的条数：', total)
+    return { list, total }
+  } catch (error) {
+    console.warn(error)
+  }
+}
+
 async function handleList(messageId: string) {
   const message = chatStore.getMessage(messageId) as Message
   const toolItem = (message.data as Content[]).find(
@@ -144,14 +161,10 @@ async function handleList(messageId: string) {
   const { sources } = data as { sources: any[] }
   requestLoading.value = true
   try {
-    const q = `${sources.map((i) => `(an=${(i as { id: string }).id})`).join(' or ')}`
     console.log('向量库查询到的条数：', sources.length)
-    console.log('q', q)
-    const { data: res } = await searchPatents({ page: 1, q })
-    const {
-      data: { list, total }
-    } = res as { success: boolean; data: { list: unknown[]; total: number } }
-    console.log('万象云查询到的条数：', total)
+    const { list = [] } =
+      (await handleBatchQuery(sources.map((i) => (i as { id: string }).id))) ||
+      {}
     chatStore.addMessage({
       role: 'assistant',
       type: 'list',
@@ -201,8 +214,7 @@ async function handleList(messageId: string) {
           }
         }),
         pagination: { total: 0, pageNum: 1, pageSize: 10 }
-      },
-      showRate: true
+      }
     })
   } catch (error) {
     console.warn(error)
@@ -223,8 +235,6 @@ async function ask(messageId: string, userCommand: string, fileUrl?: string) {
       fileUrl,
       onChunk: (chunk) => {
         if (chunk === '[DONE]') {
-          // 展示用户评分
-          chatStore.setMessage(messageId, { showRate: true })
           // 处理列表类型消息
           handleList(messageId)
           return
@@ -263,12 +273,26 @@ function onExec(params: ExecParams) {
   ask(messageId, userCommand, fileUrl)
 }
 
+const route = useRoute()
+const toolStore = useToolStore()
+
 onMounted(() => {
   chatStore.createNewChat()
   const userCommand = getStorage('userCommand')
   if (userCommand) {
     onExec({ userCommand })
     delStorage('userCommand')
+  }
+  const { key } = route.query
+  // 处理批量检索
+  if (key === '3') {
+    toolStore.openBatchFormPanel()
+    chatStore.addMessage({
+      role: 'assistant',
+      type: 'text',
+      data: [{ type: 'text', data: '请在右侧表单完善信息' }]
+    })
+    return
   }
 })
 </script>

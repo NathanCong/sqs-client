@@ -10,7 +10,7 @@
     </template>
     <!-- 批量检索表单 -->
     <template v-if="toolStore.batchFormPanelVisible">
-      <BatchFormPanel @confirm="onBatchFormPanelConfirm" />
+      <BatchFormPanel />
     </template>
     <!-- 查新检索表单 -->
     <template v-if="toolStore.noveltyFormPanelVisible">
@@ -54,10 +54,7 @@ const toolStore = useToolStore()
 const chatStore = useChatStore()
 
 // 定义 emit
-const emit = defineEmits([
-  'onAdvancedFormPanelConfirm',
-  'onBatchFormPanelConfirm'
-])
+const emit = defineEmits(['onAdvancedFormPanelConfirm'])
 
 /**
  * 高级检索 - 表单 @confirm
@@ -65,14 +62,6 @@ const emit = defineEmits([
 function onAdvancedFormPanelConfirm(markdown: string) {
   console.log('onAdvancedFormPanelConfirm: ', markdown)
   emit('onAdvancedFormPanelConfirm', markdown)
-}
-
-/**
- * 批量检索 - 表单 @comfirm
- */
-function onBatchFormPanelConfirm(markdown: string) {
-  console.log('onBatchFormPanelConfirm: ', markdown)
-  emit('onBatchFormPanelConfirm', markdown)
 }
 
 /**
