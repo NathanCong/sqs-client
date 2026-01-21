@@ -98,7 +98,7 @@ async function onDisclosureFormPanelConfirm({
     { code: '3', title: '创新背景', content: '' },
     { code: '4', title: '发明目的', content: '' },
     { code: '5', title: '技术方案', content: '' },
-    { code: '6', title: '具体实施方式', content: '' }
+    { code: '6', title: '具体实施方案', content: '' }
   ]
   toolStore.openPreviewPanel('disclosure', previewData)
   // 获取技术交底书
@@ -114,10 +114,9 @@ async function onDisclosureFormPanelConfirm({
           if (chunk === '[DONE]') {
             return resolve()
           }
-          previewData[index].content = chunk.replace(
-            /<model_result>([\s\S]*?)<\/model_result>/g,
-            ''
-          )
+          previewData[index].content = chunk
+            .replace(/<model_result>([\s\S]*?)<\/model_result>/g, '')
+            .replace(/###([\s\S]*?)\n\n/, '')
           toolStore.updatePreviewData([...previewData])
           previewPanelRef.value.scrollToBottom()
         }
@@ -131,6 +130,7 @@ async function onDisclosureFormPanelConfirm({
       console.warn(err)
     }
   }
+  console.log('previewData', previewData)
   requestLoading.value = false
 }
 

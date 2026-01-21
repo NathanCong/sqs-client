@@ -64,10 +64,9 @@ function reMake(index: number) {
         return
       }
       console.log('chunk: ', chunk)
-      listData.value[index].content = chunk.replace(
-        /<model_result>([\s\S]*?)<\/model_result>/g,
-        ''
-      )
+      listData.value[index].content = chunk
+        .replace(/<model_result>([\s\S]*?)<\/model_result>/g, '')
+        .replace(/###([\s\S]*?)\n\n/, '')
       toolStore.updatePreviewData([...listData.value])
     }
   }).catch((err) => console.warn(err))
