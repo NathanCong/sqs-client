@@ -148,6 +148,7 @@ async function handleBatchQuery(ids: string[]) {
   }
 }
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 async function handleList(messageId: string) {
   const message = chatStore.getMessage(messageId) as Message
   const toolItem = (message.data as Content[]).find(
@@ -157,8 +158,8 @@ async function handleList(messageId: string) {
     return
   }
   const { data } = toolItem.data as Tool
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { sources } = data as { sources: any[] }
+  const { sources = [] } = data as { sources: any[] }
+  console.log('sources: ', sources)
   requestLoading.value = true
   try {
     console.log('向量库查询到的条数：', sources.length)
@@ -171,48 +172,49 @@ async function handleList(messageId: string) {
       data: {
         name: '查询结果',
         columns: TABLE_COLUMNS as ColumnItem[],
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        dataSource: list.map((item: any) => {
-          const {
-            id,
-            title: { original },
-            applicants,
-            application_number,
-            application_date,
-            earliest_publication_date,
-            inventors,
-            assignees,
-            main_ipc,
-            pav
-          } = item
-          return {
-            id,
-            // 专利名称
-            patentName: original,
-            // 初始申请人
-            initialApplicant: applicants[0].name.original,
-            // 申请号
-            applicationNumber: application_number,
-            // 申请日
-            applicationDate: application_date,
-            // 公开号/公开日
-            publicationDate: earliest_publication_date,
-            // 发明人
-            inventors: inventors
-              .map((i: { name: { original: string } }) => i.name.original)
-              .join(','),
-            // 当前权利人
-            currentAssignee: assignees[0].name.original,
-            // 主分类号
-            mainIpc: main_ipc.ipc,
-            // 相关性评分
-            relevanceScore: sources.find(
-              (i: { id: string }) => i.id === application_number
-            )?.score,
-            // 价值评分
-            valueScore: pav
-          }
-        }),
+        dataSource: list
+          .map((item: any) => {
+            const {
+              id,
+              title: { original },
+              applicants,
+              application_number,
+              application_date,
+              earliest_publication_date,
+              inventors,
+              assignees,
+              main_ipc,
+              pav
+            } = item
+            return {
+              id,
+              // 专利名称
+              patentName: original,
+              // 初始申请人
+              initialApplicant: applicants[0].name.original,
+              // 申请号
+              applicationNumber: application_number,
+              // 申请日
+              applicationDate: application_date,
+              // 公开号/公开日
+              publicationDate: earliest_publication_date,
+              // 发明人
+              inventors: inventors
+                .map((i: { name: { original: string } }) => i.name.original)
+                .join(','),
+              // 当前权利人
+              currentAssignee: assignees[0].name.original,
+              // 主分类号
+              mainIpc: main_ipc.ipc,
+              // 相关性评分
+              relevanceScore: sources.find(
+                (i: { id: string }) => i.id === application_number
+              )?.score,
+              // 价值评分
+              valueScore: pav
+            }
+          })
+          .sort((a, b) => b.relevanceScore - a.relevanceScore),
         pagination: { total: 0, pageNum: 1, pageSize: 10 }
       }
     })
