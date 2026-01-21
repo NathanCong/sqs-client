@@ -244,20 +244,21 @@ function onCancel() {
   display: flex;
   flex-direction: row;
   align-items: flex-start;
+  gap: var(--spacing-md);
 
   &.user-role {
     justify-content: flex-end;
 
     .message-content {
       order: 1;
-      border-radius: 20px 8px 20px 20px;
-      background: #1677ff;
-      margin-right: 8px;
+      border-radius: var(--radius-lg) var(--radius-sm) var(--radius-lg)
+        var(--radius-lg);
+      background: rgba(255, 255, 255, 0.05);
 
       .message-text,
       .message-list,
       .message-pdf {
-        color: #fff;
+        color: var(--text-primary);
       }
 
       .message-pdf {
@@ -275,7 +276,9 @@ function onCancel() {
 
     .message-avator {
       order: 2;
-      background-color: rgba(255, 0, 255, 0.5);
+      background: transparent;
+      border: 2px solid var(--primary-color);
+      color: var(--primary-color);
     }
   }
 
@@ -284,53 +287,69 @@ function onCancel() {
 
     .message-avator {
       order: 1;
-      background-color: rgba(0, 0, 255, 0.5);
+      background: transparent;
+      color: var(--text-secondary);
+      border: 2px solid var(--border-color);
     }
 
     .message-content {
       order: 2;
-      border-radius: 8px 20px 20px 20px;
-      border: 1px solid #d9d9d9;
-      background-color: #fff;
-      margin-left: 8px;
+      border-radius: var(--radius-sm) var(--radius-lg) var(--radius-lg)
+        var(--radius-lg);
+      background: transparent;
 
       .message-text,
       .message-list,
       .message-pdf {
-        color: initial;
+        color: var(--text-primary);
+      }
+
+      .message-text {
+        padding-top: 0;
+        padding-left: 0;
       }
     }
   }
 
   .message-avator {
-    width: 30px;
-    height: 30px;
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #fff;
+    font-size: 20px;
+    color: var(--text-primary);
+    transition: all var(--transition-base);
+
+    &:hover {
+      transform: scale(1.05);
+    }
   }
 
   .message-content {
-    max-width: 50%;
+    max-width: 70%;
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    transition: all var(--transition-base);
 
     .message-text {
-      padding: 16px;
+      padding: var(--spacing-md) var(--spacing-lg);
       overflow-x: auto;
+      word-wrap: break-word;
 
       .message-tool {
         width: 100%;
         display: flex;
         flex-direction: column;
         box-sizing: border-box;
-        margin-top: 16px;
-        margin-bottom: 16px;
-        background-color: #fafafa;
-        border-radius: 8px;
+        margin: var(--spacing-lg) 0;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        overflow: hidden;
 
         &:first-child {
           margin-top: 0;
@@ -343,30 +362,40 @@ function onCancel() {
         .tool-header {
           width: 100%;
           box-sizing: border-box;
-          padding: 16px;
-          padding-left: 16px;
+          padding: var(--spacing-md) var(--spacing-lg);
           display: flex;
           flex-direction: row;
           align-items: center;
           justify-content: space-between;
-          background-color: #eee;
-          border-radius: 8px;
+          background: var(--bg-elevated);
           cursor: pointer;
+          transition: all var(--transition-fast);
+
+          &:hover {
+            background: var(--card-bg-hover);
+          }
 
           .tool-name {
-            font-size: 16px;
-            line-height: 24px;
-            font-weight: bold;
+            font-size: 14px;
+            line-height: 1.5;
+            font-weight: 600;
+            color: var(--text-primary);
           }
 
           .tool-show,
           .tool-hide {
             width: auto;
-            padding-left: 16px;
-            height: 24px;
+            padding-left: var(--spacing-md);
+            height: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
+            color: var(--text-secondary);
+            transition: color var(--transition-fast);
+
+            &:hover {
+              color: var(--primary-color);
+            }
           }
         }
 
@@ -375,7 +404,7 @@ function onCancel() {
           height: auto;
           max-height: 300px;
           box-sizing: border-box;
-          padding: 16px;
+          padding: var(--spacing-lg);
           display: flex;
           flex-direction: column;
           overflow: hidden;
@@ -395,14 +424,16 @@ function onCancel() {
       align-items: center;
       justify-content: flex-start;
       cursor: pointer;
-      padding: 16px;
+      padding: var(--spacing-lg) var(--spacing-xl);
+      transition: all var(--transition-base);
+      gap: var(--spacing-md);
 
       &:hover {
-        background-color: #f5f5f5;
+        background: var(--card-bg-hover);
       }
 
       &:active {
-        background-color: #e6e6e6;
+        transform: scale(0.98);
       }
 
       .list-icon,
@@ -410,22 +441,129 @@ function onCancel() {
         display: flex;
         justify-content: center;
         align-items: center;
-        font-size: 32px;
-        margin-right: 8px;
+        font-size: 28px;
+        color: var(--primary-color);
       }
 
       .list-name,
       .pdf-name {
-        line-height: 32px;
+        line-height: 1.5;
+        font-size: 15px;
+        font-weight: 500;
+      }
+    }
+
+    .message-actions-wrapper {
+      display: flex;
+      align-items: center;
+      padding: 0 var(--spacing-xl);
+      padding-bottom: var(--spacing-md);
+      gap: var(--spacing-md);
+    }
+
+    .message-actions {
+      display: flex;
+      gap: var(--spacing-sm);
+
+      .action-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        background: transparent;
+        border: none;
+        border-radius: var(--radius-sm);
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: all var(--transition-fast);
+
+        &:hover {
+          background: rgba(59, 130, 246, 0.15);
+          color: var(--primary-light);
+        }
+
+        &.active {
+          background: rgba(59, 130, 246, 0.2);
+          color: var(--primary-color);
+
+          svg {
+            fill: var(--primary-color);
+          }
+        }
+
+        svg {
+          transition: all var(--transition-fast);
+        }
       }
     }
 
     .message-rate {
-      width: 100%;
-      height: auto;
-      box-sizing: border-box;
-      padding: 16px;
-      border-top: 1px solid #eee;
+      display: flex;
+      align-items: center;
+      padding: 0;
+      padding-left: var(--spacing-sm);
+      background: transparent;
+      transition: all var(--transition-base);
+    }
+  }
+}
+</style>
+<style scoped>
+.message-rate {
+  /* 优化星星样式 - 与按钮尺寸一致 */
+  :deep(.ant-rate) {
+    display: flex;
+    align-items: center;
+    color: var(--primary-color);
+    font-size: 16px;
+    line-height: 1;
+
+    .ant-rate-star {
+      margin-right: 4px;
+
+      /* 未评分的星星 - 更醒目的空心样式 */
+      &.ant-rate-star-zero {
+        .ant-rate-star-first,
+        .ant-rate-star-second {
+          color: rgba(255, 255, 255, 0.4);
+        }
+      }
+
+      /* 已评分的星星 */
+      &:not(.ant-rate-star-zero) {
+        .ant-rate-star-first,
+        .ant-rate-star-second {
+          color: var(--primary-color);
+        }
+      }
+    }
+
+    /* 最后一个星星不需要右边距 */
+    .ant-rate-star:last-child {
+      margin-right: 0;
+    }
+  }
+}
+/* 用户角色特定样式 */
+.chat-message.user-role .message-content {
+  :deep(.markdown-render) {
+    /* 代码块样式 */
+    code {
+      background: rgba(59, 130, 246, 0.15);
+      border-color: var(--primary-color);
+      color: var(--text-primary);
+    }
+
+    /* 链接颜色 */
+    a {
+      color: var(--primary-light);
+      border-bottom-color: var(--primary-color);
+
+      &:hover {
+        color: var(--primary-color);
+        border-bottom-color: var(--primary-light);
+      }
     }
   }
 }

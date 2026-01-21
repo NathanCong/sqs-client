@@ -1,5 +1,6 @@
 <template>
   <div class="chat">
+    <ChatBackground />
     <div class="chat-mainner">
       <!-- 聊天对话 -->
       <template v-if="!isShowChat">
@@ -26,6 +27,7 @@
 </template>
 
 <script lang="ts" setup>
+import ChatBackground from './components/ChatBackground.vue'
 import { LeftOutlined, RightOutlined } from '@ant-design/icons-vue'
 import { ref, computed, watch } from 'vue'
 import ChatModal from './components/ChatModal'
@@ -69,53 +71,72 @@ watch(
     width: 100%;
     height: 100%;
     box-sizing: border-box;
-    padding: 16px;
+    padding: var(--spacing-md);
     display: flex;
     justify-content: center;
     align-items: center;
     position: relative;
+    z-index: 1;
+    gap: var(--spacing-md);
 
     .chat-modal-wrapper {
       flex: 1;
       height: 100%;
       position: relative;
+      animation: fadeInLeft 0.4s ease-out;
     }
 
     .chat-button {
-      width: 32px;
-      height: 48px;
+      width: 44px;
+      height: 64px;
       display: flex;
       align-items: center;
       justify-content: center;
-      background-color: #eee;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
       cursor: pointer;
+      box-shadow: var(--shadow-md);
+      transition: all var(--transition-base);
+      font-size: 18px;
 
       &:hover {
-        background-color: #ddd;
+        background: var(--card-bg-hover);
+        border-color: var(--primary-color);
+        color: var(--primary-light);
+        box-shadow: var(--shadow-blue);
       }
 
       &:active {
-        background-color: #ccc;
+        transform: scale(0.96);
       }
 
       &.hide {
-        border-top-left-radius: 50%;
-        border-bottom-left-radius: 50%;
+        border-top-left-radius: var(--radius-lg);
+        border-bottom-left-radius: var(--radius-lg);
         position: absolute;
         top: 50%;
         right: 0;
         transform: translateY(-50%);
         z-index: 1000;
+
+        &:hover {
+          transform: translateY(-50%) translateX(-2px);
+        }
       }
 
       &.show {
-        border-top-right-radius: 50%;
-        border-bottom-right-radius: 50%;
+        border-top-right-radius: var(--radius-lg);
+        border-bottom-right-radius: var(--radius-lg);
         position: absolute;
         top: 50%;
-        left: 16px;
+        left: var(--spacing-md);
         transform: translateY(-50%);
         z-index: 1000;
+
+        &:hover {
+          transform: translateY(-50%) translateX(2px);
+        }
       }
     }
 
@@ -123,12 +144,43 @@ watch(
       flex: 1;
       height: 100%;
       box-sizing: border-box;
-      padding-left: 16px;
+      animation: fadeInRight 0.4s ease-out;
 
       &.full {
-        padding-left: 0;
+        animation: fadeIn 0.4s ease-out;
       }
     }
+  }
+}
+
+@keyframes fadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
 </style>

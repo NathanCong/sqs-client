@@ -277,26 +277,58 @@ onMounted(() => {
 .chat-modal {
   width: 100%;
   height: 100%;
-  background-color: #fff;
-  border-radius: 20px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
   display: flex;
   flex-direction: column;
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
 
   .chat-header {
     width: 100%;
     box-sizing: border-box;
-    padding: 16px;
-    border-bottom: 1px solid #eee;
+    padding: var(--spacing-lg) var(--spacing-xl);
+    border-bottom: 1px solid var(--border-color-light);
+    background: var(--bg-elevated);
+    position: relative;
+
+    /* 渐变装饰线 */
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--primary-gradient);
+      opacity: 0.5;
+    }
 
     .chat-title {
       font-size: 18px;
-      font-weight: bold;
+      font-weight: 600;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+
+      &::before {
+        content: '';
+        width: 8px;
+        height: 8px;
+        background: var(--primary-gradient);
+        border-radius: 50%;
+        box-shadow: 0 0 10px var(--primary-color);
+        animation: pulse 2s ease-in-out infinite;
+      }
     }
   }
 
   .chat-content {
     flex: 1;
     position: relative;
+    background: var(--bg-secondary);
 
     .chat-list {
       position: absolute;
@@ -307,18 +339,14 @@ onMounted(() => {
       overflow-y: auto;
       overflow-x: hidden;
       box-sizing: border-box;
-      padding: 16px;
+      padding: var(--spacing-xl);
       display: flex;
       flex-direction: column;
-      background-color: #fcfcfc;
+      gap: var(--spacing-lg);
 
       .chat-message-wrapper {
         list-style: none;
-        margin-bottom: 16px;
-
-        &:last-child {
-          margin-bottom: 0;
-        }
+        animation: messageSlideIn 0.3s ease-out;
       }
     }
   }
@@ -326,8 +354,32 @@ onMounted(() => {
   .chat-footer {
     width: 100%;
     box-sizing: border-box;
-    padding: 16px;
-    border-top: 1px solid #eee;
+    padding: var(--spacing-lg) var(--spacing-xl);
+    border-top: 1px solid var(--border-color-light);
+    background: var(--bg-elevated);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(0.9);
+  }
+}
+
+@keyframes messageSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 </style>
