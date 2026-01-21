@@ -1,9 +1,9 @@
 services:
-  sqs-client:
+  sqs-client-poc:
     build: .
-    image: sqs-client:latest
-    container_name: sqs-client
+    image: sqs-client-poc:latest
+    container_name: sqs-client-poc
     restart: unless-stopped
     ports:
-      - 3000:80
+      - 3100:80
     command: ['nginx', '-g', 'daemon off;']
