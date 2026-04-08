@@ -314,6 +314,16 @@ onMounted(() => {
     delStorage('userCommand')
   }
   const { key } = route.query
+  toolStore.closeAllPanels()
+  // 高级检索
+  if (key === '2') {
+    chatStore.addMessage({
+      role: 'assistant',
+      type: 'text',
+      data: [{ type: 'text', data: '您好，欢迎使用高级检索' }]
+    })
+    return
+  }
   // 处理批量检索
   if (key === '3') {
     toolStore.openBatchFormPanel()
@@ -321,6 +331,16 @@ onMounted(() => {
       role: 'assistant',
       type: 'text',
       data: [{ type: 'text', data: '请在右侧表单完善信息' }]
+    })
+    return
+  }
+  // 专利查新检索
+  if (key === '4') {
+    // toolStore.openNoveltyFormPanel()
+    chatStore.addMessage({
+      role: 'assistant',
+      type: 'text',
+      data: [{ type: 'text', data: '请上传您的技术交底书文件' }]
     })
     return
   }
