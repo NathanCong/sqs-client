@@ -25,7 +25,12 @@ export function helperPatentStream({
 }) {
   return postForStream(
     '/helper/patent/stream',
-    { session_id: sessionId, code, question, file_url: fileUrl },
+    {
+      session_id: sessionId,
+      code,
+      question: question || '帮我重写一下',
+      file_url: fileUrl
+    },
     onChunk
   )
 }
@@ -48,7 +53,12 @@ export function helperDisclosureStream({
 }) {
   return postForStream(
     '/helper/disclosure/stream',
-    { session_id: sessionId, code, question, file_url: fileUrl },
+    {
+      session_id: sessionId,
+      code,
+      question: question || '帮我重写一下',
+      file_url: fileUrl
+    },
     onChunk
   )
 }
