@@ -9,7 +9,7 @@ export const useSearchStore = defineStore('search', {
   },
   actions: {
     addSearchHistory(user: string, q: string) {
-      const searchHistory = getStorage('searchHistory') || []
+      const searchHistory = JSON.parse(getStorage('searchHistory') || '[]')
       if (searchHistory) {
         ;(searchHistory as any[]).push({
           user,
