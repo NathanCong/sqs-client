@@ -58,19 +58,34 @@ defineExpose({ scrollToBottom, getContentHeight })
   width: 100%;
   height: 100%;
   background-color: #fff;
-  border-radius: 20px;
   overflow: hidden;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
   display: flex;
   flex-direction: column;
 
   .panel-header {
     width: 100%;
     box-sizing: border-box;
-    padding: 16px;
-    border-bottom: 1px solid #eee;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: var(--spacing-lg) var(--spacing-xl);
+    border-bottom: 1px solid var(--border-color-light);
+    background: var(--bg-elevated);
+    position: relative;
+
+    /* 渐变装饰线 */
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--primary-gradient);
+      opacity: 0.5;
+    }
 
     .header-title {
       font-size: 18px;

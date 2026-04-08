@@ -41,7 +41,11 @@
                 <span class="tbody-cell">
                   <!-- 摘要太长缩短 -->
                   <template v-if="column.key === 'actions'">
-                    <a-button type="link" @click="onDetail(record)">
+                    <a-button
+                      type="link"
+                      @click="onDetail(record)"
+                      :disabled="true"
+                    >
                       查看详情
                     </a-button>
                   </template>
@@ -61,7 +65,9 @@
         </template>
       </div>
       <template #footer-buttons>
-        <a-button type="primary" @click="onDownload">下载</a-button>
+        <a-button type="primary" @click="onDownload" :disabled="true"
+          >下载</a-button
+        >
       </template>
     </CommonPanel>
     <ParentDetail ref="parentDetailRef" />

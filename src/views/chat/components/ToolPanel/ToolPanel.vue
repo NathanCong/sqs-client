@@ -1,16 +1,12 @@
 <template>
   <div class="tool-panel">
-    <!-- 专利撰写表单 -->
-    <template v-if="toolStore.patentFormPanelVisible">
-      <PatentFormPanel @confirm="onPatentFormPanelConfirm" />
-    </template>
     <!-- 高级检索表单 -->
     <template v-if="toolStore.advancedFormPanelVisible">
       <AdvancedFormPanel @confirm="onAdvancedFormPanelConfirm" />
     </template>
     <!-- 批量检索表单 -->
     <template v-if="toolStore.batchFormPanelVisible">
-      <BatchFormPanel @confirm="onBatchFormPanelConfirm" />
+      <BatchFormPanel />
     </template>
     <!-- 查新检索表单 -->
     <template v-if="toolStore.noveltyFormPanelVisible">
@@ -19,6 +15,10 @@
     <!-- 交底书撰写表单 -->
     <template v-if="toolStore.disclosureFormPanelVisible">
       <DisclosureFormPanel @confirm="onDisclosureFormPanelConfirm" />
+    </template>
+    <!-- 专利撰写表单 -->
+    <template v-if="toolStore.patentFormPanelVisible">
+      <PatentFormPanel @confirm="onPatentFormPanelConfirm" />
     </template>
     <!-- 结果预览 -->
     <template v-if="toolStore.previewPanelVisible">
@@ -47,17 +47,14 @@ import { helperDisclosureStream, helperPatentStream } from '@/apis'
 
 // 定义 states
 const requestLoading = ref(false)
-const previewPanelRef = ref()
+// const previewPanelRef = ref()
 
 // 定义 store
 const toolStore = useToolStore()
 const chatStore = useChatStore()
 
 // 定义 emit
-const emit = defineEmits([
-  'onAdvancedFormPanelConfirm',
-  'onBatchFormPanelConfirm'
-])
+const emit = defineEmits(['onAdvancedFormPanelConfirm'])
 
 /**
  * 高级检索 - 表单 @confirm
@@ -65,14 +62,6 @@ const emit = defineEmits([
 function onAdvancedFormPanelConfirm(markdown: string) {
   console.log('onAdvancedFormPanelConfirm: ', markdown)
   emit('onAdvancedFormPanelConfirm', markdown)
-}
-
-/**
- * 批量检索 - 表单 @comfirm
- */
-function onBatchFormPanelConfirm(markdown: string) {
-  console.log('onBatchFormPanelConfirm: ', markdown)
-  emit('onBatchFormPanelConfirm', markdown)
 }
 
 /**
@@ -97,15 +86,19 @@ async function onDisclosureFormPanelConfirm({
   fileUrl?: string
 }) {
   // 插入系统提示消息
-  chatStore.add('assistant', 'text', '请查看右侧预览窗口，正在生成中...')
+  chatStore.addMessage({
+    role: 'assistant',
+    type: 'text',
+    data: [{ type: 'text', data: '请查看右侧预览窗口，正在生成中...' }]
+  })
   // 打开 PreviewPanel
   const previewData = [
-    { code: '1', content: '' },
-    { code: '2', content: '' },
-    { code: '3', content: '' },
-    { code: '4', content: '' },
-    { code: '5', content: '' },
-    { code: '6', content: '' }
+    { code: '1', title: '标题名称', content: '' },
+    { code: '2', title: '技术领域', content: '' },
+    { code: '3', title: '创新背景', content: '' },
+    { code: '4', title: '发明目的', content: '' },
+    { code: '5', title: '技术方案', content: '' },
+    { code: '6', title: '实施方案', content: '' }
   ]
   toolStore.openPreviewPanel('disclosure', previewData)
   // 获取技术交底书
@@ -122,8 +115,10 @@ async function onDisclosureFormPanelConfirm({
             return resolve()
           }
           previewData[index].content = chunk
+            .replace(/<model_result>([\s\S]*?)<\/model_result>/g, '')
+            .replace(/\n{0,2}#{1,3}([\s\S]*?)\n{1,2}/, '')
           toolStore.updatePreviewData([...previewData])
-          previewPanelRef.value.scrollToBottom()
+          // previewPanelRef.value.scrollToBottom()
         }
       }).catch((err) => reject(err))
     })
@@ -135,6 +130,7 @@ async function onDisclosureFormPanelConfirm({
       console.warn(err)
     }
   }
+  console.log('previewData', previewData)
   requestLoading.value = false
 }
 
@@ -149,23 +145,33 @@ async function onPatentFormPanelConfirm({
   fileUrl?: string
 }) {
   // 插入系统提示消息
-  chatStore.add('assistant', 'text', '请查看右侧预览窗口，正在生成中...')
+  chatStore.addMessage({
+    role: 'assistant',
+    type: 'text',
+    data: [{ type: 'text', data: '请查看右侧预览窗口，正在生成中...' }]
+  })
   // 打开 PreviewPanel
   const previewData = [
-    { code: '1', content: '' },
-    { code: '2', content: '' },
-    { code: '3', content: '' },
-    { code: '4', content: '' },
-    { code: '5', content: '' },
-    { code: '6', content: '' },
-    { code: '7', content: '' },
-    { code: '8', content: '' }
+    { code: '-1', title: '说明书' },
+    { code: '1', title: '技术领域', content: '' },
+    { code: '2', title: '背景技术', content: '' },
+    { code: '3', title: '发明内容 - 要解决的技术问题', content: '' },
+    { code: '4', title: '发明内容 - 技术方案', content: '' },
+    { code: '5', title: '发明内容 - 有益效果', content: '' },
+    { code: '6', title: '附图说明', content: '' },
+    { code: '7', title: '实施方式', content: '' },
+    { code: '-1', title: '权利要求书' },
+    { code: '9', title: '独立权利要求', content: '' },
+    { code: '10', title: '从属权利要求', content: '' }
   ]
   toolStore.openPreviewPanel('patent', previewData)
   // 获取技术专利
   requestLoading.value = true
   const makeContent = (index: number): Promise<void> => {
     return new Promise((resolve, reject) => {
+      if (previewData[index].code === '-1') {
+        return resolve()
+      }
       helperPatentStream({
         sessionId: chatStore.currentChatId,
         code: previewData[index].code,
@@ -176,8 +182,10 @@ async function onPatentFormPanelConfirm({
             return resolve()
           }
           previewData[index].content = chunk
+            .replace(/<model_result>([\s\S]*?)<\/model_result>/g, '')
+            .replace(/\n{0,2}#{1,3}([\s\S]*?)\n{1,2}/, '')
           toolStore.updatePreviewData([...previewData])
-          previewPanelRef.value.scrollToBottom()
+          // previewPanelRef.value.scrollToBottom()
         }
       }).catch((err) => reject(err))
     })
@@ -185,6 +193,7 @@ async function onPatentFormPanelConfirm({
   for (let i = 0; i < previewData.length; i += 1) {
     try {
       await makeContent(i)
+      console.log('previewData[i]: ', previewData[i])
     } catch (err) {
       console.warn(err)
     }

@@ -24,6 +24,7 @@ declare module 'vue' {
     ATextarea: typeof import('ant-design-vue/es')['Textarea']
     AUpload: typeof import('ant-design-vue/es')['Upload']
     CommandInput: typeof import('./../components/CommandInput.vue')['default']
+    CommonBackground: typeof import('./../components/CommonBackground.vue')['default']
     CommonEmpty: typeof import('./../components/CommonEmpty.vue')['default']
     CommonForm: typeof import('./../components/CommonForm.vue')['default']
     CommonLoading: typeof import('./../components/CommonLoading.vue')['default']

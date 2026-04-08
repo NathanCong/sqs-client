@@ -63,7 +63,7 @@ interface CommonFormStyleConfig {
   wrapperCol?: { span?: number; offset?: number }
 }
 
-interface CommonFormConfig extends CommonFormStyleConfig {
+export interface CommonFormConfig extends CommonFormStyleConfig {
   fields: Array<CommonFormItem>
 }
 

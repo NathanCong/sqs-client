@@ -1,5 +1,6 @@
 <template>
-  <div class="login login-background">
+  <div class="login global-background">
+    <CommonBackground />
     <!-- Header -->
     <section class="login-header"><GlobalHeader /></section>
     <!-- Mainer -->
@@ -33,6 +34,7 @@
 </template>
 
 <script lang="ts" setup>
+import CommonBackground from '@/components/CommonBackground.vue'
 import GlobalHeader from '@/components/GlobalHeader'
 import CommonForm from '@/components/CommonForm.vue'
 import { LOGIN_FORM_FIELDS, REGISTER_FORM_FIELDS } from './constants/index'
@@ -142,17 +144,11 @@ onMounted(() => {
   overflow-y: auto;
 }
 
-.login-background {
-  background-color: #999;
-  background-image: url('@/assets/images/bg.jpeg');
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-position: center;
-}
-
 .login-header {
   width: 100%;
-  height: 60px;
+  height: 72px;
+  position: relative;
+  z-index: 999;
 }
 
 .login-mainer {
@@ -160,6 +156,8 @@ onMounted(() => {
   display: flex;
   justify-content: center;
   align-items: center;
+  position: relative;
+  z-index: 999;
 
   .mainer-content {
     display: flex;
@@ -184,6 +182,7 @@ onMounted(() => {
         font-weight: bold;
         text-align: center;
         padding: 16px 0;
+        color: #333;
       }
 
       .box-mainer {

@@ -142,43 +142,54 @@ function onExec() {
     width: auto;
     height: auto;
     position: absolute;
-    right: -1px;
+    right: 6px;
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: center;
+    gap: var(--spacing-sm);
 
     .upload-button {
-      width: 32px;
-      height: 32px;
-      margin-right: 8px;
+      width: 40px;
+      height: 40px;
       display: flex;
       align-items: center;
       justify-content: center;
     }
 
     .upload-file {
-      font-size: 14px;
+      font-size: 18px;
       width: 100%;
       height: 100%;
-      border-radius: 50%;
-      border: 1px solid #d9d9d9;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-color);
       display: flex;
       align-items: center;
       justify-content: center;
+      background: var(--card-bg);
+      color: var(--text-secondary);
+      transition: all var(--transition-base);
+
+      &:hover {
+        border-color: var(--primary-color);
+        color: var(--primary-light);
+        background: var(--card-bg-hover);
+      }
     }
 
     .loading {
-      width: 100px;
+      width: 120px;
       height: 48px;
-      border-radius: 24px;
-      background-color: #eee;
+      border-radius: var(--radius-md);
+      background: var(--primary-gradient);
       display: flex;
       align-items: center;
       justify-content: center;
       box-sizing: border-box;
       cursor: not-allowed;
-      font-size: 24px;
+      font-size: 18px;
+      color: var(--text-primary);
+      box-shadow: var(--shadow-blue);
     }
   }
 }
@@ -186,17 +197,64 @@ function onExec() {
 
 <style scoped>
 :deep(.ant-input) {
-  height: 48px;
-  border-radius: 24px;
-  padding: 6px 16px;
-  padding-right: calc(100px + 16px);
+  height: 60px;
+  border-radius: var(--radius-lg);
+  padding: 0 var(--spacing-lg);
+  padding-right: calc(120px + var(--spacing-lg) + var(--spacing-sm));
+  font-size: 16px;
+  border: 1px solid var(--border-color);
+  background: var(--card-bg);
+  color: var(--text-primary);
+  transition: all var(--transition-base);
+  box-shadow: var(--shadow-sm);
 }
+
+:deep(.ant-input::placeholder) {
+  color: var(--text-muted);
+}
+
+:deep(.ant-input:hover) {
+  border-color: var(--primary-color);
+  background: var(--card-bg-hover);
+}
+
+:deep(.ant-input:focus) {
+  border-color: var(--primary-color);
+  background: var(--card-bg-hover);
+  box-shadow:
+    0 0 0 3px rgba(59, 130, 246, 0.2),
+    var(--shadow-md);
+  outline: none;
+}
+
 .show-upload :deep(.ant-input) {
-  padding-right: calc(100px + 16px + 32px);
+  padding-right: calc(120px + var(--spacing-lg) + 40px + var(--spacing-sm) * 2);
 }
+
 .exec-button :deep(.ant-btn) {
-  width: 100px;
+  width: 120px;
   height: 48px;
-  border-radius: 24px;
+  border-radius: var(--radius-md);
+  font-size: 15px;
+  font-weight: 600;
+  border: none;
+  background: var(--primary-gradient);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-blue);
+  transition: all var(--transition-base);
+}
+
+.exec-button :deep(.ant-btn:hover) {
+  background: var(--secondary-gradient);
+  box-shadow: var(--shadow-glow);
+  transform: translateY(-1px);
+}
+
+.exec-button :deep(.ant-btn:active) {
+  transform: translateY(0);
+}
+
+.exec-button :deep(.ant-btn .anticon) {
+  font-size: 16px;
 }
 </style>

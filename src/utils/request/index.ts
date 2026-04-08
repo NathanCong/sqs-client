@@ -20,7 +20,7 @@ const commonHeaders = {
  */
 const request: AxiosInstance = axios.create({
   baseURL: import.meta.env.VITE_BASE_URL,
-  timeout: 1000 * 100,
+  timeout: 5 * 60 * 1000,
   headers: { ...commonHeaders }
 })
 

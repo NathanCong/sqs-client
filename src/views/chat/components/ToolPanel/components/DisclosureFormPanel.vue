@@ -2,6 +2,11 @@
 <template>
   <div class="disclosure-form-panel">
     <CommonPanel title="信息采集">
+      <template #header-buttons>
+        <a-button shape="circle" @click="onClose">
+          <template #icon><CloseOutlined /></template>
+        </a-button>
+      </template>
       <div class="panel-content">
         <CommonForm ref="commonFormRef" :form-config="formConfig" />
         <section>
@@ -10,7 +15,7 @@
             v-model:file-list="fileList"
             :before-upload="() => false"
             :multiple="false"
-            :show-upload-list="false"
+            :show-upload-list="true"
             @change="handleChange"
           >
             <a-button type="default">
@@ -37,9 +42,18 @@ import { ref } from 'vue'
 import json2md from 'json2md'
 import CommonPanel from './common/CommonPanel.vue'
 import CommonForm from './common/CommonForm.vue'
+import type { CommonFormConfig } from './common/CommonForm.vue'
 import { notification } from 'ant-design-vue'
 import { UploadOutlined } from '@ant-design/icons-vue'
 import { uploadFile } from '@/apis'
+import { useToolStore } from '@/store/tool'
+import { CloseOutlined } from '@ant-design/icons-vue'
+
+const toolStore = useToolStore()
+
+function onClose() {
+  toolStore.closeAllPanels()
+}
 
 // 定义 state
 const commonFormRef = ref<InstanceType<typeof CommonForm>>()
@@ -58,7 +72,8 @@ const formConfig = ref<CommonFormConfig>({
       name: 'content',
       label: '核心内容',
       rules: [{ required: false, message: '核心内容是必填项' }],
-      placeholder: '请输入核心内容',
+      placeholder:
+        '请输入要解决的技术问题、达到的效果、以及采用的技术手段方法等',
       type: 'textarea'
     }
   ]
@@ -67,26 +82,25 @@ const formConfig = ref<CommonFormConfig>({
 // 定义 emits
 const emit = defineEmits(['confirm'])
 
-// function onClick() {
-//   notification.info({
-//     message: '温馨提示',
-//     description: '功能正在开发中，敬请期待...'
-//   })
-// }
-
 const fileList = ref([])
 const fileUrl = ref('')
 
 async function handleChange() {
   const file = fileList.value[0] as { originFileObj: File }
+  if (!file) {
+    return
+  }
   const savePath = 'sqs/'
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const result = (await uploadFile(savePath, file.originFileObj)) as any
-    fileUrl.value = result.resourceUrl
+    const { data: response } = await uploadFile(savePath, file.originFileObj)
+    const { success, message: description, data } = response
+    if (!success) {
+      notification.error({ message: '文件上传失败', description })
+      return
+    }
+    fileUrl.value = data.resourceUrl
     notification.success({ message: '文件上传成功' })
   } catch (err) {
-    notification.error({ message: '文件上传失败' })
     console.warn(err)
   }
 }
@@ -103,6 +117,14 @@ async function onConfirm() {
         { h1: '主题内容' },
         { p: content }
       ])
+    }
+    console.log('{ markdown, fileUrl: fileUrl.value }', {
+      markdown,
+      fileUrl: fileUrl.value
+    })
+    if (!markdown && !fileUrl.value) {
+      notification.error({ message: '请填写表单或上传文件' })
+      return
     }
     emit('confirm', { markdown, fileUrl: fileUrl.value })
   } catch (err) {
