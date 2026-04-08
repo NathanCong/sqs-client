@@ -30,5 +30,12 @@ export default [
   // Vue TypeScript 配置
   ...vueTypescriptEslintConfig(),
   // Vue Prettier 配置
-  vuePrettierEslintConfig
+  vuePrettierEslintConfig,
+  // 显式 any：由 error 降为 warning（覆盖 @vue/eslint-config-typescript）
+  {
+    files: ['**/*.{ts,vue}'],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'warn'
+    }
+  }
 ]

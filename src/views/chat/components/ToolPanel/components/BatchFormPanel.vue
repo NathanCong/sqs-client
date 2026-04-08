@@ -27,8 +27,12 @@ import { useToolStore } from '@/store/tool'
 import { useChatStore } from '@/store/chat'
 import { searchPatents } from '@/apis'
 import { TABLE_COLUMNS } from '../constants/index'
+import { useSearchStore } from '@/store/search'
+import { useUserStore } from '@/store/user'
 
 const toolStore = useToolStore()
+const searchStore = useSearchStore()
+const userStore = useUserStore()
 
 function onClose() {
   toolStore.closeAllPanels()
@@ -53,6 +57,10 @@ async function handleBatchQuery(ids: string[]) {
   try {
     const q = `(${ids.map((id) => `an=${id}`).join(' or ')})`
     console.log('q', q)
+    const { userEmail = '' } = userStore.getUserInfo() || {}
+    if (userEmail) {
+      searchStore.addSearchHistory(userEmail, q)
+    }
     const { data: res } = await searchPatents({ page: 1, q })
     const {
       data: { list, total }
