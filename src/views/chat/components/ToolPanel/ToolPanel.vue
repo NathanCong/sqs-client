@@ -161,8 +161,8 @@ async function onPatentFormPanelConfirm({
     { code: '6', title: '附图说明', content: '' },
     { code: '7', title: '实施方式', content: '' },
     { code: '-1', title: '权利要求书' },
-    { code: '9', title: '独立权利要求', content: '' },
-    { code: '10', title: '从属权利要求', content: '' }
+    { code: '8', title: '独立权利要求', content: '' },
+    { code: '9', title: '从属权利要求', content: '' }
   ]
   toolStore.openPreviewPanel('patent', previewData)
   // 获取技术专利
