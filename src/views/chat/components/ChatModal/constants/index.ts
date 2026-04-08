@@ -45,11 +45,11 @@ export const TABLE_COLUMNS = [
     dataIndex: 'mainIpc',
     title: '主分类号'
   },
-  {
-    key: 'relevanceScore',
-    dataIndex: 'relevanceScore',
-    title: '相关性评分'
-  },
+  // {
+  //   key: 'relevanceScore',
+  //   dataIndex: 'relevanceScore',
+  //   title: '相关性评分'
+  // },
   {
     key: 'valueScore',
     dataIndex: 'valueScore',
