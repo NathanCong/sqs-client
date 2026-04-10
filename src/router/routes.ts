@@ -23,7 +23,7 @@ export default [
     component: () => import('@/views/home/HomePage.vue'),
     meta: {
       layout: 'BlankLayout',
-      requiredAccess: true
+      requiredAccess: false
     }
   },
   // 问答
@@ -33,7 +33,7 @@ export default [
     component: () => import('@/views/chat/ChatPage.vue'),
     meta: {
       layout: 'MainLayout',
-      requiredAccess: true
+      requiredAccess: false
     }
   },
   // 通配符路由 - 匹配所有未找到的路由，默认跳转到根目录

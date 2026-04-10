@@ -65,7 +65,6 @@ function handleChunk(messageId: string, chunk: string) {
     /<tool_use name="wanxiang-search-strategy">([\s\S]*?)<\/tool_use>/g
   const toolUse1Result = toolUse1Regex.exec(newChunk)
   if (toolUse1Result) {
-    // console.log('toolUse1Result', JSON.parse(toolUse1Result[1]))
     newChunk = newChunk.replace(toolUse1Regex, '')
     if (
       !contents.find(
@@ -89,7 +88,6 @@ function handleChunk(messageId: string, chunk: string) {
     /<tool_use name="wanxiang-patent-search">([\s\S]*?)<\/tool_use>/g
   const toolUse2Result = toolUse2Regex.exec(newChunk)
   if (toolUse2Result) {
-    // console.log('toolUse2Result', JSON.parse(toolUse2Result[1]))
     newChunk = newChunk.replace(toolUse2Regex, '')
     if (
       !contents.find(
@@ -205,15 +203,10 @@ async function handleList(messageId: string) {
             currentAssignee: assignees[0].name.original,
             // 主分类号
             mainIpc: main_ipc.ipc,
-            // 相关性评分
-            // relevanceScore: sources.find(
-            //   (i: { id: string }) => i.id === application_number
-            // )?.score,
             // 价值评分
             valueScore: pav
           }
         }),
-        // .sort((a, b) => b.relevanceScore - a.relevanceScore),
         pagination: { total: 0, pageNum: 1, pageSize: 10 }
       }
     })
@@ -336,11 +329,11 @@ onMounted(() => {
   }
   // 专利查新检索
   if (key === '4') {
-    // toolStore.openNoveltyFormPanel()
+    toolStore.openNoveltyFormPanel()
     chatStore.addMessage({
       role: 'assistant',
       type: 'text',
-      data: [{ type: 'text', data: '请上传您的技术交底书文件' }]
+      data: [{ type: 'text', data: '请在右侧表单完善信息' }]
     })
     return
   }
@@ -361,6 +354,15 @@ onMounted(() => {
       role: 'assistant',
       type: 'text',
       data: [{ type: 'text', data: '请在右侧表单完善信息' }]
+    })
+    return
+  }
+  // 处理专利智能分析
+  if (key === '7') {
+    chatStore.addMessage({
+      role: 'assistant',
+      type: 'text',
+      data: [{ type: 'text', data: '您好，欢迎使用专利智能分析' }]
     })
     return
   }

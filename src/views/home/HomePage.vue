@@ -32,7 +32,6 @@ import type { ExecParams } from '@/components/CommandInput.vue'
 import { TOOL_LIST } from './constants/index'
 import HomeTools from './components/HomeTools.vue'
 import type { ActiveParams } from './components/HomeTools.vue'
-import { notification } from 'ant-design-vue'
 
 const router = useRouter()
 
@@ -42,13 +41,6 @@ function onExec({ userCommand }: ExecParams) {
 }
 
 function onActive({ key }: ActiveParams) {
-  if (['7'].includes(key)) {
-    notification.info({
-      message: '提示',
-      description: '功能开发中，敬请期待...'
-    })
-    return
-  }
   router.replace({ path: '/chat', query: { key } })
 }
 </script>
