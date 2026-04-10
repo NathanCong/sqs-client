@@ -14,12 +14,12 @@ interface RegisterResponse extends CommonResponse {
 }
 
 /**
- * 新用户注册
+ * 用户 - 注册
  */
 export function register(
   params: RegisterParams
 ): Promise<AxiosResponse<RegisterResponse>> {
-  return post('/register', params)
+  return post('/user/register', params)
 }
 
 export interface LoginParams {
@@ -32,10 +32,29 @@ interface LoginResponse extends CommonResponse {
 }
 
 /**
- * 老用户登录
+ * 用户 - 登录
  */
 export function login(
   params: LoginParams
 ): Promise<AxiosResponse<LoginResponse>> {
-  return post('/login', params)
+  return post('/user/login', params)
+}
+
+interface PocParams {
+  userEmail: string
+  modelName: string
+  questionType: string
+  score: number
+  originData: string
+}
+
+interface PocResponse extends CommonResponse {
+  data: null
+}
+
+/**
+ * 用户 - 评分
+ */
+export function poc(params: PocParams): Promise<AxiosResponse<PocResponse>> {
+  return post('/user/poc', params)
 }

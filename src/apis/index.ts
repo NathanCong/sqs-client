@@ -8,10 +8,8 @@ export {
 
 export { uploadFile } from './upload'
 
-export type { LoginParams } from './login'
+export type { LoginParams } from './user'
 
-export { login, register } from './login'
-
-export { poc } from './poc'
+export { login, register, poc } from './user'
 
 export { searchPatents, getPatentManual } from './wanxiang'

@@ -60,7 +60,7 @@ const chatStore = useChatStore()
 function handleChunk(messageId: string, chunk: string) {
   let newChunk = chunk
   const contents: Content[] = []
-  // 处理 tool_use wanxiang-search-strategy
+  // 处理：tool_use wanxiang-search-strategy（检索式）
   const toolUse1Regex =
     /<tool_use name="wanxiang-search-strategy">([\s\S]*?)<\/tool_use>/g
   const toolUse1Result = toolUse1Regex.exec(newChunk)
@@ -83,7 +83,7 @@ function handleChunk(messageId: string, chunk: string) {
       })
     }
   }
-  // 处理 tool_use wanxiang-patent-search
+  // 处理 tool_use wanxiang-patent-search（检索结果）
   const toolUse2Regex =
     /<tool_use name="wanxiang-patent-search">([\s\S]*?)<\/tool_use>/g
   const toolUse2Result = toolUse2Regex.exec(newChunk)
@@ -102,6 +102,29 @@ function handleChunk(messageId: string, chunk: string) {
           name: 'wanxiang-patent-search',
           data: JSON.parse(toolUse2Result[1]),
           html: toolUse2Result[1]
+        }
+      })
+    }
+  }
+  // 处理：tool_use wanxiang-single-analysis（专利分析）
+  const toolUse3Regex =
+    /<tool_use name="wanxiang-single-analysis">([\s\S]*?)<\/tool_use>/g
+  const toolUse3Result = toolUse3Regex.exec(newChunk)
+  if (toolUse3Result) {
+    newChunk = newChunk.replace(toolUse3Regex, '')
+    if (
+      !contents.find(
+        (i) =>
+          i.type === 'tool' &&
+          (i.data as Tool).name === 'wanxiang-single-analysis'
+      )
+    ) {
+      contents.push({
+        type: 'tool',
+        data: {
+          name: 'wanxiang-single-analysis',
+          data: JSON.parse(toolUse3Result[1]),
+          html: toolUse3Result[1]
         }
       })
     }
