@@ -4,10 +4,9 @@ export const useToolStore = defineStore('tool', {
   state: () => ({
     activePanel: '',
     previewType: 'text',
-    previewData: '' as PreviewData
+    previewData: '' as any
   }),
   getters: {
-    advancedFormPanelVisible: (state) => state.activePanel === 'advancedForm',
     batchFormPanelVisible: (state) => state.activePanel === 'batchForm',
     noveltyFormPanelVisible: (state) => state.activePanel === 'noveltyForm',
     disclosureFormPanelVisible: (state) =>
@@ -16,30 +15,34 @@ export const useToolStore = defineStore('tool', {
     previewPanelVisible: (state) => state.activePanel === 'preview'
   },
   actions: {
-    openAdvancedFormPanel() {
-      this.activePanel = 'advancedForm'
-    },
+    // 打开批量检索 - 表单
     openBatchFormPanel() {
       this.activePanel = 'batchForm'
     },
+    // 打开查新检索 - 表单
     openNoveltyFormPanel() {
       this.activePanel = 'noveltyForm'
     },
+    // 打开交底书撰写 - 表单
     openDisclosureFormPanel() {
       this.activePanel = 'disclosureForm'
     },
+    // 打开专利撰写 - 表单
     openPatentFormPanel() {
       this.activePanel = 'patentForm'
     },
-    openPreviewPanel(type: string, data: PreviewData) {
+    // 打开结果预览
+    openPreviewPanel(type: string, data: any) {
       this.activePanel = 'preview'
       this.previewType = type
       this.previewData = data
     },
-    updatePreviewData(data: PreviewData) {
+    // 更新结果预览数据
+    updatePreviewData(data: any) {
       this.previewData = data
     },
-    closeAllPanels() {
+    // 关闭工具面板
+    closeToolPanel() {
       this.activePanel = ''
       this.previewType = 'text'
       this.previewData = ''

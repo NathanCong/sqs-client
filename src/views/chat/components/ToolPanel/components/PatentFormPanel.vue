@@ -41,11 +41,14 @@ import { uploadFile } from '@/apis'
 import { notification } from 'ant-design-vue'
 import { useToolStore } from '@/store/tool'
 import { CloseOutlined, UploadOutlined } from '@ant-design/icons-vue'
+import { useChatStore } from '@/store/chat'
+import { helperPatentStream } from '@/apis'
 
 const toolStore = useToolStore()
+const chatStore = useChatStore()
 
 function onClose() {
-  toolStore.closeAllPanels()
+  toolStore.closeToolPanel()
 }
 
 // 定义 state
@@ -86,8 +89,66 @@ async function handleChange() {
   }
 }
 
-// 定义 emits
-const emit = defineEmits(['confirm'])
+async function handlePatentFormPanelConfirm({
+  markdown,
+  fileUrl
+}: {
+  markdown: string
+  fileUrl?: string
+}) {
+  // 插入系统提示消息
+  chatStore.addMessage({
+    role: 'assistant',
+    type: 'text',
+    data: [{ type: 'text', data: '请查看右侧预览窗口，正在生成中...' }]
+  })
+  // 打开 PreviewPanel
+  const previewData = [
+    { code: '-1', title: '说明书' },
+    { code: '1', title: '技术领域', content: '' },
+    { code: '2', title: '背景技术', content: '' },
+    { code: '3', title: '发明内容 - 要解决的技术问题', content: '' },
+    { code: '4', title: '发明内容 - 技术方案', content: '' },
+    { code: '5', title: '发明内容 - 有益效果', content: '' },
+    { code: '6', title: '附图说明', content: '' },
+    { code: '7', title: '实施方式', content: '' },
+    { code: '-1', title: '权利要求书' },
+    { code: '8', title: '独立权利要求', content: '' },
+    { code: '9', title: '从属权利要求', content: '' }
+  ]
+  toolStore.openPreviewPanel('patent', previewData)
+  // 获取技术专利
+  const makeContent = (index: number): Promise<void> => {
+    return new Promise((resolve, reject) => {
+      if (previewData[index].code === '-1') {
+        return resolve()
+      }
+      helperPatentStream({
+        sessionId: chatStore.currentChatId,
+        code: previewData[index].code,
+        question: markdown,
+        fileUrl,
+        onChunk: (chunk) => {
+          if (chunk === '[DONE]') {
+            return resolve()
+          }
+          previewData[index].content = chunk
+            .replace(/<model_result>([\s\S]*?)<\/model_result>/g, '')
+            .replace(/\n{0,2}#{1,3}([\s\S]*?)\n{1,2}/, '')
+          toolStore.updatePreviewData([...previewData])
+        }
+      }).catch((err: unknown) => reject(err))
+    })
+  }
+  for (let i = 0; i < previewData.length; i += 1) {
+    try {
+      await makeContent(i)
+      console.log('previewData[i]: ', previewData[i])
+    } catch (err) {
+      console.warn(err)
+    }
+  }
+}
 
 async function onConfirm() {
   try {
@@ -105,7 +166,7 @@ async function onConfirm() {
       notification.error({ message: '请填写表单或上传文件' })
       return
     }
-    emit('confirm', { markdown, fileUrl: fileUrl.value })
+    await handlePatentFormPanelConfirm({ markdown, fileUrl: fileUrl.value })
   } catch (err) {
     console.warn(err)
   }

@@ -35,7 +35,7 @@ const searchStore = useSearchStore()
 const userStore = useUserStore()
 
 function onClose() {
-  toolStore.closeAllPanels()
+  toolStore.closeToolPanel()
 }
 
 // 定义 state
@@ -87,7 +87,6 @@ async function onConfirm() {
       data: {
         name: '查询结果',
         columns: TABLE_COLUMNS as ColumnItem[],
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         dataSource: list.map((item: any) => {
           const {
             id,

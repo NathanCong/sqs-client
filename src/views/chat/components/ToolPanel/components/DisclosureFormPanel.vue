@@ -48,11 +48,14 @@ import { UploadOutlined } from '@ant-design/icons-vue'
 import { uploadFile } from '@/apis'
 import { useToolStore } from '@/store/tool'
 import { CloseOutlined } from '@ant-design/icons-vue'
+import { useChatStore } from '@/store/chat'
+import { helperDisclosureStream } from '@/apis'
 
 const toolStore = useToolStore()
+const chatStore = useChatStore()
 
 function onClose() {
-  toolStore.closeAllPanels()
+  toolStore.closeToolPanel()
 }
 
 // 定义 state
@@ -79,9 +82,6 @@ const formConfig = ref<CommonFormConfig>({
   ]
 })
 
-// 定义 emits
-const emit = defineEmits(['confirm'])
-
 const fileList = ref([])
 const fileUrl = ref('')
 
@@ -105,6 +105,58 @@ async function handleChange() {
   }
 }
 
+async function handleDisclosureFormPanelConfirm({
+  markdown,
+  fileUrl
+}: {
+  markdown: string
+  fileUrl?: string
+}) {
+  // 插入系统提示消息
+  chatStore.addMessage({
+    role: 'assistant',
+    type: 'text',
+    data: [{ type: 'text', data: '请查看右侧预览窗口，正在生成中...' }]
+  })
+  // 打开 PreviewPanel
+  const previewData = [
+    { code: '1', title: '标题名称', content: '' },
+    { code: '2', title: '技术领域', content: '' },
+    { code: '3', title: '创新背景', content: '' },
+    { code: '4', title: '发明目的', content: '' },
+    { code: '5', title: '技术方案', content: '' },
+    { code: '6', title: '实施方案', content: '' }
+  ]
+  toolStore.openPreviewPanel('disclosure', previewData)
+  // 获取技术交底书
+  const makeContent = (index: number): Promise<void> => {
+    return new Promise((resolve, reject) => {
+      helperDisclosureStream({
+        sessionId: chatStore.currentChatId,
+        code: previewData[index].code,
+        question: markdown || '帮我重写一下',
+        fileUrl,
+        onChunk: (chunk) => {
+          if (chunk === '[DONE]') {
+            return resolve()
+          }
+          previewData[index].content = chunk
+            .replace(/<model_result>([\s\S]*?)<\/model_result>/g, '')
+            .replace(/\n{0,2}#{1,3}([\s\S]*?)\n{1,2}/, '')
+          toolStore.updatePreviewData([...previewData])
+        }
+      }).catch((err: unknown) => reject(err))
+    })
+  }
+  for (let i = 0; i < previewData.length; i += 1) {
+    try {
+      await makeContent(i)
+    } catch (err) {
+      console.warn(err)
+    }
+  }
+}
+
 async function onConfirm() {
   try {
     const formData = await commonFormRef.value?.submit()
@@ -118,15 +170,11 @@ async function onConfirm() {
         { p: content }
       ])
     }
-    console.log('{ markdown, fileUrl: fileUrl.value }', {
-      markdown,
-      fileUrl: fileUrl.value
-    })
     if (!markdown && !fileUrl.value) {
       notification.error({ message: '请填写表单或上传文件' })
       return
     }
-    emit('confirm', { markdown, fileUrl: fileUrl.value })
+    await handleDisclosureFormPanelConfirm({ markdown, fileUrl: fileUrl.value })
   } catch (err) {
     console.warn(err)
   }

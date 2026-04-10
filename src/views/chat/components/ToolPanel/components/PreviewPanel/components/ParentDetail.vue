@@ -56,7 +56,6 @@ const detail = ref<{
   initialApplicant: ''
 })
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const descs = ref<any[]>([])
 
 async function fetchPatentManual(id: string) {
@@ -71,7 +70,6 @@ async function fetchPatentManual(id: string) {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function open(data: any) {
   visible.value = true
   detail.value = data

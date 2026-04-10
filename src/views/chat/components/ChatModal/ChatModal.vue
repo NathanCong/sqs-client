@@ -47,7 +47,7 @@ import type {
   ComponentProps as Message
 } from './components/ChatMessage.vue'
 import { useChatStore } from '@/store/chat'
-import { consultStream, searchPatents } from '@/apis'
+import { chatStream, searchPatents } from '@/apis'
 import { TABLE_COLUMNS } from './constants'
 import { getStorage, delStorage } from '@/utils/storage'
 import { useRoute } from 'vue-router'
@@ -65,7 +65,6 @@ function handleChunk(messageId: string, chunk: string) {
     /<tool_use name="wanxiang-search-strategy">([\s\S]*?)<\/tool_use>/g
   const toolUse1Result = toolUse1Regex.exec(newChunk)
   if (toolUse1Result) {
-    // console.log('toolUse1Result', JSON.parse(toolUse1Result[1]))
     newChunk = newChunk.replace(toolUse1Regex, '')
     if (
       !contents.find(
@@ -89,7 +88,6 @@ function handleChunk(messageId: string, chunk: string) {
     /<tool_use name="wanxiang-patent-search">([\s\S]*?)<\/tool_use>/g
   const toolUse2Result = toolUse2Regex.exec(newChunk)
   if (toolUse2Result) {
-    // console.log('toolUse2Result', JSON.parse(toolUse2Result[1]))
     newChunk = newChunk.replace(toolUse2Regex, '')
     if (
       !contents.find(
@@ -190,7 +188,7 @@ async function handleList(messageId: string) {
             // 专利名称
             patentName: original,
             // 初始申请人
-            initialApplicant: applicants[0].name.original,
+            initialApplicant: applicants?.[0]?.name?.original || '',
             // 申请号
             applicationNumber: application_number,
             // 申请日
@@ -202,18 +200,13 @@ async function handleList(messageId: string) {
               .map((i: { name: { original: string } }) => i.name.original)
               .join(','),
             // 当前权利人
-            currentAssignee: assignees[0].name.original,
+            currentAssignee: assignees?.[0]?.name?.original || '',
             // 主分类号
             mainIpc: main_ipc.ipc,
-            // 相关性评分
-            // relevanceScore: sources.find(
-            //   (i: { id: string }) => i.id === application_number
-            // )?.score,
             // 价值评分
             valueScore: pav
           }
         }),
-        // .sort((a, b) => b.relevanceScore - a.relevanceScore),
         pagination: { total: 0, pageNum: 1, pageSize: 10 }
       }
     })
@@ -230,7 +223,7 @@ const requestLoading = ref(false)
 async function ask(messageId: string, userCommand: string, fileUrl?: string) {
   requestLoading.value = true
   try {
-    await consultStream({
+    await chatStream({
       sessionId: chatStore.currentChatId,
       question: userCommand,
       fileUrl,
@@ -314,7 +307,7 @@ onMounted(() => {
     delStorage('userCommand')
   }
   const { key } = route.query
-  toolStore.closeAllPanels()
+  toolStore.closeToolPanel()
   // 高级检索
   if (key === '2') {
     chatStore.addMessage({
@@ -336,11 +329,11 @@ onMounted(() => {
   }
   // 专利查新检索
   if (key === '4') {
-    // toolStore.openNoveltyFormPanel()
+    toolStore.openNoveltyFormPanel()
     chatStore.addMessage({
       role: 'assistant',
       type: 'text',
-      data: [{ type: 'text', data: '请上传您的技术交底书文件' }]
+      data: [{ type: 'text', data: '请在右侧表单完善信息' }]
     })
     return
   }
@@ -361,6 +354,15 @@ onMounted(() => {
       role: 'assistant',
       type: 'text',
       data: [{ type: 'text', data: '请在右侧表单完善信息' }]
+    })
+    return
+  }
+  // 处理专利智能分析
+  if (key === '7') {
+    chatStore.addMessage({
+      role: 'assistant',
+      type: 'text',
+      data: [{ type: 'text', data: '您好，欢迎使用专利智能分析' }]
     })
     return
   }
