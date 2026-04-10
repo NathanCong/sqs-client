@@ -19,7 +19,7 @@ router.beforeEach(
     }
     // 功能权限：key = 4、5、6 需要登录，但未登录
     if (['4', '5', '6'].includes(to.query.key as string) && !isLogin) {
-      next({ name: 'login', query: { redirect: to.fullPath } })
+      next({ name: 'login', query: { redirect: '/home' } })
       return
     }
     next()
