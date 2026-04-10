@@ -48,7 +48,7 @@ const toolStore = useToolStore()
 const chatStore = useChatStore()
 
 function onClose() {
-  toolStore.closeAllPanels()
+  toolStore.closeToolPanel()
 }
 
 // 定义 state

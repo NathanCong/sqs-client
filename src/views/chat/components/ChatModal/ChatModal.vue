@@ -314,7 +314,7 @@ onMounted(() => {
     delStorage('userCommand')
   }
   const { key } = route.query
-  toolStore.closeAllPanels()
+  toolStore.closeToolPanel()
   // 高级检索
   if (key === '2') {
     chatStore.addMessage({

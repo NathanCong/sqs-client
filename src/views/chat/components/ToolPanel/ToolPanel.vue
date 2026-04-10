@@ -49,7 +49,7 @@ const toolStore = useToolStore()
  * 结果预览 @close
  */
 function onPreviewPanelClose() {
-  toolStore.closeAllPanels()
+  toolStore.closeToolPanel()
 }
 
 /**

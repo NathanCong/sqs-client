@@ -35,7 +35,7 @@ const searchStore = useSearchStore()
 const userStore = useUserStore()
 
 function onClose() {
-  toolStore.closeAllPanels()
+  toolStore.closeToolPanel()
 }
 
 // 定义 state
