@@ -170,10 +170,6 @@ async function onConfirm() {
         { p: content }
       ])
     }
-    console.log('{ markdown, fileUrl: fileUrl.value }', {
-      markdown,
-      fileUrl: fileUrl.value
-    })
     if (!markdown && !fileUrl.value) {
       notification.error({ message: '请填写表单或上传文件' })
       return

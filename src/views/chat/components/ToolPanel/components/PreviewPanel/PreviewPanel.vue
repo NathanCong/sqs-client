@@ -16,6 +16,12 @@
         <template v-if="isShowListPreview">
           <ListPreview :data="toolStore.previewData" @detail="onDetail" />
         </template>
+        <!-- 预览 - 交底书查新 -->
+        <template v-if="isShowNoveltyPreview">
+          <section class="novelty-preview">
+            <MarkdownRender :markdownContent="toolStore.previewData" />
+          </section>
+        </template>
         <!-- 预览 - 交底书 -->
         <template v-if="isShowDisclosurePreview">
           <DisclosurePreview
@@ -58,6 +64,7 @@ import DisclosurePreview from './components/DisclosurePreview.vue'
 import ListPreview from './components/ListPreview.vue'
 import CommonPanel from '../common/CommonPanel.vue'
 import { useToolStore } from '@/store/tool'
+import MarkdownRender from '@/components/MarkdownRender.vue'
 
 // import html2pdf from 'html2pdf.js'
 import ParentDetail from './components/ParentDetail.vue'
@@ -71,6 +78,7 @@ const toolStore = useToolStore()
 // 定义计算属性
 const isShowPanelFooter = computed(() => toolStore.previewType !== 'list')
 const isShowListPreview = computed(() => toolStore.previewType === 'list')
+const isShowNoveltyPreview = computed(() => toolStore.previewType === 'novelty')
 const isShowDisclosurePreview = computed(
   () => toolStore.previewType === 'disclosure'
 )
@@ -149,6 +157,10 @@ defineExpose({ scrollToBottom })
     width: 100%;
     box-sizing: border-box;
     padding: 16px;
+
+    .novelty-preview {
+      color: rgba(0, 0, 0, 0.88);
+    }
 
     .panel-loading {
       margin-top: 10px;
