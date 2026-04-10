@@ -3,7 +3,7 @@
   <div class="preview-panel">
     <CommonPanel
       title="结果预览"
-      :show-footer="toolStore.previewType !== 'list'"
+      :show-footer="isShowPanelFooter"
       ref="commonPanelRef"
     >
       <template #header-buttons>
@@ -12,107 +12,72 @@
         </a-button>
       </template>
       <div class="panel-content">
-        <!-- 专利预览（新版） -->
-        <template v-if="toolStore.previewType === 'patent'">
-          <PatentPreview :data="toolStore.previewData" ref="patentPreviewRef" />
+        <!-- 预览 - 列表 -->
+        <template v-if="isShowListPreview">
+          <ListPreview :data="toolStore.previewData" @detail="onDetail" />
         </template>
-        <!-- 交底书预览（新版） -->
-        <template v-if="toolStore.previewType === 'disclosure'">
+        <!-- 预览 - 交底书 -->
+        <template v-if="isShowDisclosurePreview">
           <DisclosurePreview
             :data="toolStore.previewData"
             ref="disclosurePreviewRef"
           />
         </template>
-        <!-- 列表预览（新版） -->
-        <template v-if="toolStore.previewType === 'list'">
-          <div class="panel-table-wrapper">
-            <CommonTable
-              :show-header="false"
-              :columns="tableColumns"
-              :data-source="tableDataSource"
-              :pagination="{ pageNum: 1, pageSize: 20, total }"
-            >
-              <!-- 表头单元格 -->
-              <template #thead-cell="{ title }">
-                <span class="thead-cell">{{ title }}</span>
-              </template>
-              <!-- 表主体单元格 -->
-              <template #tbody-cell="{ column, text, record }">
-                <span class="tbody-cell">
-                  <!-- 摘要太长缩短 -->
-                  <template v-if="column.key === 'actions'">
-                    <a-button
-                      type="link"
-                      @click="onDetail(record)"
-                      :disabled="true"
-                    >
-                      查看详情
-                    </a-button>
-                  </template>
-                  <!-- 相关性评分 -->
-                  <template v-else-if="column.key === 'relevanceScore'">
-                    {{ (parseFloat(text) * 100).toFixed(2) }}
-                  </template>
-                  <!-- 其他 -->
-                  <template v-else>{{ text || '——' }}</template>
-                </span>
-              </template>
-            </CommonTable>
-          </div>
+        <!-- 预览 - 专利 -->
+        <template v-if="isShowPatentPreview">
+          <PatentPreview :data="toolStore.previewData" ref="patentPreviewRef" />
         </template>
+        <!-- Loading -->
         <template v-if="loading">
           <p class="panel-loading"><LoadingOutlined :spin="true" /></p>
         </template>
       </div>
       <template #footer-buttons>
-        <a-button type="primary" @click="onDownload" :disabled="true"
-          >下载</a-button
+        <a-button
+          type="primary"
+          @click="onDownload"
+          :disabled="
+            toolStore.previewType !== 'patent' &&
+            toolStore.previewType !== 'disclosure'
+          "
         >
+          下载
+        </a-button>
       </template>
     </CommonPanel>
+    <!-- 专利详情 -->
     <ParentDetail ref="parentDetailRef" />
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, computed } from 'vue'
+import { computed, ref } from 'vue'
 import { CloseOutlined, LoadingOutlined } from '@ant-design/icons-vue'
 import PatentPreview from './components/PatentPreview.vue'
 import DisclosurePreview from './components/DisclosurePreview.vue'
+import ListPreview from './components/ListPreview.vue'
 import CommonPanel from '../common/CommonPanel.vue'
-import CommonTable from '@/components/CommonTable.vue'
 import { useToolStore } from '@/store/tool'
+
 // import html2pdf from 'html2pdf.js'
 import ParentDetail from './components/ParentDetail.vue'
 
 // 定义 Props
 withDefaults(defineProps<{ loading: boolean }>(), { loading: false })
 
-// 定义 Refs
-const commonPanelRef = ref()
-
 //  定义 Stores
 const toolStore = useToolStore()
 
 // 定义计算属性
-const tableColumns = computed(() => {
-  if (typeof toolStore.previewData === 'object') {
-    return toolStore.previewData?.columns
-  }
-  return []
-})
-const tableDataSource = computed(() => {
-  if (typeof toolStore.previewData === 'object') {
-    return toolStore.previewData?.dataSource
-  }
-  return []
-})
-const total = computed(() => {
-  if (typeof toolStore.previewData === 'object') {
-    return toolStore.previewData?.total
-  }
-  return 0
-})
+const isShowPanelFooter = computed(() => toolStore.previewType !== 'list')
+const isShowListPreview = computed(() => toolStore.previewType === 'list')
+const isShowDisclosurePreview = computed(
+  () => toolStore.previewType === 'disclosure'
+)
+const isShowPatentPreview = computed(() => toolStore.previewType === 'patent')
+
+// 定义 Refs
+const commonPanelRef = ref()
 
 // 定义 Emit
 const emit = defineEmits(['close', 'download'])
@@ -188,21 +153,6 @@ defineExpose({ scrollToBottom })
     .panel-loading {
       margin-top: 10px;
       font-size: 20px;
-    }
-
-    .panel-table-wrapper {
-      position: absolute;
-      top: 16px;
-      right: 16px;
-      bottom: 16px;
-      left: 16px;
-
-      .thead-cell,
-      .tbody-cell {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
     }
   }
 }

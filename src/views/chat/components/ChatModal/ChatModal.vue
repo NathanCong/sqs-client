@@ -188,7 +188,7 @@ async function handleList(messageId: string) {
             // 专利名称
             patentName: original,
             // 初始申请人
-            initialApplicant: applicants[0].name.original,
+            initialApplicant: applicants?.[0]?.name?.original || '',
             // 申请号
             applicationNumber: application_number,
             // 申请日
@@ -200,7 +200,7 @@ async function handleList(messageId: string) {
               .map((i: { name: { original: string } }) => i.name.original)
               .join(','),
             // 当前权利人
-            currentAssignee: assignees[0].name.original,
+            currentAssignee: assignees?.[0]?.name?.original || '',
             // 主分类号
             mainIpc: main_ipc.ipc,
             // 价值评分
