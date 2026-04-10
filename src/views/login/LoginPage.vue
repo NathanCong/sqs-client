@@ -98,7 +98,6 @@ function onNewRegister() {
 }
 
 async function onRegister() {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const params: any = await commonFormRef.value?.submit()
   const { userName, userPhone, userEmail, userPassword, userPasswordConfirm } =
     params

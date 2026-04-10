@@ -79,11 +79,11 @@ import { ref, computed } from 'vue'
 import { CloseOutlined, LoadingOutlined } from '@ant-design/icons-vue'
 import PatentPreview from './components/PatentPreview.vue'
 import DisclosurePreview from './components/DisclosurePreview.vue'
-import CommonPanel from './common/CommonPanel.vue'
+import CommonPanel from '../common/CommonPanel.vue'
 import CommonTable from '@/components/CommonTable.vue'
 import { useToolStore } from '@/store/tool'
-import html2pdf from 'html2pdf.js'
-import ParentDetail from './ParentDetail.vue'
+// import html2pdf from 'html2pdf.js'
+import ParentDetail from './components/ParentDetail.vue'
 
 // 定义 Props
 withDefaults(defineProps<{ loading: boolean }>(), { loading: false })
@@ -121,30 +121,30 @@ function onClose() {
   emit('close')
 }
 
-function exportPDF(element: HTMLElement, fileName: string) {
-  if (element) {
-    const exportOptions = {
-      margin: [10, 5, 10, 5],
-      filename: fileName,
-      image: {
-        type: 'jpeg' as const,
-        quality: 0.98
-      },
-      html2canvas: {
-        scale: 1,
-        useCORS: true,
-        scrollY: 0,
-        height: element.scrollHeight // 明确指定高度
-      },
-      jsPDF: {
-        unit: 'mm',
-        format: 'a4',
-        orientation: 'portrait'
-      }
-    }
-    html2pdf().from(element).set(exportOptions).save()
-  }
-}
+// function exportPDF(element: HTMLElement, fileName: string) {
+//   if (element) {
+//     const exportOptions = {
+//       margin: [10, 5, 10, 5],
+//       filename: fileName,
+//       image: {
+//         type: 'jpeg' as const,
+//         quality: 0.98
+//       },
+//       html2canvas: {
+//         scale: 1,
+//         useCORS: true,
+//         scrollY: 0,
+//         height: element.scrollHeight // 明确指定高度
+//       },
+//       jsPDF: {
+//         unit: 'mm',
+//         format: 'a4',
+//         orientation: 'portrait'
+//       }
+//     }
+//     html2pdf().from(element).set(exportOptions).save()
+//   }
+// }
 
 const patentPreviewRef = ref<InstanceType<typeof PatentPreview> | null>(null)
 const disclosurePreviewRef = ref<InstanceType<typeof DisclosurePreview> | null>(
@@ -154,11 +154,11 @@ const disclosurePreviewRef = ref<InstanceType<typeof DisclosurePreview> | null>(
 function onDownload() {
   // 专利下载
   if (toolStore.previewType === 'patent' && patentPreviewRef.value) {
-    exportPDF(patentPreviewRef.value.$el, '技术专利.pdf')
+    // exportPDF(patentPreviewRef.value.$el, '技术专利.pdf')
   }
   // 交底书下载
   if (toolStore.previewType === 'disclosure' && disclosurePreviewRef.value) {
-    exportPDF(disclosurePreviewRef.value.$el, '技术交底书.pdf')
+    // exportPDF(disclosurePreviewRef.value.$el, '技术交底书.pdf')
   }
 }
 
@@ -168,7 +168,6 @@ function scrollToBottom() {
 
 const parentDetailRef = ref<InstanceType<typeof ParentDetail> | null>(null)
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function onDetail(record: any) {
   parentDetailRef.value?.open(record)
 }

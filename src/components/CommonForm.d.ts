@@ -3,9 +3,7 @@ interface FieldItem {
   name: string
   label: string
   type: 'input' | 'password' | 'textarea' | 'date' | 'dateRange' | 'select'
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value?: any
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   defaultValue?: any
   rules?: Array<{ required?: boolean; message?: string }>
   options?: {
@@ -25,6 +23,5 @@ interface FieldRow {
 }
 
 interface FormState {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any
 }

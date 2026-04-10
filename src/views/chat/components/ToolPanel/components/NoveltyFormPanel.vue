@@ -17,6 +17,8 @@ import { ref } from 'vue'
 import json2md from 'json2md'
 import CommonPanel from './common/CommonPanel.vue'
 import CommonForm from './common/CommonForm.vue'
+import type { CommonFormConfig } from './common/CommonForm.vue'
+import { notification } from 'ant-design-vue'
 
 // 定义 state
 const commonFormRef = ref<InstanceType<typeof CommonForm>>()
@@ -40,9 +42,6 @@ const formConfig = ref<CommonFormConfig>({
   ]
 })
 
-// 定义 emits
-const emit = defineEmits(['confirm'])
-
 async function onConfirm() {
   try {
     const formData = await commonFormRef.value?.submit()
@@ -54,7 +53,11 @@ async function onConfirm() {
       { h1: '技术方案内容' },
       { p: content }
     ])
-    emit('confirm', markdown)
+    console.log('markdown: ', markdown)
+    notification.info({
+      message: '温馨提示',
+      description: '功能正在开发中，敬请期待...'
+    })
   } catch (err) {
     console.warn(err)
   }
