@@ -234,7 +234,7 @@ async function onOk(value: string): Promise<void> {
   // 提交用户评分
   const message = chatStore.getMessage(props.id) as ComponentProps
   const { model = '', questionType = '', score = 0 } = message
-  const { userEmail = '' } = userStore.getUserInfo() || {}
+  const { userEmail = '' } = (await userStore.getUserInfo()) || {}
   try {
     const { data } = await poc({
       userEmail,

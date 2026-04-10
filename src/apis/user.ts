@@ -1,4 +1,4 @@
-import { post } from '@/utils/request'
+import { get, post } from '@/utils/request'
 import type { AxiosResponse } from 'axios'
 import type { CommonResponse } from './common'
 
@@ -57,4 +57,42 @@ interface PocResponse extends CommonResponse {
  */
 export function poc(params: PocParams): Promise<AxiosResponse<PocResponse>> {
   return post('/user/poc', params)
+}
+
+interface GetUserInfoResponse extends CommonResponse {
+  data: {
+    userEmail: string
+    userName: string
+    userPhone: string
+    userPassword: string
+  }
+}
+
+/**
+ * 用户 - 获取个人信息
+ */
+export function getUserInfo(
+  userEmail: string
+): Promise<AxiosResponse<GetUserInfoResponse>> {
+  return get('/user/info/get', { userEmail })
+}
+
+interface UpdateUserInfoParams {
+  userEmail: string
+  userName: string
+  userPhone: string
+  userPassword: string
+}
+
+interface UpdateUserInfoResponse extends CommonResponse {
+  data: null
+}
+
+/**
+ * 用户 - 更新个人信息
+ */
+export function updateUserInfo(
+  params: UpdateUserInfoParams
+): Promise<AxiosResponse<UpdateUserInfoResponse>> {
+  return post('/user/info/update', params)
 }

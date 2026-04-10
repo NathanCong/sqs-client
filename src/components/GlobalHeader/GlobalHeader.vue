@@ -6,25 +6,55 @@
     </div>
     <div class="func-wrapper">
       <span class="func-item">
-        <UserLoginStatus :loginName="userInfo?.userEmail" />
+        <span class="func-status">
+          <UserLoginStatus :loginName="userInfo?.userEmail" />
+        </span>
       </span>
-      <template v-if="userInfo?.userEmail">
+      <template v-if="isLogin">
+        <!-- 设置按钮 -->
         <span class="func-item">
-          <span class="logout-button" @click="onLogoutClick">
-            <LogoutOutlined />
-          </span>
+          <a-tooltip title="设置">
+            <span class="func-button" @click="onSettingClick"
+              ><SettingOutlined
+            /></span>
+          </a-tooltip>
+        </span>
+        <!-- 登出按钮 -->
+        <span class="func-item">
+          <a-tooltip title="登出">
+            <span class="func-button" @click="onLogoutClick"
+              ><LogoutOutlined
+            /></span>
+          </a-tooltip>
+        </span>
+      </template>
+      <template v-else>
+        <!-- 登录按钮 -->
+        <span class="func-item">
+          <a-tooltip title="登录">
+            <span class="func-button" @click="onLoginClick"
+              ><LoginOutlined
+            /></span>
+          </a-tooltip>
         </span>
       </template>
     </div>
+    <UserInfoModal ref="userInfoModalRef" />
   </div>
 </template>
 
 <script lang="ts" setup>
-import { LogoutOutlined } from '@ant-design/icons-vue'
+import {
+  LogoutOutlined,
+  LoginOutlined,
+  SettingOutlined
+} from '@ant-design/icons-vue'
 import { useRouter } from 'vue-router'
 import UserLoginStatus from './components/UserLoginStatus.vue'
 import { useUserStore } from '@/store/user'
-import { computed } from 'vue'
+import type { UserInfo } from '@/store/user'
+import { computed, onMounted, ref } from 'vue'
+import UserInfoModal from './components/UserInfoModal.vue'
 
 withDefaults(defineProps<{ title?: string; bgColor?: string }>(), {
   title: 'AI专利检索分析平台',
@@ -37,13 +67,29 @@ function onLogoLick() {
   router.replace('/')
 }
 
+const userInfo = ref<UserInfo | null>(null)
+
+const isLogin = computed(() => userInfo.value !== null)
+
 const userStore = useUserStore()
 
-const userInfo = computed(() => userStore.getUserInfo())
+onMounted(async () => {
+  userInfo.value = await userStore.getUserInfo()
+})
 
 function onLogoutClick() {
   userStore.delAccessToken()
   window.location.reload()
+}
+
+function onLoginClick() {
+  router.replace('/login')
+}
+
+const userInfoModalRef = ref<InstanceType<typeof UserInfoModal> | null>(null)
+
+function onSettingClick() {
+  userInfoModalRef.value?.open()
 }
 </script>
 
@@ -134,20 +180,23 @@ function onLogoutClick() {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: var(--spacing-md);
+    gap: var(--spacing-sm);
 
     .func-item {
       display: flex;
       align-items: center;
       justify-content: center;
 
-      .logout-button {
+      .func-status,
+      .func-button {
+        padding: var(--spacing-sm);
+      }
+
+      .func-button {
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 40px;
-        height: 40px;
-        font-size: 18px;
+        font-size: 16px;
         cursor: pointer;
         border-radius: var(--radius-sm);
         transition: all var(--transition-base);

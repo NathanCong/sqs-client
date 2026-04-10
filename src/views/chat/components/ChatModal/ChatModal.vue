@@ -181,7 +181,7 @@ async function handleList(messageId: string) {
   try {
     requestLoading.value = true
     const q = (strategy as any).q
-    const { userEmail = '' } = userStore.getUserInfo() || {}
+    const { userEmail = '' } = (await userStore.getUserInfo()) || {}
     if (userEmail) {
       searchStore.addSearchHistory(userEmail, q)
     }

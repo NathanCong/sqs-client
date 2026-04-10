@@ -57,7 +57,7 @@ async function handleBatchQuery(ids: string[]) {
   try {
     const q = `(${ids.map((id) => `an=${id}`).join(' or ')})`
     console.log('q', q)
-    const { userEmail = '' } = userStore.getUserInfo() || {}
+    const { userEmail = '' } = (await userStore.getUserInfo()) || {}
     if (userEmail) {
       searchStore.addSearchHistory(userEmail, q)
     }

@@ -31,7 +31,7 @@ withDefaults(defineProps<{ loginAvatarUrl?: string; loginName?: string }>(), {
     width: 24px;
     height: 24px;
     border-radius: 12px;
-    border: 1px solid #333;
+    border: 1px solid var(--text-primary);
     box-sizing: border-box;
     display: flex;
     align-items: center;
