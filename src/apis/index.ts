@@ -8,6 +8,55 @@ interface CommonResponse {
 }
 
 /**
+ * 大模型：聊天接口
+ */
+export function chatStream({
+  sessionId,
+  question,
+  fileUrl,
+  onChunk
+}: {
+  sessionId?: string
+  question: string
+  fileUrl?: string
+  onChunk?: (chunk: string) => void
+}) {
+  return postForStream(
+    '/assistant/chat/stream',
+    { session_id: sessionId, question, file_url: fileUrl },
+    onChunk
+  )
+}
+
+/**
+ * 大模型：专利交底书撰写接口
+ */
+export function helperDisclosureStream({
+  sessionId,
+  code,
+  question,
+  fileUrl,
+  onChunk
+}: {
+  sessionId?: string
+  code: string
+  question: string
+  fileUrl?: string
+  onChunk?: (chunk: string) => void
+}) {
+  return postForStream(
+    '/assistant/helper/disclosure/stream',
+    {
+      session_id: sessionId,
+      code,
+      question: question,
+      file_url: fileUrl
+    },
+    onChunk
+  )
+}
+
+/**
  * 专利撰写（新版）
  */
 export function helperPatentStream({
@@ -33,79 +82,6 @@ export function helperPatentStream({
     },
     onChunk
   )
-}
-
-/**
- * 技术交底书撰写（新版）
- */
-export function helperDisclosureStream({
-  sessionId,
-  code,
-  question,
-  fileUrl,
-  onChunk
-}: {
-  sessionId?: string
-  code: string
-  question: string
-  fileUrl?: string
-  onChunk?: (chunk: string) => void
-}) {
-  return postForStream(
-    '/helper/disclosure/stream',
-    {
-      session_id: sessionId,
-      code,
-      question: question || '帮我重写一下',
-      file_url: fileUrl
-    },
-    onChunk
-  )
-}
-
-/**
- * 咨询（新版）
- */
-export function consultStream({
-  sessionId,
-  question,
-  fileUrl,
-  onChunk
-}: {
-  sessionId?: string
-  question: string
-  fileUrl?: string
-  onChunk?: (chunk: string) => void
-}) {
-  return postForStream(
-    '/consult/stream',
-    { session_id: sessionId, question, file_url: fileUrl },
-    onChunk
-  )
-}
-
-/**
- * 检索策略生成
- */
-export function searchStrategy(question: string) {
-  return post('/search/strategy', { question })
-}
-
-/**
- * 专利检索（通过检索式）
- */
-export function searchPatentsFromStrategy(question: string) {
-  return new Promise((resolve, reject) => {
-    // 分析语义生成检索式
-    searchStrategy(question)
-      .then((res) => {
-        // 利用检索式进行专利查询
-        searchPatents(res)
-          .then((res) => resolve(res))
-          .catch((err) => reject(err))
-      })
-      .catch((err) => reject(err))
-  })
 }
 
 interface UploadFileResponse extends CommonResponse {

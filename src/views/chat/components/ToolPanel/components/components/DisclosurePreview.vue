@@ -3,19 +3,33 @@
     <template v-for="(item, index) in listData" :key="item.code">
       <section class="disclosure-item">
         <template v-if="item.title">
-          <p class="item-title">{{ item.title }}</p>
+          <div class="item-title">{{ item.title }}</div>
         </template>
         <template v-if="item.content">
-          <p class="item-content">
-            <MarkdownRender :markdown-content="item.content" />
-          </p>
+          <div class="item-content">
+            <template v-if="isEditMode && index === currentEditIndex">
+              <a-textarea
+                v-model:value="item.content"
+                style="width: 100%; height: 200px"
+              />
+            </template>
+            <template v-else>
+              <MarkdownRender :markdown-content="item.content" />
+            </template>
+          </div>
         </template>
         <template v-else>
-          <p class="item-loading">加载中...</p>
+          <div class="item-loading">加载中...</div>
         </template>
-        <p class="item-links">
-          <a-button type="link" @click="reMake(index)">重新生成</a-button>
-        </p>
+        <div class="item-links">
+          <template v-if="isEditMode">
+            <a-button type="link" @click="finish()">编辑完成</a-button>
+          </template>
+          <template v-else>
+            <a-button type="link" @click="edit(index)">编辑内容</a-button>
+            <a-button type="link" @click="reMake(index)">重新生成</a-button>
+          </template>
+        </div>
       </section>
     </template>
   </div>
@@ -58,7 +72,7 @@ function reMake(index: number) {
   helperDisclosureStream({
     sessionId: chatStore.currentChatId,
     code,
-    question: content,
+    question: content || '帮我重写一下',
     onChunk: (chunk) => {
       if (chunk === '[DONE]') {
         return
@@ -70,6 +84,19 @@ function reMake(index: number) {
       toolStore.updatePreviewData([...listData.value])
     }
   }).catch((err) => console.warn(err))
+}
+
+const isEditMode = ref(false)
+const currentEditIndex = ref(-1)
+
+function edit(index: number) {
+  isEditMode.value = true
+  currentEditIndex.value = index
+}
+
+function finish() {
+  isEditMode.value = false
+  currentEditIndex.value = -1
 }
 </script>
 

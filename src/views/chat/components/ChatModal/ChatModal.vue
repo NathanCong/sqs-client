@@ -47,7 +47,7 @@ import type {
   ComponentProps as Message
 } from './components/ChatMessage.vue'
 import { useChatStore } from '@/store/chat'
-import { consultStream, searchPatents } from '@/apis'
+import { chatStream, searchPatents } from '@/apis'
 import { TABLE_COLUMNS } from './constants'
 import { getStorage, delStorage } from '@/utils/storage'
 import { useRoute } from 'vue-router'
@@ -230,7 +230,7 @@ const requestLoading = ref(false)
 async function ask(messageId: string, userCommand: string, fileUrl?: string) {
   requestLoading.value = true
   try {
-    await consultStream({
+    await chatStream({
       sessionId: chatStore.currentChatId,
       question: userCommand,
       fileUrl,

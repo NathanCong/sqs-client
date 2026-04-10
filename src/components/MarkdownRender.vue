@@ -57,3 +57,12 @@ const htmlContent = computed(() => {
   return html
 })
 </script>
+
+<style lang="less">
+.markdown-render {
+  ul,
+  ol {
+    padding-left: var(--spacing-lg);
+  }
+}
+</style>

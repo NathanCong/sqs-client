@@ -108,7 +108,7 @@ async function onDisclosureFormPanelConfirm({
       helperDisclosureStream({
         sessionId: chatStore.currentChatId,
         code: previewData[index].code,
-        question: markdown,
+        question: markdown || '帮我重写一下',
         fileUrl,
         onChunk: (chunk) => {
           if (chunk === '[DONE]') {
