@@ -12,9 +12,9 @@
         </a-button>
       </template>
       <div class="panel-content">
-        <!-- 预览 - 列表 -->
-        <template v-if="isShowListPreview">
-          <ListPreview :data="toolStore.previewData" @detail="onDetail" />
+        <!-- 预览 - 专利列表 -->
+        <template v-if="isShowParentListPreview">
+          <ParentListPreview :data="toolStore.previewData" @detail="onDetail" />
         </template>
         <!-- 预览 - 交底书查新 -->
         <template v-if="isShowNoveltyPreview">
@@ -61,7 +61,7 @@ import { computed, ref } from 'vue'
 import { CloseOutlined, LoadingOutlined } from '@ant-design/icons-vue'
 import PatentPreview from './components/PatentPreview.vue'
 import DisclosurePreview from './components/DisclosurePreview.vue'
-import ListPreview from './components/ListPreview.vue'
+import ParentListPreview from './components/ParentListPreview.vue'
 import CommonPanel from '../common/CommonPanel.vue'
 import { useToolStore } from '@/store/tool'
 import MarkdownRender from '@/components/MarkdownRender.vue'
@@ -76,8 +76,10 @@ withDefaults(defineProps<{ loading: boolean }>(), { loading: false })
 const toolStore = useToolStore()
 
 // 定义计算属性
-const isShowPanelFooter = computed(() => toolStore.previewType !== 'list')
-const isShowListPreview = computed(() => toolStore.previewType === 'list')
+const isShowParentListPreview = computed(
+  () => toolStore.previewType === 'parentList'
+)
+const isShowPanelFooter = computed(() => !isShowParentListPreview.value)
 const isShowNoveltyPreview = computed(() => toolStore.previewType === 'novelty')
 const isShowDisclosurePreview = computed(
   () => toolStore.previewType === 'disclosure'

@@ -19,7 +19,7 @@
       <!-- 单元格 - 主体 -->
       <template #tbody-cell="{ column, text, record }">
         <span class="tbody-cell">
-          <!-- 操作 -->
+          <!-- 专利列表 - 操作 -->
           <template v-if="column.key === 'actions'">
             <a-button type="link" @click="onDetail(record)" :disabled="true">
               查看详情

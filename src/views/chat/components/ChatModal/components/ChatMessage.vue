@@ -119,14 +119,10 @@ export interface Content {
 
 interface List {
   name: string
-  columns: ColumnItem[]
-  dataSource: unknown[]
-  pagination: Pagination
 }
 
 interface Pdf {
   name: string
-  url: string
 }
 
 export interface ComponentProps {
@@ -138,6 +134,7 @@ export interface ComponentProps {
   showRate?: boolean
   score?: number
   questionType?: string
+  onClick?: () => void
 }
 </script>
 
@@ -156,7 +153,6 @@ import {
 } from '@ant-design/icons-vue'
 import { computed, ref } from 'vue'
 import { useChatStore } from '@/store/chat'
-import { useToolStore } from '@/store/tool'
 import QuestionTypeModal from './QuestionTypeModal.vue'
 import { useUserStore } from '@/store/user'
 import { poc } from '@/apis/index'
@@ -172,7 +168,8 @@ const props = withDefaults(defineProps<ComponentProps>(), {
   data: () => [],
   questionType: undefined,
   showRate: false,
-  score: 0
+  score: 0,
+  onClick: undefined
 })
 
 const contents = computed(() => {
@@ -192,21 +189,12 @@ function changeToolVisible(index: number): void {
   toolVisibleMap.value.set(index, !isToolShow(index))
 }
 
-const toolStore = useToolStore()
-
 function onListClick(): void {
-  const list = props.data as List
-  toolStore.openPreviewPanel('list', {
-    columns: list.columns,
-    dataSource: list.dataSource,
-    total: list.dataSource.length
-  })
-  console.log('List clicked:', list)
+  props.onClick?.()
 }
 
 function onPdfClick(): void {
-  const pdf = props.data as Pdf
-  console.log('PDF clicked:', pdf)
+  props.onClick?.()
 }
 
 const chatStore = useChatStore()

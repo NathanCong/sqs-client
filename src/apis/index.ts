@@ -8,8 +8,23 @@ export {
 
 export { uploadFile } from './upload'
 
-export type { LoginParams } from './user'
+export type {
+  LoginParams,
+  AddUserExpressionParams,
+  GetUserExpressionListParams,
+  GetUserExpressionListResponse,
+  UpdateUserExpressionParams,
+  DeleteUserExpressionParams
+} from './user'
 
-export { login, register, poc } from './user'
+export {
+  login,
+  register,
+  poc,
+  addUserExpression,
+  getUserExpressionList,
+  updateUserExpression,
+  deleteUserExpression
+} from './user'
 
 export { searchPatents, getPatentManual } from './wanxiang'
