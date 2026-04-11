@@ -111,7 +111,7 @@ function handleChunk(messageId: string, chunk: string) {
       })
     }
   }
-  // 处理：tool_use wanxiang-single-analysis（专利分析）
+  // 处理：tool_use wanxiang-single-analysis（专利单项统计分析）
   const toolUse3Regex =
     /<tool_use name="wanxiang-single-analysis">([\s\S]*?)<\/tool_use>/g
   const toolUse3Result = toolUse3Regex.exec(newChunk)
@@ -134,6 +134,51 @@ function handleChunk(messageId: string, chunk: string) {
       })
     }
   }
+  // 处理：tool_use wanxiang-composite-analysis（专利二维关联分析）
+  const toolUse4Regex =
+    /<tool_use name="wanxiang-composite-analysis">([\s\S]*?)<\/tool_use>/g
+  const toolUse4Result = toolUse4Regex.exec(newChunk)
+  if (toolUse4Result) {
+    newChunk = newChunk.replace(toolUse4Regex, '')
+    if (
+      !contents.find(
+        (i) =>
+          i.type === 'tool' &&
+          (i.data as Tool).name === 'wanxiang-composite-analysis'
+      )
+    ) {
+      contents.push({
+        type: 'tool',
+        data: {
+          name: 'wanxiang-composite-analysis',
+          data: JSON.parse(toolUse4Result[1]),
+          html: toolUse4Result[1]
+        }
+      })
+    }
+  }
+
+  // 处理：tool_use chart-mcp（图表生成）
+  const toolUse5Regex = /<tool_use name="chart-mcp">([\s\S]*?)<\/tool_use>/g
+  const toolUse5Result = toolUse5Regex.exec(newChunk)
+  if (toolUse5Result) {
+    newChunk = newChunk.replace(toolUse5Regex, '')
+    if (
+      !contents.find(
+        (i) => i.type === 'tool' && (i.data as Tool).name === 'chart-mcp'
+      )
+    ) {
+      contents.push({
+        type: 'tool',
+        data: {
+          name: 'chart-mcp',
+          data: JSON.parse(toolUse5Result[1]),
+          html: toolUse5Result[1]
+        }
+      })
+    }
+  }
+
   // 处理文字
   const textContent = contents.find((i) => i.type === 'text')
   if (textContent) {

@@ -64,5 +64,10 @@ const htmlContent = computed(() => {
   ol {
     padding-left: var(--spacing-lg);
   }
+
+  img {
+    width: auto;
+    height: 600px;
+  }
 }
 </style>
