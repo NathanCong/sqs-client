@@ -1,5 +1,5 @@
 <template>
-  <div class="panel-table-wrapper">
+  <div class="patent-list-preview">
     <section class="table-columns-selector">
       <a-checkbox-group
         v-model:value="selectedColumns"
@@ -72,7 +72,7 @@ function onDetail(record: any) {
 </script>
 
 <style lang="less" scoped>
-.panel-table-wrapper {
+.patent-list-preview {
   position: absolute;
   top: 16px;
   right: 16px;

@@ -26,7 +26,7 @@ import { CloseOutlined } from '@ant-design/icons-vue'
 import { useToolStore } from '@/store/tool'
 import { useChatStore } from '@/store/chat'
 import { searchPatents } from '@/apis'
-import { TABLE_COLUMNS } from '../constants/index'
+import { EXPRESSION_TYPE_MAP, PARENT_PREVIEW_TABLE_COLUMNS } from '@/consts'
 import { useSearchStore } from '@/store/search'
 import { useUserStore } from '@/store/user'
 
@@ -53,14 +53,8 @@ const formConfig = ref<CommonFormConfig>({
   ]
 })
 
-async function handleBatchQuery(ids: string[]) {
+async function handleBatchQuery(q: string) {
   try {
-    const q = `(${ids.map((id) => `an=${id}`).join(' or ')})`
-    console.log('q', q)
-    const { userEmail = '' } = userStore.getUserInfo() || {}
-    if (userEmail) {
-      searchStore.addSearchHistory(userEmail, q)
-    }
     const { data: res } = await searchPatents({ page: 1, q })
     const {
       data: { list, total }
@@ -78,54 +72,66 @@ async function onConfirm() {
   try {
     const formData = await commonFormRef.value?.submit()
     const { content } = formData || {}
-    console.log('content: ', content)
-    const { list = [] } = (await handleBatchQuery(content.split(','))) || {}
-    console.log('list: ', list)
+    const q = `(${content
+      .split(',')
+      .map((id: string) => `an=${id}`)
+      .join(' or ')})`
+    const { list = [] } = (await handleBatchQuery(q)) || {}
+    const dataSource = list.map((item: any) => {
+      const {
+        id,
+        title: { original },
+        applicants,
+        application_number,
+        application_date,
+        earliest_publication_date,
+        inventors,
+        assignees,
+        main_ipc,
+        pav
+      } = item
+      return {
+        id,
+        // 专利名称
+        patentName: original,
+        // 初始申请人
+        initialApplicant: applicants[0].name.original,
+        // 申请号
+        applicationNumber: application_number,
+        // 申请日
+        applicationDate: application_date,
+        // 公开号/公开日
+        publicationDate: earliest_publication_date,
+        // 发明人
+        inventors: inventors
+          .map((i: { name: { original: string } }) => i.name.original)
+          .join(','),
+        // 当前权利人
+        currentAssignee: assignees[0].name.original,
+        // 主分类号
+        mainIpc: main_ipc.ipc,
+        // 价值评分
+        valueScore: pav
+      }
+    })
     chatStore.addMessage({
       role: 'assistant',
       type: 'list',
-      data: {
-        name: '查询结果',
-        columns: TABLE_COLUMNS as ColumnItem[],
-        dataSource: list.map((item: any) => {
-          const {
-            id,
-            title: { original },
-            applicants,
-            application_number,
-            application_date,
-            earliest_publication_date,
-            inventors,
-            assignees,
-            main_ipc,
-            pav
-          } = item
-          return {
-            id,
-            // 专利名称
-            patentName: original,
-            // 初始申请人
-            initialApplicant: applicants[0].name.original,
-            // 申请号
-            applicationNumber: application_number,
-            // 申请日
-            applicationDate: application_date,
-            // 公开号/公开日
-            publicationDate: earliest_publication_date,
-            // 发明人
-            inventors: inventors
-              .map((i: { name: { original: string } }) => i.name.original)
-              .join(','),
-            // 当前权利人
-            currentAssignee: assignees[0].name.original,
-            // 主分类号
-            mainIpc: main_ipc.ipc,
-            // 价值评分
-            valueScore: pav
-          }
-        }),
-        pagination: { total: 0, pageNum: 1, pageSize: 10 }
+      data: { name: '查询结果' },
+      onClick: () => {
+        toolStore.openPreviewPanel('patentList', {
+          columns: PARENT_PREVIEW_TABLE_COLUMNS as ColumnItem[],
+          dataSource,
+          total: dataSource.length
+        })
       }
+    })
+    const { userEmail = '' } = (await userStore.getUserInfo()) || {}
+    searchStore.addExpression({
+      userEmail,
+      expressionType: Number(EXPRESSION_TYPE_MAP.SEARCH),
+      expressionText: q,
+      resultData: JSON.stringify(dataSource)
     })
     onClose()
   } catch (err) {

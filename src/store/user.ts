@@ -1,9 +1,13 @@
 import { defineStore } from 'pinia'
 import { setStorage, getStorage, delStorage } from '@/utils/storage'
 import { decode } from 'js-base64'
+import { getUserInfo as getUserInfoApi, updateUserInfo } from '@/apis/user'
+import { notification } from 'ant-design-vue'
 
 export interface UserInfo {
   userEmail: string
+  userName: string
+  userPhone: string
   userPassword: string
 }
 
@@ -26,18 +30,39 @@ export const useUserStore = defineStore('user', () => {
     delStorage('accessToken')
   }
 
-  function getUserInfo(): UserInfo | null {
+  async function getUserInfo(): Promise<UserInfo | null> {
     let userInfo = null
     const accessToken = getAccessToken()
     if (!accessToken) {
       return userInfo
     }
     try {
-      userInfo = JSON.parse(decode(accessToken))
+      const { userEmail } = JSON.parse(decode(accessToken))
+      const { data } = await getUserInfoApi(userEmail)
+      const { success, message: description, data: response } = data
+      if (!success) {
+        notification.error({ message: '获取个人信息失败', description })
+        return userInfo
+      }
+      userInfo = response
     } catch (error) {
       console.warn('getUserInfo error', error)
     }
     return userInfo
+  }
+
+  async function setUserInfo(userInfo: UserInfo): Promise<void> {
+    try {
+      const { data } = await updateUserInfo(userInfo)
+      const { success, message: description } = data
+      if (!success) {
+        notification.error({ message: '更新个人信息失败', description })
+        return
+      }
+      notification.success({ message: '更新个人信息成功' })
+    } catch (error) {
+      console.warn('setUserInfo error', error)
+    }
   }
 
   /**
@@ -48,6 +73,7 @@ export const useUserStore = defineStore('user', () => {
     setAccessToken,
     getAccessToken,
     delAccessToken,
-    getUserInfo
+    getUserInfo,
+    setUserInfo
   }
 })

@@ -23,6 +23,25 @@ export function chatStream({
 }
 
 /**
+ * 大模型：交底书查新接口
+ */
+export function searchDisclosure({
+  sessionId,
+  question,
+  fileUrl
+}: {
+  sessionId?: string
+  question: string
+  fileUrl?: string
+}): Promise<AxiosResponse<unknown>> {
+  return post('/assistant/disclosure/search', {
+    session_id: sessionId,
+    question,
+    file_url: fileUrl
+  })
+}
+
+/**
  * 大模型：专利交底书撰写接口
  */
 export function helperDisclosureStream({
@@ -39,7 +58,35 @@ export function helperDisclosureStream({
   onChunk?: (chunk: string) => void
 }) {
   return postForStream(
-    '/assistant/helper/disclosure/stream',
+    '/assistant/disclosure/helper/stream',
+    {
+      session_id: sessionId,
+      question: question,
+      file_url: fileUrl,
+      code
+    },
+    onChunk
+  )
+}
+
+/**
+ * 大模型：专利撰写接口
+ */
+export function helperPatentStream({
+  sessionId,
+  question,
+  fileUrl,
+  code,
+  onChunk
+}: {
+  sessionId?: string
+  question: string
+  fileUrl?: string
+  code: string
+  onChunk?: (chunk: string) => void
+}) {
+  return postForStream(
+    '/assistant/patent/helper/stream',
     {
       session_id: sessionId,
       question: question,
@@ -67,54 +114,7 @@ export function helperPatentRewriteStream({
   onChunk?: (chunk: string) => void
 }) {
   return postForStream(
-    '/assistant/helper/patent/rewrite/stream',
-    {
-      session_id: sessionId,
-      question: question,
-      file_url: fileUrl,
-      code
-    },
-    onChunk
-  )
-}
-
-/**
- * 交底书查新接口
- */
-export function searchDisclosure({
-  sessionId,
-  question,
-  fileUrl
-}: {
-  sessionId?: string
-  question: string
-  fileUrl?: string
-}): Promise<AxiosResponse<unknown>> {
-  return post('/assistant/search/disclosure', {
-    session_id: sessionId,
-    question,
-    file_url: fileUrl
-  })
-}
-
-/**
- * 专利撰写接口
- */
-export function helperPatentStream({
-  sessionId,
-  question,
-  fileUrl,
-  code,
-  onChunk
-}: {
-  sessionId?: string
-  question: string
-  fileUrl?: string
-  code: string
-  onChunk?: (chunk: string) => void
-}) {
-  return postForStream(
-    '/assistant/helper/patent/stream',
+    '/assistant/patent/rewrite/helper/stream',
     {
       session_id: sessionId,
       question: question,

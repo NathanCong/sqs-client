@@ -1,5 +1,5 @@
 <template>
-  <div class="parent-detail" v-if="visible">
+  <div class="patent-detail" v-if="visible">
     <section class="detail-header">
       <span class="header-titlt">专利详情</span>
       <span class="header-close" @click="close"><CloseCircleOutlined /></span>
@@ -101,7 +101,7 @@ defineExpose({ open, close })
 </script>
 
 <style lang="less" scoped>
-.parent-detail {
+.patent-detail {
   position: fixed;
   top: 16px;
   right: 16px;

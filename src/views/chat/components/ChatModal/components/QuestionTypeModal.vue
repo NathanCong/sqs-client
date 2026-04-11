@@ -13,7 +13,7 @@
         style="width: 100%"
         v-model:value="selectorValue"
         placeholder="请选择问题类型"
-        :options="SELECTOR_OPTIONS"
+        :options="POC_QUESTION_TYPE_OPTIONS"
         :allow-clear="false"
         @change="onSelectorChange"
       ></a-select>
@@ -30,7 +30,7 @@
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
 import type { SelectValue } from 'ant-design-vue/es/select'
-import { SELECTOR_OPTIONS } from '../constants'
+import { POC_QUESTION_TYPE_OPTIONS } from '@/consts'
 
 const visible = ref(false)
 

@@ -20,6 +20,7 @@
               :showRate="chatMessage.showRate"
               :score="chatMessage.score"
               :question-type="chatMessage.questionType"
+              :onClick="chatMessage.onClick"
             />
           </li>
         </template>
@@ -37,7 +38,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, nextTick, onMounted } from 'vue'
+import { ref, nextTick, onMounted, watch } from 'vue'
 import CommandInput from '@/components/CommandInput.vue'
 import type { ExecParams } from '@/components/CommandInput.vue'
 import ChatMessage from './components/ChatMessage.vue'
@@ -48,7 +49,11 @@ import type {
 } from './components/ChatMessage.vue'
 import { useChatStore } from '@/store/chat'
 import { chatStream, searchPatents } from '@/apis'
-import { TABLE_COLUMNS } from './constants'
+import {
+  EXPRESSION_TYPE_MAP,
+  PARENT_PREVIEW_TABLE_COLUMNS,
+  SEARCH_HISTORY_TABLE_COLUMNS
+} from '@/consts'
 import { getStorage, delStorage } from '@/utils/storage'
 import { useRoute } from 'vue-router'
 import { useToolStore } from '@/store/tool'
@@ -60,7 +65,7 @@ const chatStore = useChatStore()
 function handleChunk(messageId: string, chunk: string) {
   let newChunk = chunk
   const contents: Content[] = []
-  // 处理 tool_use wanxiang-search-strategy
+  // 处理：tool_use wanxiang-search-strategy（检索式）
   const toolUse1Regex =
     /<tool_use name="wanxiang-search-strategy">([\s\S]*?)<\/tool_use>/g
   const toolUse1Result = toolUse1Regex.exec(newChunk)
@@ -83,7 +88,7 @@ function handleChunk(messageId: string, chunk: string) {
       })
     }
   }
-  // 处理 tool_use wanxiang-patent-search
+  // 处理 tool_use wanxiang-patent-search（检索结果）
   const toolUse2Regex =
     /<tool_use name="wanxiang-patent-search">([\s\S]*?)<\/tool_use>/g
   const toolUse2Result = toolUse2Regex.exec(newChunk)
@@ -106,6 +111,74 @@ function handleChunk(messageId: string, chunk: string) {
       })
     }
   }
+  // 处理：tool_use wanxiang-single-analysis（专利单项统计分析）
+  const toolUse3Regex =
+    /<tool_use name="wanxiang-single-analysis">([\s\S]*?)<\/tool_use>/g
+  const toolUse3Result = toolUse3Regex.exec(newChunk)
+  if (toolUse3Result) {
+    newChunk = newChunk.replace(toolUse3Regex, '')
+    if (
+      !contents.find(
+        (i) =>
+          i.type === 'tool' &&
+          (i.data as Tool).name === 'wanxiang-single-analysis'
+      )
+    ) {
+      contents.push({
+        type: 'tool',
+        data: {
+          name: 'wanxiang-single-analysis',
+          data: JSON.parse(toolUse3Result[1]),
+          html: toolUse3Result[1]
+        }
+      })
+    }
+  }
+  // 处理：tool_use wanxiang-composite-analysis（专利二维关联分析）
+  const toolUse4Regex =
+    /<tool_use name="wanxiang-composite-analysis">([\s\S]*?)<\/tool_use>/g
+  const toolUse4Result = toolUse4Regex.exec(newChunk)
+  if (toolUse4Result) {
+    newChunk = newChunk.replace(toolUse4Regex, '')
+    if (
+      !contents.find(
+        (i) =>
+          i.type === 'tool' &&
+          (i.data as Tool).name === 'wanxiang-composite-analysis'
+      )
+    ) {
+      contents.push({
+        type: 'tool',
+        data: {
+          name: 'wanxiang-composite-analysis',
+          data: JSON.parse(toolUse4Result[1]),
+          html: toolUse4Result[1]
+        }
+      })
+    }
+  }
+
+  // 处理：tool_use chart-mcp（图表生成）
+  const toolUse5Regex = /<tool_use name="chart-mcp">([\s\S]*?)<\/tool_use>/g
+  const toolUse5Result = toolUse5Regex.exec(newChunk)
+  if (toolUse5Result) {
+    newChunk = newChunk.replace(toolUse5Regex, '')
+    if (
+      !contents.find(
+        (i) => i.type === 'tool' && (i.data as Tool).name === 'chart-mcp'
+      )
+    ) {
+      contents.push({
+        type: 'tool',
+        data: {
+          name: 'chart-mcp',
+          data: JSON.parse(toolUse5Result[1]),
+          html: toolUse5Result[1]
+        }
+      })
+    }
+  }
+
   // 处理文字
   const textContent = contents.find((i) => i.type === 'text')
   if (textContent) {
@@ -158,57 +231,63 @@ async function handleList(messageId: string) {
   try {
     requestLoading.value = true
     const q = (strategy as any).q
-    const { userEmail = '' } = userStore.getUserInfo() || {}
-    if (userEmail) {
-      searchStore.addSearchHistory(userEmail, q)
-    }
     const data = await handleBatchQuery(q)
     const { list } = data as { list: unknown[]; total: number }
+    const dataSource = list.map((item: any) => {
+      const {
+        id,
+        title: { original },
+        applicants,
+        application_number,
+        application_date,
+        earliest_publication_date,
+        inventors,
+        assignees,
+        main_ipc,
+        pav
+      } = item
+      return {
+        id,
+        // 专利名称
+        patentName: original,
+        // 初始申请人
+        initialApplicant: applicants?.[0]?.name?.original || '',
+        // 申请号
+        applicationNumber: application_number,
+        // 申请日
+        applicationDate: application_date,
+        // 公开号/公开日
+        publicationDate: earliest_publication_date,
+        // 发明人
+        inventors: inventors
+          .map((i: { name: { original: string } }) => i.name.original)
+          .join(','),
+        // 当前权利人
+        currentAssignee: assignees?.[0]?.name?.original || '',
+        // 主分类号
+        mainIpc: main_ipc.ipc,
+        // 价值评分
+        valueScore: pav
+      }
+    })
     chatStore.addMessage({
       role: 'assistant',
       type: 'list',
-      data: {
-        name: '查询结果',
-        columns: TABLE_COLUMNS as ColumnItem[],
-        dataSource: list.map((item: any) => {
-          const {
-            id,
-            title: { original },
-            applicants,
-            application_number,
-            application_date,
-            earliest_publication_date,
-            inventors,
-            assignees,
-            main_ipc,
-            pav
-          } = item
-          return {
-            id,
-            // 专利名称
-            patentName: original,
-            // 初始申请人
-            initialApplicant: applicants?.[0]?.name?.original || '',
-            // 申请号
-            applicationNumber: application_number,
-            // 申请日
-            applicationDate: application_date,
-            // 公开号/公开日
-            publicationDate: earliest_publication_date,
-            // 发明人
-            inventors: inventors
-              .map((i: { name: { original: string } }) => i.name.original)
-              .join(','),
-            // 当前权利人
-            currentAssignee: assignees?.[0]?.name?.original || '',
-            // 主分类号
-            mainIpc: main_ipc.ipc,
-            // 价值评分
-            valueScore: pav
-          }
-        }),
-        pagination: { total: 0, pageNum: 1, pageSize: 10 }
+      data: { name: '查询结果' },
+      onClick: () => {
+        toolStore.openPreviewPanel('patentList', {
+          columns: PARENT_PREVIEW_TABLE_COLUMNS as ColumnItem[],
+          dataSource,
+          total: dataSource.length
+        })
       }
+    })
+    const { userEmail = '' } = (await userStore.getUserInfo()) || {}
+    searchStore.addExpression({
+      userEmail,
+      expressionType: Number(EXPRESSION_TYPE_MAP.SEARCH),
+      expressionText: q,
+      resultData: JSON.stringify(dataSource)
     })
   } catch (error) {
     console.warn(error)
@@ -244,13 +323,32 @@ async function ask(messageId: string, userCommand: string, fileUrl?: string) {
   }
 }
 
+async function handleSearchHistory() {
+  try {
+    chatStore.addMessage({
+      role: 'assistant',
+      type: 'list',
+      data: { name: '检索历史' },
+      onClick: () => {
+        toolStore.openPreviewPanel('expressionList', {
+          columns: SEARCH_HISTORY_TABLE_COLUMNS as ColumnItem[],
+          dataSource: [],
+          total: 0
+        })
+      }
+    })
+  } catch (error) {
+    console.warn(error)
+  }
+}
+
 function onExec(params: ExecParams) {
   const { userCommand, fileName, fileUrl } = params
   if (fileName && fileUrl) {
     chatStore.addMessage({
       role: 'user',
       type: 'pdf',
-      data: { name: fileName, url: fileUrl }
+      data: { name: fileName }
     })
   }
   chatStore.addMessage({
@@ -259,32 +357,7 @@ function onExec(params: ExecParams) {
     data: [{ type: 'text', data: userCommand }]
   })
   if (userCommand.includes('检索历史') || userCommand.includes('检索记录')) {
-    chatStore.addMessage({
-      role: 'assistant',
-      type: 'list',
-      data: {
-        name: '检索历史',
-        columns: [
-          {
-            title: '用户',
-            dataIndex: 'user',
-            key: 'user'
-          },
-          {
-            title: '检索词',
-            dataIndex: 'q',
-            key: 'q'
-          },
-          {
-            title: '检索时间',
-            dataIndex: 'createdAt',
-            key: 'createdAt'
-          }
-        ] as ColumnItem[],
-        dataSource: searchStore.searchHistory,
-        pagination: { total: 0, pageNum: 1, pageSize: 10 }
-      } as any
-    })
+    handleSearchHistory()
     return
   }
   const messageId = chatStore.addMessage({
@@ -295,6 +368,18 @@ function onExec(params: ExecParams) {
   scrollToBottom()
   ask(messageId, userCommand, fileUrl)
 }
+
+watch(
+  () => chatStore.getPendingExecParams(),
+  (params) => {
+    if (!params) {
+      return
+    }
+    chatStore.clearPendingExecParams()
+    onExec(params)
+  },
+  { immediate: true, deep: true }
+)
 
 const route = useRoute()
 const toolStore = useToolStore()
