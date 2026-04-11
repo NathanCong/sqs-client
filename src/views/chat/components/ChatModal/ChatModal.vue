@@ -38,7 +38,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, nextTick, onMounted } from 'vue'
+import { ref, nextTick, onMounted, watch } from 'vue'
 import CommandInput from '@/components/CommandInput.vue'
 import type { ExecParams } from '@/components/CommandInput.vue'
 import ChatMessage from './components/ChatMessage.vue'
@@ -323,6 +323,18 @@ function onExec(params: ExecParams) {
   scrollToBottom()
   ask(messageId, userCommand, fileUrl)
 }
+
+watch(
+  () => chatStore.getPendingExecParams(),
+  (params) => {
+    if (!params) {
+      return
+    }
+    chatStore.clearPendingExecParams()
+    onExec(params)
+  },
+  { immediate: true, deep: true }
+)
 
 const route = useRoute()
 const toolStore = useToolStore()

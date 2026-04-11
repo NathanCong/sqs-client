@@ -26,13 +26,19 @@
           <template v-else-if="column.key === 'actions'">
             <span class="actions-wrapper">
               <a-button type="link" @click="onEdit(record)">编辑</a-button>
-              <a-button type="link" @click="onDelete(record.expressionId)"
-                >删除</a-button
+              <a-button type="link" @click="onDelete(record.expressionId)">
+                删除
+              </a-button>
+              <a-button type="link" @click="onViewResult(record)">
+                查看结果
+              </a-button>
+              <a-button
+                type="link"
+                @click="onReexecute(record)"
+                :disabled="String(record.expressionType) !== '1'"
               >
-              <a-button type="link" @click="onViewResult(record)"
-                >查看结果</a-button
-              >
-              <a-button type="link" @click="() => {}">重新执行</a-button>
+                重新执行
+              </a-button>
             </span>
           </template>
           <!-- 其他 -->
@@ -48,18 +54,19 @@
 <script lang="ts" setup>
 import { computed, onMounted, ref } from 'vue'
 import CommonTable from '@/components/CommonTable.vue'
-import { EXPRESSION_TYPE_OPTIONS } from '@/consts'
+import { EXPRESSION_TYPE_OPTIONS, PARENT_PREVIEW_TABLE_COLUMNS } from '@/consts'
 import ExpressionEdit from './ExpressionEdit.vue'
 import { useSearchStore } from '@/store/search'
 import { useUserStore } from '@/store/user'
 import { useToolStore } from '@/store/tool'
+import { useChatStore } from '@/store/chat'
 
 // 定义属性
 const props = defineProps<{ data: any }>()
 
 const tableColumns = computed(() => props.data?.columns)
 
-const tableDataSource = computed(() => props.data?.dataSource)
+const tableDataSource = ref<any[]>([])
 
 const total = computed(() => props.data?.total || 0)
 
@@ -67,17 +74,11 @@ const expressionEditRef = ref<InstanceType<typeof ExpressionEdit>>()
 
 const userStore = useUserStore()
 const searchStore = useSearchStore()
-const toolStore = useToolStore()
 
 async function getExpressionList() {
   const { userEmail = '' } = (await userStore.getUserInfo()) || {}
   const dataSource = await searchStore.getExpressionList({ userEmail })
-  const prev = toolStore.previewData
-  toolStore.updatePreviewData({
-    ...(typeof prev === 'object' && prev !== null ? prev : {}),
-    dataSource,
-    total: dataSource.length
-  })
+  tableDataSource.value = dataSource
 }
 
 function onEdit(record: any) {
@@ -93,12 +94,18 @@ async function onDelete(expressionId: number) {
   }
 }
 
+const toolStore = useToolStore()
+
 function onViewResult(record: any) {
   const { expressionType, resultData } = record
   // 检索式
   if (String(expressionType) === '1') {
     try {
-      toolStore.openPreviewPanel('patentList', JSON.parse(resultData))
+      toolStore.openPreviewPanel('patentList', {
+        columns: PARENT_PREVIEW_TABLE_COLUMNS as ColumnItem[],
+        dataSource: JSON.parse(resultData),
+        total: JSON.parse(resultData).length
+      })
     } catch (error) {
       console.warn(error)
     }
@@ -108,6 +115,16 @@ function onViewResult(record: any) {
   if (String(expressionType) === '2') {
     return
   }
+}
+
+const chatStore = useChatStore()
+
+function onReexecute(record: any) {
+  const { expressionText } = record
+  chatStore.setPendingExecParams({
+    userCommand: `使用这个检索式：${expressionText} 帮我检索一下`
+  })
+  toolStore.closeToolPanel()
 }
 
 onMounted(() => {

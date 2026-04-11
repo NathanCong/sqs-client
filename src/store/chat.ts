@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { v4 as createId } from 'uuid'
 import type { ComponentProps as ChatMessage } from '@/views/chat/components/ChatModal/components/ChatMessage.vue'
+import type { ExecParams } from '@/components/CommandInput.vue'
 
 /**
  * Chat Store（聊天会话数据）
@@ -12,6 +13,7 @@ export const useChatStore = defineStore('chat', () => {
    */
   const currentChatId = ref<string>('') // 当前聊天id
   const chatHistory = ref<Map<string, ChatMessage[]>>(new Map()) // 聊天历史记录
+  const pendingExecParams = ref<ExecParams | null>(null) // 待执行的参数
 
   /**
    * Getters
@@ -55,6 +57,18 @@ export const useChatStore = defineStore('chat', () => {
     }
   }
 
+  function setPendingExecParams(params: ExecParams) {
+    pendingExecParams.value = params
+  }
+
+  function getPendingExecParams() {
+    return pendingExecParams.value
+  }
+
+  function clearPendingExecParams() {
+    pendingExecParams.value = null
+  }
+
   /**
    * Exports
    */
@@ -68,6 +82,9 @@ export const useChatStore = defineStore('chat', () => {
     createNewChat,
     addMessage,
     getMessage,
-    setMessage
+    setMessage,
+    setPendingExecParams,
+    getPendingExecParams,
+    clearPendingExecParams
   }
 })
