@@ -119,9 +119,9 @@ export function addUserExpression(
 
 export interface GetUserExpressionListParams {
   userEmail: string
-  expressionType: number
-  sTime: string
-  eTime: string
+  expressionType?: number
+  sTime?: string
+  eTime?: string
 }
 
 export interface GetUserExpressionListResponse extends CommonResponse {

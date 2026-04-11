@@ -119,7 +119,7 @@ async function onConfirm() {
       type: 'list',
       data: { name: '查询结果' },
       onClick: () => {
-        toolStore.openPreviewPanel('parentList', {
+        toolStore.openPreviewPanel('patentList', {
           columns: PARENT_PREVIEW_TABLE_COLUMNS as ColumnItem[],
           dataSource,
           total: dataSource.length

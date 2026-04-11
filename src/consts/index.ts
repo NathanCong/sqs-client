@@ -85,13 +85,39 @@ export const PARENT_PREVIEW_TABLE_COLUMNS = [
  */
 export const SEARCH_HISTORY_TABLE_COLUMNS = [
   {
-    key: 'user',
-    dataIndex: 'user',
-    title: '用户'
+    key: 'expressionText',
+    dataIndex: 'expressionText',
+    title: '表达式内容'
   },
   {
-    key: 'q',
-    dataIndex: 'q',
-    title: '检索词'
+    key: 'expressionType',
+    dataIndex: 'expressionType',
+    title: '表达式类型'
+  },
+  {
+    key: 'creator',
+    dataIndex: 'creator',
+    title: '创建人'
+  },
+  {
+    key: 'createdAt',
+    dataIndex: 'createdAt',
+    title: '创建时间'
+  },
+  {
+    key: 'updater',
+    dataIndex: 'updater',
+    title: '更新人'
+  },
+  {
+    key: 'updatedAt',
+    dataIndex: 'updatedAt',
+    title: '更新时间'
+  },
+  {
+    key: 'actions',
+    width: 300,
+    fixed: 'right',
+    title: '操作'
   }
 ]

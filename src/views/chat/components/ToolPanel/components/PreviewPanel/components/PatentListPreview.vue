@@ -1,5 +1,5 @@
 <template>
-  <div class="panel-table-wrapper">
+  <div class="patent-list-preview">
     <section class="table-columns-selector">
       <a-checkbox-group
         v-model:value="selectedColumns"
@@ -19,7 +19,7 @@
       <!-- 单元格 - 主体 -->
       <template #tbody-cell="{ column, text, record }">
         <span class="tbody-cell">
-          <!-- 专利列表 - 操作 -->
+          <!-- 操作 -->
           <template v-if="column.key === 'actions'">
             <a-button type="link" @click="onDetail(record)" :disabled="true">
               查看详情
@@ -72,7 +72,7 @@ function onDetail(record: any) {
 </script>
 
 <style lang="less" scoped>
-.panel-table-wrapper {
+.patent-list-preview {
   position: absolute;
   top: 16px;
   right: 16px;

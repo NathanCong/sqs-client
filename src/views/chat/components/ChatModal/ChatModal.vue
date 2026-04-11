@@ -230,7 +230,7 @@ async function handleList(messageId: string) {
       type: 'list',
       data: { name: '查询结果' },
       onClick: () => {
-        toolStore.openPreviewPanel('parentList', {
+        toolStore.openPreviewPanel('patentList', {
           columns: PARENT_PREVIEW_TABLE_COLUMNS as ColumnItem[],
           dataSource,
           total: dataSource.length
@@ -278,19 +278,23 @@ async function ask(messageId: string, userCommand: string, fileUrl?: string) {
   }
 }
 
-function handleSearchHistory() {
-  chatStore.addMessage({
-    role: 'assistant',
-    type: 'list',
-    data: { name: '检索历史' },
-    onClick: () => {
-      toolStore.openPreviewPanel('expressionList', {
-        columns: SEARCH_HISTORY_TABLE_COLUMNS as ColumnItem[],
-        dataSource: [],
-        total: 0
-      })
-    }
-  })
+async function handleSearchHistory() {
+  try {
+    chatStore.addMessage({
+      role: 'assistant',
+      type: 'list',
+      data: { name: '检索历史' },
+      onClick: () => {
+        toolStore.openPreviewPanel('expressionList', {
+          columns: SEARCH_HISTORY_TABLE_COLUMNS as ColumnItem[],
+          dataSource: [],
+          total: 0
+        })
+      }
+    })
+  } catch (error) {
+    console.warn(error)
+  }
 }
 
 function onExec(params: ExecParams) {

@@ -13,8 +13,12 @@
       </template>
       <div class="panel-content">
         <!-- 预览 - 专利列表 -->
-        <template v-if="isShowParentListPreview">
-          <ParentListPreview :data="toolStore.previewData" @detail="onDetail" />
+        <template v-if="isShowPatentListPreview">
+          <PatentListPreview :data="toolStore.previewData" @detail="onDetail" />
+        </template>
+        <!-- 预览 - 检索历史 -->
+        <template v-if="isShowExpressionListPreview">
+          <ExpressionListPreview :data="toolStore.previewData" />
         </template>
         <!-- 预览 - 交底书查新 -->
         <template v-if="isShowNoveltyPreview">
@@ -52,7 +56,7 @@
       </template>
     </CommonPanel>
     <!-- 专利详情 -->
-    <ParentDetail ref="parentDetailRef" />
+    <PatentDetail ref="patentDetailRef" />
   </div>
 </template>
 
@@ -61,13 +65,14 @@ import { computed, ref } from 'vue'
 import { CloseOutlined, LoadingOutlined } from '@ant-design/icons-vue'
 import PatentPreview from './components/PatentPreview.vue'
 import DisclosurePreview from './components/DisclosurePreview.vue'
-import ParentListPreview from './components/ParentListPreview.vue'
+import PatentListPreview from './components/PatentListPreview.vue'
+import ExpressionListPreview from './components/ExpressionListPreview.vue'
 import CommonPanel from '../common/CommonPanel.vue'
 import { useToolStore } from '@/store/tool'
 import MarkdownRender from '@/components/MarkdownRender.vue'
 
 // import html2pdf from 'html2pdf.js'
-import ParentDetail from './components/ParentDetail.vue'
+import PatentDetail from './components/PatentDetail.vue'
 
 // 定义 Props
 withDefaults(defineProps<{ loading: boolean }>(), { loading: false })
@@ -76,10 +81,15 @@ withDefaults(defineProps<{ loading: boolean }>(), { loading: false })
 const toolStore = useToolStore()
 
 // 定义计算属性
-const isShowParentListPreview = computed(
-  () => toolStore.previewType === 'parentList'
+const isShowPatentListPreview = computed(
+  () => toolStore.previewType === 'patentList'
 )
-const isShowPanelFooter = computed(() => !isShowParentListPreview.value)
+const isShowExpressionListPreview = computed(
+  () => toolStore.previewType === 'expressionList'
+)
+const isShowPanelFooter = computed(
+  () => !isShowPatentListPreview.value && !isShowExpressionListPreview.value
+)
 const isShowNoveltyPreview = computed(() => toolStore.previewType === 'novelty')
 const isShowDisclosurePreview = computed(
   () => toolStore.previewType === 'disclosure'
@@ -141,10 +151,10 @@ function scrollToBottom() {
   commonPanelRef.value.scrollToBottom()
 }
 
-const parentDetailRef = ref<InstanceType<typeof ParentDetail> | null>(null)
+const patentDetailRef = ref<InstanceType<typeof PatentDetail> | null>(null)
 
 function onDetail(record: any) {
-  parentDetailRef.value?.open(record)
+  patentDetailRef.value?.open(record)
 }
 
 defineExpose({ scrollToBottom })
