@@ -1,55 +1,69 @@
 <template>
   <div class="expression-list-preview">
+    <!-- 表达式查询 -->
+    <section class="expression-form">
+      <CommonForm
+        layout="inline"
+        :colon="true"
+        :label-col="{ span: 6 }"
+        :wrapper-col="{ span: 18 }"
+        :fields="formFields"
+        ref="commonFormRef"
+      />
+      <a-button type="primary" @click="onSearch">查询</a-button>
+    </section>
     <!-- 表达式列表 -->
-    <CommonTable
-      :show-header="false"
-      :columns="tableColumns"
-      :data-source="tableDataSource"
-      :pagination="{ pageNum: 1, pageSize: 20, total }"
-    >
-      <!-- 单元格 - 表头 -->
-      <template #thead-cell="{ title }">
-        <span class="thead-cell">{{ title }}</span>
-      </template>
-      <!-- 单元格 - 主体 -->
-      <template #tbody-cell="{ column, text, record }">
-        <span class="tbody-cell">
-          <!-- 表达式类型 -->
-          <template v-if="column.key === 'expressionType'">
-            {{
-              EXPRESSION_TYPE_OPTIONS.find(
-                (i: any) => String(i.value) === String(record.expressionType)
-              )?.label
-            }}
-          </template>
-          <!-- 操作 -->
-          <template v-else-if="column.key === 'actions'">
-            <span class="actions-wrapper">
-              <a-button type="link" @click="onEdit(record)">编辑</a-button>
-              <a-button type="link" @click="onDelete(record.expressionId)">
-                删除
-              </a-button>
-              <a-button
-                type="link"
-                :disabled="
-                  String(record.expressionType) !== EXPRESSION_TYPE_MAP.SEARCH
-                "
-                @click="onViewResult(record)"
-              >
-                查看结果
-              </a-button>
-              <a-button type="link" @click="onReexecute(record)">
-                重新执行
-              </a-button>
-            </span>
-          </template>
-          <!-- 其他 -->
-          <template v-else>{{ text || '——' }}</template>
-        </span>
-      </template>
-    </CommonTable>
+    <section class="expression-list">
+      <CommonTable
+        :show-header="false"
+        :columns="tableColumns"
+        :data-source="tableDataSource"
+        :pagination="{ pageNum: 1, pageSize: 20, total }"
+      >
+        <!-- 单元格 - 表头 -->
+        <template #thead-cell="{ title }">
+          <span class="thead-cell">{{ title }}</span>
+        </template>
+        <!-- 单元格 - 主体 -->
+        <template #tbody-cell="{ column, text, record }">
+          <span class="tbody-cell">
+            <!-- 表达式类型 -->
+            <template v-if="column.key === 'expressionType'">
+              {{
+                EXPRESSION_TYPE_OPTIONS.find(
+                  (i: any) => String(i.value) === String(record.expressionType)
+                )?.label
+              }}
+            </template>
+            <!-- 操作 -->
+            <template v-else-if="column.key === 'actions'">
+              <span class="actions-wrapper">
+                <a-button type="link" @click="onEdit(record)">编辑</a-button>
+                <a-button type="link" @click="onDelete(record.expressionId)">
+                  删除
+                </a-button>
+                <a-button
+                  type="link"
+                  :disabled="
+                    String(record.expressionType) !== EXPRESSION_TYPE_MAP.SEARCH
+                  "
+                  @click="onViewResult(record)"
+                >
+                  查看结果
+                </a-button>
+                <a-button type="link" @click="onReexecute(record)">
+                  重新执行
+                </a-button>
+              </span>
+            </template>
+            <!-- 其他 -->
+            <template v-else>{{ text || '——' }}</template>
+          </span>
+        </template>
+      </CommonTable>
+    </section>
     <!-- 表达式编辑 -->
-    <ExpressionEdit @finish="getExpressionList" ref="expressionEditRef" />
+    <ExpressionEdit @finish="onSearch" ref="expressionEditRef" />
   </div>
 </template>
 
@@ -66,6 +80,7 @@ import { useSearchStore } from '@/store/search'
 import { useUserStore } from '@/store/user'
 import { useToolStore } from '@/store/tool'
 import { useChatStore } from '@/store/chat'
+import CommonForm from '@/components/CommonForm.vue'
 
 // 定义属性
 const props = defineProps<{ data: any }>()
@@ -81,9 +96,13 @@ const expressionEditRef = ref<InstanceType<typeof ExpressionEdit>>()
 const userStore = useUserStore()
 const searchStore = useSearchStore()
 
-async function getExpressionList() {
+async function getExpressionList(expressionType?: string, createdAt?: string) {
   const { userEmail = '' } = (await userStore.getUserInfo()) || {}
-  const dataSource = await searchStore.getExpressionList({ userEmail })
+  const dataSource = await searchStore.getExpressionList({
+    userEmail,
+    expressionType: Number(expressionType),
+    createdAt
+  })
   tableDataSource.value = dataSource
 }
 
@@ -94,7 +113,7 @@ function onEdit(record: any) {
 async function onDelete(expressionId: number) {
   try {
     await searchStore.deleteExpression({ expressionId })
-    getExpressionList()
+    onSearch()
   } catch (error) {
     console.warn(error)
   }
@@ -138,8 +157,46 @@ function onReexecute(record: any) {
   toolStore.closeToolPanel()
 }
 
+const formFields = ref<FieldItem[]>([
+  {
+    key: 'expressionType',
+    name: 'expressionType',
+    label: '表达式类型',
+    type: 'select',
+    options: {
+      placeholder: '请选择表达式类型',
+      options: EXPRESSION_TYPE_OPTIONS,
+      allowClear: true,
+      width: '260px'
+    }
+  },
+  {
+    key: 'createdAt',
+    name: 'createdAt',
+    label: '创建时间',
+    type: 'date',
+    options: {
+      placeholder: '请选择创建时间',
+      allowClear: true,
+      width: '260px'
+    }
+  }
+])
+
+const commonFormRef = ref<InstanceType<typeof CommonForm>>()
+
+async function onSearch() {
+  try {
+    const formData = await commonFormRef.value?.submit()
+    const { expressionType, createdAt } = formData || {}
+    getExpressionList(expressionType, createdAt)
+  } catch (error) {
+    console.warn(error)
+  }
+}
+
 onMounted(() => {
-  getExpressionList()
+  onSearch()
 })
 </script>
 
@@ -150,6 +207,19 @@ onMounted(() => {
   right: 16px;
   bottom: 16px;
   left: 16px;
+  display: flex;
+  flex-direction: column;
+
+  .expression-form {
+    margin-bottom: 16px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+  }
+
+  .expression-list {
+    flex: 1;
+  }
 
   .thead-cell,
   .tbody-cell {

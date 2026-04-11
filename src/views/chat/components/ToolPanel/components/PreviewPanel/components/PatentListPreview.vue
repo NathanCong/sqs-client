@@ -1,35 +1,39 @@
 <template>
   <div class="patent-list-preview">
-    <section class="table-columns-selector">
+    <!-- 列选择器 -->
+    <section class="columns-selector">
       <a-checkbox-group
         v-model:value="selectedColumns"
         :options="checkboxOptions"
       />
     </section>
-    <CommonTable
-      :show-header="false"
-      :columns="tableColumns"
-      :data-source="tableDataSource"
-      :pagination="{ pageNum: 1, pageSize: 20, total }"
-    >
-      <!-- 单元格 - 表头 -->
-      <template #thead-cell="{ title }">
-        <span class="thead-cell">{{ title }}</span>
-      </template>
-      <!-- 单元格 - 主体 -->
-      <template #tbody-cell="{ column, text, record }">
-        <span class="tbody-cell">
-          <!-- 操作 -->
-          <template v-if="column.key === 'actions'">
-            <a-button type="link" @click="onDetail(record)" :disabled="true">
-              查看详情
-            </a-button>
-          </template>
-          <!-- 其他 -->
-          <template v-else>{{ text || '——' }}</template>
-        </span>
-      </template>
-    </CommonTable>
+    <!-- 专利列表 -->
+    <section class="patent-list">
+      <CommonTable
+        :show-header="false"
+        :columns="tableColumns"
+        :data-source="tableDataSource"
+        :pagination="{ pageNum: 1, pageSize: 20, total }"
+      >
+        <!-- 单元格 - 表头 -->
+        <template #thead-cell="{ title }">
+          <span class="thead-cell">{{ title }}</span>
+        </template>
+        <!-- 单元格 - 主体 -->
+        <template #tbody-cell="{ column, text, record }">
+          <span class="tbody-cell">
+            <!-- 操作 -->
+            <template v-if="column.key === 'actions'">
+              <a-button type="link" @click="onDetail(record)" :disabled="true">
+                查看详情
+              </a-button>
+            </template>
+            <!-- 其他 -->
+            <template v-else>{{ text || '——' }}</template>
+          </span>
+        </template>
+      </CommonTable>
+    </section>
   </div>
 </template>
 
@@ -78,9 +82,15 @@ function onDetail(record: any) {
   right: 16px;
   bottom: 16px;
   left: 16px;
+  display: flex;
+  flex-direction: column;
 
-  .table-columns-selector {
+  .columns-selector {
     margin-bottom: 16px;
+  }
+
+  .patent-list {
+    flex: 1;
   }
 
   .thead-cell,
