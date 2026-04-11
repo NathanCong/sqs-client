@@ -29,14 +29,16 @@
               <a-button type="link" @click="onDelete(record.expressionId)">
                 删除
               </a-button>
-              <a-button type="link" @click="onViewResult(record)">
-                查看结果
-              </a-button>
               <a-button
                 type="link"
-                @click="onReexecute(record)"
-                :disabled="String(record.expressionType) !== '1'"
+                :disabled="
+                  String(record.expressionType) !== EXPRESSION_TYPE_MAP.SEARCH
+                "
+                @click="onViewResult(record)"
               >
+                查看结果
+              </a-button>
+              <a-button type="link" @click="onReexecute(record)">
                 重新执行
               </a-button>
             </span>
@@ -54,7 +56,11 @@
 <script lang="ts" setup>
 import { computed, onMounted, ref } from 'vue'
 import CommonTable from '@/components/CommonTable.vue'
-import { EXPRESSION_TYPE_OPTIONS, PARENT_PREVIEW_TABLE_COLUMNS } from '@/consts'
+import {
+  EXPRESSION_TYPE_MAP,
+  EXPRESSION_TYPE_OPTIONS,
+  PARENT_PREVIEW_TABLE_COLUMNS
+} from '@/consts'
 import ExpressionEdit from './ExpressionEdit.vue'
 import { useSearchStore } from '@/store/search'
 import { useUserStore } from '@/store/user'
@@ -99,7 +105,7 @@ const toolStore = useToolStore()
 function onViewResult(record: any) {
   const { expressionType, resultData } = record
   // 检索式
-  if (String(expressionType) === '1') {
+  if (String(expressionType) === EXPRESSION_TYPE_MAP.SEARCH) {
     try {
       toolStore.openPreviewPanel('patentList', {
         columns: PARENT_PREVIEW_TABLE_COLUMNS as ColumnItem[],
@@ -111,19 +117,24 @@ function onViewResult(record: any) {
     }
     return
   }
-  // 分析式
-  if (String(expressionType) === '2') {
-    return
-  }
 }
 
 const chatStore = useChatStore()
 
 function onReexecute(record: any) {
-  const { expressionText } = record
-  chatStore.setPendingExecParams({
-    userCommand: `使用这个检索式：${expressionText} 帮我检索一下`
-  })
+  const { expressionType, expressionText } = record
+  // 检索式
+  if (String(expressionType) === EXPRESSION_TYPE_MAP.SEARCH) {
+    chatStore.setPendingExecParams({
+      userCommand: `使用这个检索式：${expressionText} 帮我重新检索一下`
+    })
+  }
+  // 分析式
+  if (String(expressionType) === EXPRESSION_TYPE_MAP.ANALYSIS) {
+    chatStore.setPendingExecParams({
+      userCommand: `使用这个分析式：${expressionText} 帮我重新分析一下`
+    })
+  }
   toolStore.closeToolPanel()
 }
 

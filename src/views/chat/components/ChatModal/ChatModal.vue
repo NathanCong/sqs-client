@@ -62,123 +62,187 @@ import { useUserStore } from '@/store/user'
 
 const chatStore = useChatStore()
 
-function handleChunk(messageId: string, chunk: string) {
-  let newChunk = chunk
-  const contents: Content[] = []
-  // 处理：tool_use wanxiang-search-strategy（检索式）
-  const toolUse1Regex =
+function handleWanXiangSearchStrategyToolUse(
+  chunk: string,
+  contents: Content[]
+) {
+  const toolUseRegex =
     /<tool_use name="wanxiang-search-strategy">([\s\S]*?)<\/tool_use>/g
-  const toolUse1Result = toolUse1Regex.exec(newChunk)
-  if (toolUse1Result) {
-    newChunk = newChunk.replace(toolUse1Regex, '')
-    if (
-      !contents.find(
-        (i) =>
-          i.type === 'tool' &&
-          (i.data as Tool).name === 'wanxiang-search-strategy'
-      )
-    ) {
+  const toolUseResult = toolUseRegex.exec(chunk)
+  // 如果没有匹配到，则返回原始内容
+  if (!toolUseResult) {
+    return chunk
+  }
+  // 查找工具是否已经存在
+  const toolItem = contents.find(
+    (i) =>
+      i.type === 'tool' && (i.data as Tool).name === 'wanxiang-search-strategy'
+  )
+  // 如果工具不存在，则添加到内容中
+  if (!toolItem) {
+    try {
       contents.push({
         type: 'tool',
         data: {
           name: 'wanxiang-search-strategy',
-          data: JSON.parse(toolUse1Result[1]),
-          html: toolUse1Result[1]
+          data: JSON.parse(toolUseResult[1]),
+          html: toolUseResult[1]
         }
       })
+    } catch (error) {
+      console.warn(error)
     }
   }
-  // 处理 tool_use wanxiang-patent-search（检索结果）
-  const toolUse2Regex =
+  // 返回处理后的内容
+  return chunk.replace(toolUseRegex, '')
+}
+
+function handleWanXiangPatentSearchToolUse(chunk: string, contents: Content[]) {
+  const toolUseRegex =
     /<tool_use name="wanxiang-patent-search">([\s\S]*?)<\/tool_use>/g
-  const toolUse2Result = toolUse2Regex.exec(newChunk)
-  if (toolUse2Result) {
-    newChunk = newChunk.replace(toolUse2Regex, '')
-    if (
-      !contents.find(
-        (i) =>
-          i.type === 'tool' &&
-          (i.data as Tool).name === 'wanxiang-patent-search'
-      )
-    ) {
+  const toolUseResult = toolUseRegex.exec(chunk)
+  // 如果没有匹配到，则返回原始内容
+  if (!toolUseResult) {
+    return chunk
+  }
+  // 查找工具是否已经存在
+  const toolItem = contents.find(
+    (i) =>
+      i.type === 'tool' && (i.data as Tool).name === 'wanxiang-patent-search'
+  )
+  // 如果工具不存在，则添加到内容中
+  if (!toolItem) {
+    try {
       contents.push({
         type: 'tool',
         data: {
           name: 'wanxiang-patent-search',
-          data: JSON.parse(toolUse2Result[1]),
-          html: toolUse2Result[1]
+          data: JSON.parse(toolUseResult[1]),
+          html: toolUseResult[1]
         }
       })
+    } catch (error) {
+      console.warn(error)
     }
   }
-  // 处理：tool_use wanxiang-single-analysis（专利单项统计分析）
-  const toolUse3Regex =
+  // 返回处理后的内容
+  return chunk.replace(toolUseRegex, '')
+}
+
+function handleWanXiangSingleAnalysisToolUse(
+  chunk: string,
+  contents: Content[]
+) {
+  const toolUseRegex =
     /<tool_use name="wanxiang-single-analysis">([\s\S]*?)<\/tool_use>/g
-  const toolUse3Result = toolUse3Regex.exec(newChunk)
-  if (toolUse3Result) {
-    newChunk = newChunk.replace(toolUse3Regex, '')
-    if (
-      !contents.find(
-        (i) =>
-          i.type === 'tool' &&
-          (i.data as Tool).name === 'wanxiang-single-analysis'
-      )
-    ) {
+  const toolUseResult = toolUseRegex.exec(chunk)
+  // 如果没有匹配到，则返回原始内容
+  if (!toolUseResult) {
+    return chunk
+  }
+  // 查找工具是否已经存在
+  const toolItem = contents.find(
+    (i) =>
+      i.type === 'tool' && (i.data as Tool).name === 'wanxiang-single-analysis'
+  )
+  // 如果工具不存在，则添加到内容中
+  if (!toolItem) {
+    try {
       contents.push({
         type: 'tool',
         data: {
           name: 'wanxiang-single-analysis',
-          data: JSON.parse(toolUse3Result[1]),
-          html: toolUse3Result[1]
+          data: JSON.parse(toolUseResult[1]),
+          html: toolUseResult[1]
         }
       })
+    } catch (error) {
+      console.warn(error)
     }
   }
-  // 处理：tool_use wanxiang-composite-analysis（专利二维关联分析）
-  const toolUse4Regex =
+  // 返回处理后的内容
+  return chunk.replace(toolUseRegex, '')
+}
+
+function handleWanXiangCompositeAnalysisToolUse(
+  chunk: string,
+  contents: Content[]
+) {
+  const toolUseRegex =
     /<tool_use name="wanxiang-composite-analysis">([\s\S]*?)<\/tool_use>/g
-  const toolUse4Result = toolUse4Regex.exec(newChunk)
-  if (toolUse4Result) {
-    newChunk = newChunk.replace(toolUse4Regex, '')
-    if (
-      !contents.find(
-        (i) =>
-          i.type === 'tool' &&
-          (i.data as Tool).name === 'wanxiang-composite-analysis'
-      )
-    ) {
+  const toolUseResult = toolUseRegex.exec(chunk)
+  // 如果没有匹配到，则返回原始内容
+  if (!toolUseResult) {
+    return chunk
+  }
+  // 查找工具是否已经存在
+  const toolItem = contents.find(
+    (i) =>
+      i.type === 'tool' &&
+      (i.data as Tool).name === 'wanxiang-composite-analysis'
+  )
+  // 如果工具不存在，则添加到内容中
+  if (!toolItem) {
+    try {
       contents.push({
         type: 'tool',
         data: {
           name: 'wanxiang-composite-analysis',
-          data: JSON.parse(toolUse4Result[1]),
-          html: toolUse4Result[1]
+          data: JSON.parse(toolUseResult[1]),
+          html: toolUseResult[1]
         }
       })
+    } catch (error) {
+      console.warn(error)
     }
   }
+  // 返回处理后的内容
+  return chunk.replace(toolUseRegex, '')
+}
 
-  // 处理：tool_use chart-mcp（图表生成）
-  const toolUse5Regex = /<tool_use name="chart-mcp">([\s\S]*?)<\/tool_use>/g
-  const toolUse5Result = toolUse5Regex.exec(newChunk)
-  if (toolUse5Result) {
-    newChunk = newChunk.replace(toolUse5Regex, '')
-    if (
-      !contents.find(
-        (i) => i.type === 'tool' && (i.data as Tool).name === 'chart-mcp'
-      )
-    ) {
+function handleChartMcpToolUse(chunk: string, contents: Content[]) {
+  const toolUseRegex = /<tool_use name="chart-mcp">([\s\S]*?)<\/tool_use>/g
+  const toolUseResult = toolUseRegex.exec(chunk)
+  // 如果没有匹配到，则返回原始内容
+  if (!toolUseResult) {
+    return chunk
+  }
+  // 查找工具是否已经存在
+  const toolItem = contents.find(
+    (i) => i.type === 'tool' && (i.data as Tool).name === 'chart-mcp'
+  )
+  // 如果工具不存在，则添加到内容中
+  if (!toolItem) {
+    try {
       contents.push({
         type: 'tool',
         data: {
           name: 'chart-mcp',
-          data: JSON.parse(toolUse5Result[1]),
-          html: toolUse5Result[1]
+          data: JSON.parse(toolUseResult[1]),
+          html: toolUseResult[1]
         }
       })
+    } catch (error) {
+      console.warn(error)
     }
   }
+  // 返回处理后的内容
+  return chunk.replace(toolUseRegex, '')
+}
 
+function handleChunk(messageId: string, chunk: string) {
+  let newChunk = chunk
+  const contents: Content[] = []
+  // 处理：tool_use wanxiang-search-strategy（检索式）
+  newChunk = handleWanXiangSearchStrategyToolUse(newChunk, contents)
+  // 处理 tool_use wanxiang-patent-search（检索结果）
+  newChunk = handleWanXiangPatentSearchToolUse(newChunk, contents)
+  // 处理：tool_use wanxiang-single-analysis（专利单项统计分析）
+  newChunk = handleWanXiangSingleAnalysisToolUse(newChunk, contents)
+  // 处理：tool_use wanxiang-composite-analysis（专利二维关联分析）
+  newChunk = handleWanXiangCompositeAnalysisToolUse(newChunk, contents)
+  // 处理：tool_use chart-mcp（图表生成）
+  newChunk = handleChartMcpToolUse(newChunk, contents)
   // 处理文字
   const textContent = contents.find((i) => i.type === 'text')
   if (textContent) {
@@ -186,8 +250,6 @@ function handleChunk(messageId: string, chunk: string) {
   } else {
     contents.push({ type: 'text', data: newChunk })
   }
-  console.log('newChunk', newChunk)
-  console.log('contents', contents)
   chatStore.setMessage(messageId, { data: contents })
 }
 
@@ -297,6 +359,29 @@ async function handleList(messageId: string) {
   }
 }
 
+async function handleAnalysis(messageId: string) {
+  const message = chatStore.getMessage(messageId) as Message
+  const toolItem = (message.data as Content[]).find(
+    (i) =>
+      i.type === 'tool' &&
+      ['wanxiang-single-analysis', 'wanxiang-composite-analysis'].includes(
+        (i.data as Tool).name
+      )
+  )
+  if (!toolItem) {
+    return
+  }
+  const { data } = toolItem.data as Tool
+  const { params, result } = data as { params: unknown; result: unknown }
+  const { userEmail = '' } = (await userStore.getUserInfo()) || {}
+  searchStore.addExpression({
+    userEmail,
+    expressionType: Number(EXPRESSION_TYPE_MAP.ANALYSIS),
+    expressionText: JSON.stringify(params),
+    resultData: JSON.stringify(result)
+  })
+}
+
 const requestLoading = ref(false)
 
 async function ask(messageId: string, userCommand: string, fileUrl?: string) {
@@ -310,6 +395,8 @@ async function ask(messageId: string, userCommand: string, fileUrl?: string) {
         if (chunk === '[DONE]') {
           // 处理列表类型消息
           handleList(messageId)
+          // 处理分析类型消息
+          handleAnalysis(messageId)
           return
         }
         handleChunk(messageId, chunk)

@@ -126,7 +126,7 @@ export interface GetUserExpressionListParams {
 
 export interface GetUserExpressionListResponse extends CommonResponse {
   data: {
-    id: number
+    expressionId: number
     expressionType: number
     expressionText: string
     resultData: string
@@ -147,6 +147,7 @@ export function getUserExpressionList(
 }
 
 export interface UpdateUserExpressionParams {
+  userEmail: string
   expressionId: number
   expressionText: string
   resultData: string
