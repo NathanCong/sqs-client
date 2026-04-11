@@ -48,7 +48,7 @@ const fields = ref<FieldItem[]>([
   }
 ])
 
-const visible = ref(true)
+const visible = ref(false)
 
 const commonFormRef = ref<InstanceType<typeof CommonForm> | null>(null)
 
