@@ -27,4 +27,9 @@ export {
   deleteUserExpression
 } from './user'
 
-export { searchPatents, getPatentManual } from './wanxiang'
+export {
+  searchPatents,
+  getPatentBasicInfo,
+  getPatentDesc,
+  getPatentClaims
+} from './wanxiang'

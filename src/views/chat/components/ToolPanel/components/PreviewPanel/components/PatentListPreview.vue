@@ -24,7 +24,7 @@
           <span class="tbody-cell">
             <!-- 操作 -->
             <template v-if="column.key === 'actions'">
-              <a-button type="link" @click="onDetail(record)" :disabled="true">
+              <a-button type="link" @click="onDetail(record)">
                 查看详情
               </a-button>
             </template>
