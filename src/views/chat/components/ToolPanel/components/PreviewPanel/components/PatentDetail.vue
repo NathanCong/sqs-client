@@ -34,63 +34,100 @@
                     <span class="row-label">【标题】</span>
                     <span class="row-value">
                       <span class="row-value-original">{{
-                        baseInfo?.title?.original
+                        title || '加载中...'
                       }}</span>
-                      <span class="row-value-translation">翻译</span>
+                      <span class="row-actions">
+                        <a-button
+                          type="link"
+                          @click="onTitleRewrite"
+                          :disabled="!title"
+                          >改写</a-button
+                        >
+                      </span>
+                      <template v-if="titleTranslation">
+                        <span class="row-value-translation">{{
+                          titleTranslation
+                        }}</span>
+                      </template>
                     </span>
                   </p>
                   <p class="base-info-row">
                     <span class="row-label">【摘要】</span>
                     <span class="row-value">
                       <span class="row-value-original">{{
-                        baseInfo?.abstract?.original
+                        abstract || '加载中...'
                       }}</span>
-                      <span class="row-value-translation">翻译</span>
+                      <span class="row-actions">
+                        <a-button
+                          type="link"
+                          @click="onAbstractRewrite"
+                          :disabled="!abstract"
+                          >改写</a-button
+                        >
+                      </span>
+                      <template v-if="abstractTranslation">
+                        <span class="row-value-translation">{{
+                          abstractTranslation
+                        }}</span>
+                      </template>
                     </span>
                   </p>
                 </section>
               </template>
               <!-- 权利要求 -->
-              <template v-else-if="activeMenu === '2'">
-                <section class="claims-content">
-                  <template v-for="c in claims" :key="c.id">
-                    <p class="claims-row" v-html="c.text"></p>
-                  </template>
-                </section>
+              <template v-if="activeMenu === '2'">
+                <template v-if="claims.length > 0">
+                  <section class="claims-content">
+                    <template v-for="c in claims" :key="c.id">
+                      <p class="claims-row" v-html="c.text"></p>
+                    </template>
+                  </section>
+                </template>
+                <template v-else>
+                  <CommonEmpty />
+                </template>
               </template>
               <!-- 说明书 -->
-              <template v-else-if="activeMenu === '3' && descs.length > 0">
-                <section class="desc-content">
-                  <template v-for="d in descs" :key="d.id">
-                    <p class="desc-row" v-html="d.text"></p>
-                  </template>
-                </section>
+              <template v-if="activeMenu === '3'">
+                <template v-if="descs.length > 0">
+                  <section class="desc-content">
+                    <template v-for="d in descs" :key="d.id">
+                      <p class="desc-row" v-html="d.text"></p>
+                    </template>
+                  </section>
+                </template>
+                <template v-else>
+                  <CommonEmpty />
+                </template>
               </template>
               <!-- 附图 -->
-              <template v-else-if="activeMenu === '4'">
-                <section class="figure-content">
-                  <template
-                    v-for="item in baseInfo?.new_figures"
-                    :key="item.key"
-                  >
-                    <img
-                      class="figure-item"
-                      :src="item.url?.original"
-                      alt="附图"
-                    />
-                  </template>
-                </section>
+              <template v-if="activeMenu === '4'">
+                <template v-if="baseInfo?.new_figures.length > 0">
+                  <section class="figure-content">
+                    <template
+                      v-for="item in baseInfo?.new_figures"
+                      :key="item.key"
+                    >
+                      <img
+                        class="figure-item"
+                        :src="item.url?.original"
+                        alt="附图"
+                      />
+                    </template>
+                  </section>
+                </template>
+                <template v-else>
+                  <CommonEmpty />
+                </template>
               </template>
               <!-- PDF -->
-              <template v-else-if="activeMenu === '5'">
+              <template v-if="activeMenu === '5'">
                 <CommonEmpty />
               </template>
               <!-- 法律信息 -->
-              <template v-else-if="activeMenu === '6'">
+              <template v-if="activeMenu === '6'">
                 <CommonEmpty />
               </template>
-              <!-- 空白内容 -->
-              <template v-else><CommonEmpty /></template>
             </div>
           </div>
         </div>
@@ -100,11 +137,17 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { CloseCircleOutlined } from '@ant-design/icons-vue'
 import CommonEmpty from '@/components/CommonEmpty.vue'
-import { getPatentBasicInfo, getPatentDesc, getPatentClaims } from '@/apis'
+import {
+  getPatentBasicInfo,
+  getPatentDesc,
+  getPatentClaims,
+  helperPatentRewriteStream
+} from '@/apis'
 import { notification } from 'ant-design-vue'
+import { useChatStore } from '@/store/chat'
 
 const visible = ref(false)
 
@@ -118,9 +161,15 @@ const detail = ref<{
   initialApplicant: ''
 })
 
-const baseInfo = ref<any>({})
+const baseInfo = ref<any>(null)
 const descs = ref<any[]>([])
 const claims = ref<any[]>([])
+
+const title = ref('')
+const titleTranslation = ref('')
+const abstract = ref('')
+const abstractTranslation = ref('')
+const originalLanguage = ref('')
 
 async function fetchPatentDetail(id: string) {
   try {
@@ -163,6 +212,101 @@ async function fetchPatentDetail(id: string) {
   }
 }
 
+const chatStore = useChatStore()
+
+async function fetchPatentRewrite(
+  content: string,
+  code: string
+): Promise<string> {
+  let result = ''
+  return new Promise((resolve, reject) => {
+    helperPatentRewriteStream({
+      sessionId: chatStore.currentChatId,
+      code,
+      question: content,
+      onChunk: (chunk) => {
+        if (chunk === '[DONE]') {
+          return resolve(result)
+        }
+        result += chunk
+      }
+    }).catch((err: unknown) => reject(err))
+  })
+}
+
+async function onTitleRewrite() {
+  try {
+    titleTranslation.value = ''
+    originalLanguage.value = 'zh-cn'
+    title.value = await fetchPatentRewrite(title.value, '1')
+  } catch (error) {
+    console.warn(error)
+  }
+}
+
+async function onAbstractRewrite() {
+  try {
+    abstractTranslation.value = ''
+    originalLanguage.value = 'zh-cn'
+    abstract.value = await fetchPatentRewrite(abstract.value, '3')
+  } catch (error) {
+    console.warn(error)
+  }
+}
+
+watch(
+  () => baseInfo.value,
+  (newBaseInfo) => {
+    if (!newBaseInfo) {
+      return
+    }
+    title.value = newBaseInfo.title.original
+    abstract.value = newBaseInfo.abstract.original
+    originalLanguage.value = newBaseInfo.title.original_lang
+  },
+  { immediate: true, deep: true }
+)
+
+watch(
+  () => title.value,
+  async (newTitle) => {
+    // 标题为空不需要翻译
+    if (!newTitle) {
+      return
+    }
+    // 中文不需要翻译
+    if (originalLanguage.value === 'zh-cn') {
+      return
+    }
+    try {
+      titleTranslation.value = await fetchPatentRewrite(newTitle, '2')
+    } catch (error) {
+      console.warn(error)
+    }
+  },
+  { immediate: true, deep: true }
+)
+
+watch(
+  () => abstract.value,
+  async (newAbstract) => {
+    // 摘要为空不需要翻译
+    if (!newAbstract) {
+      return
+    }
+    // 中文不需要翻译
+    if (originalLanguage.value === 'zh-cn') {
+      return
+    }
+    try {
+      abstractTranslation.value = await fetchPatentRewrite(newAbstract, '4')
+    } catch (error) {
+      console.warn(error)
+    }
+  },
+  { immediate: true, deep: true }
+)
+
 function open(data: any) {
   visible.value = true
   detail.value = data
@@ -171,7 +315,14 @@ function open(data: any) {
 
 function close() {
   visible.value = false
+  baseInfo.value = null
   descs.value = []
+  claims.value = []
+  title.value = ''
+  titleTranslation.value = ''
+  abstract.value = ''
+  abstractTranslation.value = ''
+  originalLanguage.value = ''
   activeMenu.value = '1'
 }
 
@@ -368,6 +519,12 @@ defineExpose({ open, close })
                 .row-value-translation {
                   margin-top: 16px;
                 }
+              }
+
+              .row-actions {
+                display: flex;
+                align-items: center;
+                justify-content: flex-end;
               }
             }
           }
