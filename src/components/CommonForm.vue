@@ -115,7 +115,7 @@ import type { FormInstance } from 'ant-design-vue'
 
 const props = withDefaults(
   defineProps<{
-    layout?: 'horizontal' | 'vertical'
+    layout?: 'horizontal' | 'vertical' | 'inline'
     colon?: boolean
     colNumber?: number
     labelCol?: { span: number }

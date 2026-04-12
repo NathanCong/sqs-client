@@ -120,13 +120,12 @@ export function addUserExpression(
 export interface GetUserExpressionListParams {
   userEmail: string
   expressionType?: number
-  sTime?: string
-  eTime?: string
+  createdAt?: string
 }
 
 export interface GetUserExpressionListResponse extends CommonResponse {
   data: {
-    id: number
+    expressionId: number
     expressionType: number
     expressionText: string
     resultData: string
@@ -147,6 +146,7 @@ export function getUserExpressionList(
 }
 
 export interface UpdateUserExpressionParams {
+  userEmail: string
   expressionId: number
   expressionText: string
   resultData: string

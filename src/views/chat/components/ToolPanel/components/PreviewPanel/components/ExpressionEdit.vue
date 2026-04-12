@@ -13,6 +13,7 @@
 import { ref } from 'vue'
 import { notification } from 'ant-design-vue'
 import { useSearchStore } from '@/store/search'
+import { useUserStore } from '@/store/user'
 
 const visible = ref(false)
 
@@ -32,16 +33,20 @@ function close() {
 
 const searchStore = useSearchStore()
 
+const userStore = useUserStore()
+
 const emit = defineEmits(['finish'])
 
-function onOk() {
+async function onOk() {
   if (!expressionText.value) {
     notification.error({ message: '表达式内容不能为空' })
     return
   }
   try {
+    const { userEmail = '' } = (await userStore.getUserInfo()) || {}
     const { expressionId, resultData } = recordData.value
     searchStore.updateExpression({
+      userEmail,
       expressionId,
       resultData,
       expressionText: expressionText.value
