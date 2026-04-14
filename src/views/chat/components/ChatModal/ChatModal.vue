@@ -59,6 +59,9 @@ import { useRoute } from 'vue-router'
 import { useToolStore } from '@/store/tool'
 import { useSearchStore } from '@/store/search'
 import { useUserStore } from '@/store/user'
+import LiPNG from './assets/li.png'
+import WuPNG from './assets/wu.png'
+import XinPNG from './assets/xin.png'
 
 const chatStore = useChatStore()
 
@@ -429,6 +432,34 @@ async function handleSearchHistory() {
   }
 }
 
+async function handleCitationAnalysis(userCommand: string) {
+  const messageId = chatStore.addMessage({
+    role: 'assistant',
+    type: 'text',
+    data: [{ type: 'text', data: '正在思考中...' }]
+  })
+  // 等待3秒
+  await new Promise((resolve) => setTimeout(resolve, 3000))
+  // 锂电池
+  if (userCommand.includes('锂电池')) {
+    chatStore.setMessage(messageId, { type: 'image', data: { url: LiPNG } })
+    scrollToBottom()
+    return
+  }
+  // 无人机
+  if (userCommand.includes('无人机')) {
+    chatStore.setMessage(messageId, { type: 'image', data: { url: WuPNG } })
+    scrollToBottom()
+    return
+  }
+  // 新能源汽车
+  if (userCommand.includes('新能源汽车')) {
+    chatStore.setMessage(messageId, { type: 'image', data: { url: XinPNG } })
+    scrollToBottom()
+    return
+  }
+}
+
 function onExec(params: ExecParams) {
   const { userCommand, fileName, fileUrl } = params
   if (fileName && fileUrl) {
@@ -443,8 +474,14 @@ function onExec(params: ExecParams) {
     type: 'text',
     data: [{ type: 'text', data: userCommand }]
   })
+  // 检索历史 & 检索记录
   if (userCommand.includes('检索历史') || userCommand.includes('检索记录')) {
     handleSearchHistory()
+    return
+  }
+  // 引证分析
+  if (userCommand.includes('引证分析')) {
+    handleCitationAnalysis(userCommand)
     return
   }
   const messageId = chatStore.addMessage({

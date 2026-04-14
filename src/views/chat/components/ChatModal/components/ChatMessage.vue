@@ -48,6 +48,12 @@
           </template>
         </span>
       </template>
+      <!-- image 类型 -->
+      <template v-if="type === 'image'">
+        <span class="message-image">
+          <img :src="(data as Image).url" alt="image" />
+        </span>
+      </template>
       <!-- list 类型 -->
       <template v-if="type === 'list'">
         <span class="message-list" @click="onListClick">
@@ -125,11 +131,15 @@ interface Pdf {
   name: string
 }
 
+interface Image {
+  url: string
+}
+
 export interface ComponentProps {
   id?: string
   role?: 'user' | 'assistant'
-  type?: 'text' | 'list' | 'pdf'
-  data?: Content[] | List | Pdf
+  type?: 'text' | 'list' | 'pdf' | 'image'
+  data?: Content[] | List | Pdf | Image
   model?: string
   showRate?: boolean
   score?: number
