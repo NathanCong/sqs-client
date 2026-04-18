@@ -124,3 +124,14 @@ export function helperPatentRewriteStream({
     onChunk
   )
 }
+
+/**
+ * 大模型：专利质量评价接口
+ */
+export function evaluatePatentQuality({
+  patentId
+}: {
+  patentId: string
+}): Promise<AxiosResponse<unknown>> {
+  return post('/assistant/patent/quality/evaluation', { patent_id: patentId })
+}

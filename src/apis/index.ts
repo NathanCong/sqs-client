@@ -3,7 +3,8 @@ export {
   helperDisclosureStream,
   helperPatentRewriteStream,
   searchDisclosure,
-  helperPatentStream
+  helperPatentStream,
+  evaluatePatentQuality
 } from './assistant'
 
 export { uploadFile } from './upload'
