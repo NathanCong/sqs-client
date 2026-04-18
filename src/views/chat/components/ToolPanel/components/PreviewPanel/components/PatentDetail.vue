@@ -128,6 +128,33 @@
               <template v-if="activeMenu === '6'">
                 <CommonEmpty />
               </template>
+              <!-- 质量评价 -->
+              <template v-if="activeMenu === '7'">
+                <template v-if="quality">
+                  <section class="quality-content">
+                    <p>整体专利质量星级：{{ quality.quality.pav }}</p>
+                    <p>
+                      整体专利质量的量化得分：{{ quality.quality.pva_value }}
+                    </p>
+                    <p>市场维度的质量星级：{{ quality.quality.pami }}</p>
+                    <p>市场维度的量化指数：{{ quality.quality.pami_value }}</p>
+                    <p>技术维度的质量星级：{{ quality.quality.pali }}</p>
+                    <p>技术维度的量化指数：{{ quality.quality.pali_value }}</p>
+                    <p>法律维度的质量星级：{{ quality.quality.palj }}</p>
+                    <p>法律维度的量化指数：{{ quality.quality.palj_value }}</p>
+                    <p>{{ quality.analysis.summary }}</p>
+                    <p>{{ quality.analysis.overall_assessment }}</p>
+                    <p>{{ quality.analysis.technical_analysis }}</p>
+                    <p>{{ quality.analysis.legal_analysis }}</p>
+                    <p>{{ quality.analysis.market_analysis }}</p>
+                    <p>{{ quality.analysis.risks }}</p>
+                    <p>{{ quality.analysis.suggestion }}</p>
+                  </section>
+                </template>
+                <template v-else>
+                  <CommonEmpty />
+                </template>
+              </template>
             </div>
           </div>
         </div>
@@ -144,7 +171,8 @@ import {
   getPatentBasicInfo,
   getPatentDesc,
   getPatentClaims,
-  helperPatentRewriteStream
+  helperPatentRewriteStream,
+  evaluatePatentQuality
 } from '@/apis'
 import { notification } from 'ant-design-vue'
 import { useChatStore } from '@/store/chat'
@@ -164,6 +192,7 @@ const detail = ref<{
 const baseInfo = ref<any>(null)
 const descs = ref<any[]>([])
 const claims = ref<any[]>([])
+const quality = ref<any>(null)
 
 const title = ref('')
 const titleTranslation = ref('')
@@ -207,6 +236,27 @@ async function fetchPatentDetail(id: string) {
       return
     }
     claims.value = claimsData.claims
+  } catch (error) {
+    console.warn(error)
+  }
+}
+
+async function fetchPatentQuality(id: string) {
+  try {
+    const { data } = await evaluatePatentQuality({ patentId: id })
+    const {
+      success,
+      message,
+      data: result
+    } = data as { success: boolean; message: string; data: any }
+    if (!success) {
+      notification.error({
+        message: '获取专利质量评价失败',
+        description: message
+      })
+      return
+    }
+    quality.value = result
   } catch (error) {
     console.warn(error)
   }
@@ -311,6 +361,7 @@ function open(data: any) {
   visible.value = true
   detail.value = data
   fetchPatentDetail(data.id)
+  fetchPatentQuality(data.id)
 }
 
 function close() {
@@ -318,6 +369,7 @@ function close() {
   baseInfo.value = null
   descs.value = []
   claims.value = []
+  quality.value = null
   title.value = ''
   titleTranslation.value = ''
   abstract.value = ''
@@ -332,7 +384,8 @@ const menuList = ref([
   { key: '3', label: '说明书' },
   { key: '4', label: '附图' },
   { key: '5', label: 'PDF' },
-  { key: '6', label: '法律信息' }
+  { key: '6', label: '法律信息' },
+  { key: '7', label: '质量评价' }
 ])
 
 const activeMenu = ref('1')
@@ -565,6 +618,12 @@ defineExpose({ open, close })
               max-width: 400px;
               margin: 16px;
               border: 1px solid #ddd;
+            }
+          }
+
+          .quality-content {
+            p {
+              line-height: 2em;
             }
           }
         }
