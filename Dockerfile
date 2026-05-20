@@ -4,8 +4,8 @@ FROM node:22-alpine
 # 设置工作目录
 WORKDIR /app
 
-# 复制 package.json 和 pnpm-lock.yaml
-COPY package.json pnpm-lock.yaml ./
+# 复制 package.json, pnpm-lock.yaml, pnpm-workspace.yaml 到工作目录
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
 # 安装项目依赖
 RUN npm install -g pnpm && pnpm install
